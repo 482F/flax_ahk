@@ -1,0 +1,26 @@
+﻿Set run directory to E:\Fgame\minecraft
+Native Launcher Version: 1393
+Operating System: Windows 10 Education
+Application Hash: 649b3a6a58c5b8fc06c7aa04766425322e140bc2
+Application Data directory: C:\Users\admin\AppData\Roaming/.minecraft
+Executable Path: MinecraftLauncher.exe
+App Directory dir: E:\Fgame\minecraft
+Start dir: C:/Users/admin/AppData/Roaming/.minecraft
+Launcher dir: E:/Fgame/minecraft/game
+TmpDir dir: E:/Fgame/minecraft/tmp
+(Optional) Java Launcher hash: 
+Java Version: 1.8.0_25
+x64: 1
+LauncherConfiguration from: http://launchermeta.mojang.com/mc/launcher.json
+Downloaded config
+Native launcher is current
+Native launcher is current
+Detected previous run with new launcher, format of C:/Users/admin/AppData/Roaming/.minecraft/launcher_profiles.json is 2
+Using new launcher as self upgrade has been detected.
+Launcher library is up to date with hash 03abb62af1424a56975bc664a6389b32b21a793f
+Check to see if we can run the launcher
+Native launcher is current
+Starting launcher.dll with E:\Fgame\minecraft\runtime\jre-x64\1.8.0_25\bin\javaw.exe
+Found SetDllDirectoryW in kernel32.dll!
+Added E:\Fgame\minecraft\game to DLL search path
+Running launcher!
