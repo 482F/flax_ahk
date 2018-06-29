@@ -50,6 +50,7 @@ DefVars:
 	editmode = normal
 	StringReplace,ComputerName,A_ComputerName,-
 	WINDOWSO3L7BIOscreenshotdir = C:\Users\admin\Pictures\screenshot\
+	LauncherFD := new FD("launcher.fd")
 	FileGetTime,launcherLastUpdate,launcher.ini,M
 	FileGetTime,gestureLastUpdate,MouseGesture.ini,M
 	FileGetTime,registerLastUpdate,register.ini,M
@@ -811,10 +812,19 @@ Follow_a_Link(Path){
 	}
 	return Path
 }
+LauncherGetCommand(dict, label){
+	command := dict[A_ComputerName]
+	if (command != "")
+		return command
+	else
+		return dict["default"]
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
-		this.dict := this.Read()
+		this.Read()
+		FileGetTime, LU, % this.FilePath, M
+		this.LastUpdate := LU
 	}
 	ConvertFlaxDict_to_Text(Dict, Depth=0){
 		if not(IsObject(Dict))
@@ -864,10 +874,14 @@ class FD{
 		return Data
 	}
 	Read(FilePath=""){
+		FileGetTime, LU, % this.FilePath, M
+		if (LU == this.LastUpdate)
+			return
 		if (FilePath == "")
 			FilePath := this.FilePath
 		FileRead, TData, %FilePath%
-		return this.ConvertText_to_FlaxDict(TData)
+		this.dict := this.ConvertText_to_FlaxDict(TData)
+		return
 	}
 	Write(FilePath=""){
 		if (FilePath == "")
@@ -878,71 +892,6 @@ class FD{
 	}
 }
 
-class XML{
-	__New(FilePath, Name:="", Value:="", Depth=0, Index=1){
-		if (FilePath != ""){
-			this.MTime := ""
-			FileRead,K,*t *P65001 %FilePath%
-			this.Node := this.SolveXML(K, 0, Index)
-			return this
-		} else {
-			this.Name := Name
-			this.Depth := Depth
-			this.Index := Index
-			this.Node := this.SolveXML(Value, Depth + 1, Index)
-			return this
-		}
-	}
-	SolveXML(Value, Depth, Index){
-		K := RetAllMatch(Value, "<([^>]*)>(.*?)</\1>")
-		if (K[1][1] == "")
-			return Value
-		L := Object()
-		while (True){
-			Name := K[A_Index][1]
-			Value := K[A_Index][2]
-			if (Name == "")
-				break
-			L[A_Index] := New XML("", Name, Value, Depth, Index . "_" . A_Index)
-		}
-		return L
-	}
-	RetByIndex(Index){
-		K := RegExMatch(Index, "(.*?)-(.*)")
-		return this.Node[K[1]].RetByIndex(K[2])
-	}
-	Add(Target, Value){
-		return
-	}
-	Remove(Target){
-		return
-	}
-	Overwrite(){
-		return
-	}
-	Check(){
-		return
-	}
-	Search(Pattern){
-		;(name=^A.*$) then ((score>80) or (count>5))
-		;name=defaulttype
-		Pattern := RetCorBracketSplit(Pattern)
-		NPattern := RetAllMatch(Pattern[1], "^(.*?)(=|<|>|<=|>=|<>|!=|include)(.*)$")
-		MatchedList := Object()
-		IoV := 0
-		if (NPattern[1] == "Name"){
-			Target := Value.Name
-		}
-		if (NPattern[2] == "="){
-			for Key, Value in this.Node{
-				if (Target == NPattern[3])
-					MatchedList[IoV] := Value
-				IoV += 1
-			}
-		}
-		return MatchedList
-	}
-}
 
 ;hotstring
 ;ホットストリング
@@ -1943,6 +1892,7 @@ MouseGetPos,X,Y
 ;ホットキー
 +!^W::
 	Gui, New, , FlaxLauncher FlaxLauncher:
+	launcherFD.read()
 	IniRead,ItemList,launcher.ini
 	Sort,ItemList,C
 	Sleep 100
@@ -1950,17 +1900,13 @@ MouseGetPos,X,Y
 	candidate := ""
 	SysGet,MonitorSizeX,0
 	SysGet,MonitorSizeY,1
-	Loop,Parse,ItemList,`n
-	{
-		IniRead,ItemCommand,launcher.ini,%A_LoopField%,%A_ComputerName%command
-		if (ItemCommand == "ERROR")
-			IniRead,ItemCommand,launcher.ini,%A_LoopField%,defaultcommand
-		if (ItemCommand != "ERROR")
-		{
-			candidate := candidate . A_LoopField . "|"
-			if (NoDI < A_Index)
-				break
-		}
+	For, Key, Value in launcherFD.dict{
+		if (Value[A_ComputerName] != "" or Value["default"] != "")
+			candidate := candidate . Key . "|"
+		else
+			continue
+		if (NoDI < A_Index)
+			break
 	}
 	Gui, FlaxLauncher:Add,ComboBox,vItemName W300 R5 Simple HwndLauncherComboHwnd, %candidate%
 	Gui, FlaxLauncher:+AlwaysOnTop -Border
@@ -1995,6 +1941,7 @@ MouseGetPos,X,Y
 			ItemName := SubStr(ItemName, 1, LP-1)
 			LF := True
 		}
+		ItemCommand := launcherFD.dict[ItemName][A_ComputerName]
 		IniRead,ItemCommand,launcher.ini,%ItemName%,%A_ComputerName%command
 		if (ItemCommand = "ERROR"){
 			IniRead,ItemCommand,launcher.ini,%ItemName%,defaultcommand
