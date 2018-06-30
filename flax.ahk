@@ -50,7 +50,7 @@ DefVars:
 	editmode = normal
 	StringReplace,ComputerName,A_ComputerName,-
 	WINDOWSO3L7BIOscreenshotdir = C:\Users\admin\Pictures\screenshot\
-	LauncherFD := new FD("launcher.fd")
+	LauncherFD := new FD_for_EC("launcher.fd")
 	FileGetTime,launcherLastUpdate,launcher.ini,M
 	FileGetTime,gestureLastUpdate,MouseGesture.ini,M
 	FileGetTime,registerLastUpdate,register.ini,M
@@ -811,13 +811,6 @@ Follow_a_Link(Path){
 		Path := FilePath
 	}
 	return Path
-}
-LauncherGetValue(item, label){
-	value := item[A_ComputerName][label]
-	if (value != "")
-		return value
-	else
-		return item["default"][label]
 }
 class FD{
 	__New(FilePath){
@@ -1916,8 +1909,9 @@ MouseGetPos,X,Y
 	SysGet,MonitorSizeX,0
 	SysGet,MonitorSizeY,1
 	For, Key, Value in launcherFD.dict{
-		if (Value[A_ComputerName] != "" or Value["default"] != "")
-			candidate := candidate . Key . "|"
+		ID := launcherFD.getItemDict(key)
+		if (ID.command != "")
+			candidate .= Key . "|"
 		else
 			continue
 		if (NoDI < A_Index)
@@ -1956,18 +1950,17 @@ MouseGetPos,X,Y
 			ItemName := SubStr(ItemName, 1, LP-1)
 			LF := True
 		}
-		Item := launcherFD.dict[ItemName]
-		LauncherGetValue(launcherFD.dict, "Command")
-		ItemCommand := LauncherGetValue(Item, "Command")
+		ID := launcherFD.getItemDict(ItemName)
+		ItemCommand := ID["command"]
 		for Key, Value in ItemParams{
 			if (A_Index == 1)
 				continue
 			ItemCommand := RegExReplace(ItemCommand, "\$P" . A_Index - 1 . "\$", Value)
 		}
 		ItemCommand := RegExReplace(ItemCommand, "\$P\d+\$", "")
-		ItemType := LauncherGetValue(Item, "Type")
+		ItemType := ID["type"]
 		if (ItemType = "Application"){
-			ItemParam := LauncherGetValue(Item, "Param")
+			ItemParam := ID["param"]
 			if (ItemParam != "")
 			{
 				ItemCommand := ItemCommand . " " . ItemParam

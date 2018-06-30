@@ -20,7 +20,6 @@ superputty_load=[
 	WINDOWS-O3L7BIO=[
 		command=C:\Software\SuperPuTTY-1.4.0.8\SuperPutty.exe -load $P1$
 	]
-]
 	default=[
 		type=Application
 	]
@@ -77,11 +76,9 @@ snapcrab=[
 	WINDOWS-O3L7BIO=[
 		command=D:\utl\SnapCrab for Windows\SnapCrab.exe
 	]
-]
 	default=[
 		type=Application
 	]
-]
 	FLAXEN-PC=[
 		command=E:\Date\SnapCrab for Windows\SnapCrab.exe
 		type=Application
@@ -152,12 +149,10 @@ editlauncher=[
 		command=D:\Dropbox\autohotkey\launcher.ini
 		type=Application
 	]
-]
 		DESKTOP-AEDD2O7command=C:\Users\admin\Dropbox\aut=[
 		command=C:\Users\admin\Dropbox\autohotkey\launcher.ini
 		type=Application
 		]
-]
 	FLAXEN-PC=[
 		command=C:\Users\Flaxen\Dropbox\autohotkey\launcher.ini
 		type=Application
@@ -168,12 +163,10 @@ editgesture=[
 		command=D:\Dropbox\autohotkey\MouseGesture.ini
 		type=Application
 	]
-]
 		DESKTOP-AEDD2O7command=C:\Users\admin\Dropbox\aut=[
 		command=C:\Users\admin\Dropbox\autohotkey\MouseGesture.ini
 		type=Application
 		]
-]
 	FLAXEN-PC=[
 		command=C:\Users\Flaxen\Dropbox\autohotkey\MouseGesture.ini
 		type=Application
@@ -184,12 +177,10 @@ editregister=[
 		command=D:\Dropbox\autohotkey\register.ini
 		type=Application
 	]
-]
 		DESKTOP-AEDD2O7command=C:\Users\admin\Dropbox\aut=[
 		command=C:\Users\admin\Dropbox\autohotkey\register.ini
 		type=Application
 		]
-]
 	FLAXEN-PC=[
 		command=C:\Users\Flaxen\Dropbox\autohotkey\register.ini
 		type=Application
@@ -206,7 +197,6 @@ idm=[
 		command=D:\utl\idm\IDM.exe
 		type=Application
 	]
-]
 	FLAXEN-PC=[
 		command=E:\Date\idm810\IDM.exe
 		type=Application
@@ -217,12 +207,10 @@ dropbox=[
 		command=D:\Dropbox
 		type=LocalPath
 	]
-]
 	DESKTOP-AEDD2O7=[
 		command=C:\Users\admin\Dropbox
 		type=LocalPath
 	]
-]
 	FLAXEN-PC=[
 		command=C:\Users\Flaxen\Dropbox
 		type=LocalPath
@@ -233,7 +221,6 @@ ratmyworking=[
 		command=R:\Working\Ishikawa
 		type=LocalPath
 	]
-]
 	WINDOWS-O3L7BIO=[
 		command=R:\Working\Ishikawa
 		type=LocalPath
@@ -250,12 +237,10 @@ doc=[
 		command=C:\document
 		type=LocalPath
 	]
-]
 	DESKTOP-AEDD2O7=[
 		command=C:\Users\admin\Documents
 		type=LocalPath
 	]
-]
 	WINDOWS-O3L7BIO=[
 		command=E:\document
 		type=LocalPath
@@ -308,12 +293,10 @@ pdn=[
 		command=D:\utl\paint.net\PaintDotNet.exe
 		type=Application
 	]
-]
 	DESKTOP-AEDD2O7=[
 		command=C:\Software\paint.net\PaintDotNet.exe
 		type=Application
 	]
-]
 	FLAXEN-PC=[
 		command=E:\Date\Paint.net\PaintDotNet.exe
 		type=Application
@@ -390,7 +373,6 @@ dow=[
 		command=D:\download
 		type=LocalPath
 	]
-]
 	DESKTOP-AEDD2O7=[
 		command=C:\Users\admin\Downloads
 		type=LocalPath
@@ -431,7 +413,6 @@ vmware=[
 		command=C:\Software\VMware\VMware Workstation Pro\vmware.exe
 		type=Application
 	]
-]
 	DESKTOP-AEDD2O7=[
 		command=C:\Software\VMware\VMware Workstation Pro\vmware.exe
 		type=Application
@@ -442,17 +423,14 @@ putty_ConoHa=[
 		command=C:\Software\PuTTY\putty.exe
 		type=Application
 	]
-]
 	DESKTOP-AEDD2O7=[
 		command=C:\Software\PuTTY\putty.exe
 		type=Application
 	]
-]
 	FLAXEN-PC=[
 		command=E:\Date\PuTTY\putty.exe
 		type=Application
 	]
-]
 	default=[
 		param=-load "ConoHa"
 	]
@@ -462,17 +440,14 @@ putty_app04=[
 		command=C:\Software\PuTTY\putty.exe
 		type=Application
 	]
-]
 	DESKTOP-AEDD2O7=[
 		command=C:\Software\PuTTY\putty.exe
 		type=Application
 	]
-]
 	FLAXEN-PC=[
 		command=E:\Date\PuTTY\putty.exe
 		type=Application
 	]
-]
 	default=[
 		param=-load "app04"
 	]
@@ -482,17 +457,14 @@ putty_rat_room=[
 		command=C:\Software\PuTTY\putty.exe
 		type=Application
 	]
-]
 	KTOP-AEDD2O7=[
 		command=C:\Software\PuTTY\putty.exe
 		type=Application
 	]
-]
 	FLAXEN-PC=[
 		command=E:\Date\PuTTY\putty.exe
 		type=Application
 	]
-]
 	default=[
 		param=-load "rat_room"
 	]
@@ -502,12 +474,10 @@ putty=[
 		command=C:\Software\PuTTY\putty.exe
 		type=Application
 	]
-]
 	DESKTOP-AEDD2O7=[
 		command=C:\Software\PuTTY\putty.exe
 		type=Application
 	]
-]
 	FLAXEN-PC=[
 		command=E:\Date\PuTTY\putty.exe
 		type=Application
@@ -560,7 +530,6 @@ otbedit=[
 		command=C:\Software\OTBEdit\otbedit.exe
 		type=Application
 	]
-]
 	DESKTOP-AEDD2O7=[
 		command=C:\Software\OTBEdit\otbedit.exe
 		type=Application
@@ -582,11 +551,9 @@ evernote=[
 	WINDOWS-O3L7BIO=[
 		command=D:\utl\Evernote\Evernote.exe
 	]
-]
 	DESKTOP-AEDD2O7=[
 		command=C:\Software\Evernote\Evernote.exe
 	]
-]
 	default=[
 		type=Application
 	]
@@ -602,12 +569,10 @@ startup=[
 		command=C:\Users\admin\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
 		type=LocalPath
 	]
-]
 	DESKTOP-AEDD2O7=[
 		command=C:\Users\admin\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
 		type=LocalPath
 	]
-]
 	FLAXEN-PC=[
 		command=C:\Users\flaxen\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
 		type=LocalPath
@@ -715,7 +680,6 @@ winauth=[
 		command=C:\software\WinAuth\WinAuth.exe
 		type=Application
 	]
-]
 	WINDOWS-O3L7BIO=[
 		command=C:\Software\WinAuth\WinAuth.exe
 		type=Application
@@ -732,12 +696,10 @@ gvim=[
 		command=D:\utl\vim80-kaoriya-win64\gvim.exe
 		type=Application
 	]
-]
 	DESKTOP-AEDD2O7=[
 		command=D:\utl\vim80-kaoriya-win64\gvim.exe
 		type=Application
 	]
-]
 	FLAXEN-PC=[
 		command=E:\Date\vim80-kaoriya-win64_sym\gvim.exe
 		type=Application
