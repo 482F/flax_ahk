@@ -889,7 +889,7 @@ class FD{
 }
 class FD_for_EC extends FD{
 	__New(FilePath){
-		FD.__New(FilePath)
+		base.__New(FilePath)
 		this.normalization()
 	}
 	getItemDict(ItemName){
