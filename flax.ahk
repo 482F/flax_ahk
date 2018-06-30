@@ -871,7 +871,6 @@ class FD{
 					break
 				}
 				K := TData[0]
-				StringTrimRight, K, K, 1
 				Data[name] := K
 				Text := TData[1]
 			}
