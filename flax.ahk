@@ -872,6 +872,7 @@ class FD{
 		FileGetTime, LU, % this.FilePath, M
 		if (LU == this.LastUpdate)
 			return
+		this.LastUpdate := LU
 		if (FilePath == "")
 			FilePath := this.FilePath
 		FileRead, TData, %FilePath%
@@ -887,6 +888,10 @@ class FD{
 	}
 }
 class FD_for_EC extends FD{
+	__New(FilePath){
+		FD.__New(FilePath)
+		this.normalization()
+	}
 	getItemDict(ItemName){
 		RD := Object()
 		FID := this.dict[ItemName]
@@ -898,6 +903,12 @@ class FD_for_EC extends FD{
 		}
 		return RD
 	}
+	normalization(){
+		for Key, Value in this.dict{
+			ID := this.getItemDict(Key)
+			this.dict[Key] := ID
+		}
+	}
 }
 
 
@@ -906,7 +917,9 @@ class FD_for_EC extends FD{
 ::flaxtest::
 	sleep 300
 	k := new FD_for_EC("launcher.fd")
-	msgjoin(joinobj(k.getItemDict("dropbox")))
+	for Key, Value in k.dict{
+		msgjoin(Key, joinobj(Value))
+	}
 	return
 ::flaxcalc::
 	Sleep 100
