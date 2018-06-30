@@ -879,7 +879,7 @@ class FD{
 		}
 		return Data
 	}
-	Read(FilePath=""){
+	read(FilePath=""){
 		FileGetTime, LU, % this.FilePath, M
 		if (LU == this.LastUpdate)
 			return
@@ -890,10 +890,14 @@ class FD{
 		this.dict := this.ConvertText_to_FlaxDict(TData)
 		return
 	}
-	Write(FilePath=""){
+	write(FilePath="", dict=""){
 		if (FilePath == "")
 			FilePath := this.FilePath
-		TData := this.ConvertFlaxDict_to_Text(this.dict)
+		msgjoin(joinobj(dict))
+		if (dict == "")
+			dict := this.dict
+		msgjoin(joinobj(dict))
+		TData := this.ConvertFlaxDict_to_Text(dict)
 		file := FileOpen(this.FilePath, "w", "CP65001")
 		file.Write(TData)
 	}
@@ -921,6 +925,11 @@ class FD_for_EC extends FD{
 			this.dict[Key] := ID
 		}
 	}
+	write(FilePath="", dict=""){
+		if (dict == "")
+			dict := this.fdict
+		base.write(FilePath, dict)
+	}
 }
 
 
@@ -928,16 +937,12 @@ class FD_for_EC extends FD{
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	for Key, Value in launcherFD.dict{
-		msgjoin(joinobj(Value))
-		if (A_Index == 5)
-			break
-	}
-	for Key, Value in launcherFD.fdict{
-		msgjoin(joinobj(Value))
-		if (A_Index == 5)
-			break
-	}
+	launcherFD.fdict["testname"] := Object()
+	launcherFD.fdict["testname"]["default"] := Object()
+	launcherFD.fdict["testname"]["default"]["command"] := "testcommand"
+	launcherFD.fdict["testname"]["default"]["type"] := "testtype"
+	msgjoin(joinobj(launcherFD.fdict["editlauncher"]))
+	launcherFD.write()
 	return
 ::flaxcalc::
 	Sleep 100
