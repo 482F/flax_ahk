@@ -812,6 +812,17 @@ Follow_a_Link(Path){
 	}
 	return Path
 }
+DeepCopy(Array, Objs=0){
+	if !Objs
+		Objs := Object()
+	Obj := Array.Clone()
+	Objs[&Array] := Obj
+	For Key, Value in Obj{
+		if (IsObject(Value))
+			Obj[Key] := Objs[&Value] ? Objs[&Value] : DeepCopy(Value, Objs)
+	}
+	return Obj
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
@@ -916,9 +927,15 @@ class FD_for_EC extends FD{
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	k := new FD_for_EC("launcher.fd")
-	for Key, Value in k.dict{
-		msgjoin(Key, joinobj(Value))
+	for Key, Value in launcherFD.dict{
+		msgjoin(joinobj(Value))
+		if (A_Index == 5)
+			break
+	}
+	for Key, Value in launcherFD.fdict{
+		msgjoin(joinobj(Value))
+		if (A_Index == 5)
+			break
 	}
 	return
 ::flaxcalc::
