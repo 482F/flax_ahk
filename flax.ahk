@@ -895,13 +895,13 @@ class FD{
 	write(FilePath="", dict=""){
 		if (FilePath == "")
 			FilePath := this.FilePath
-		msgjoin(joinobj(dict))
 		if (dict == "")
 			dict := this.dict
-		msgjoin(joinobj(dict))
 		TData := this.ConvertFlaxDict_to_Text(dict)
 		file := FileOpen(this.FilePath, "w", "CP65001")
 		file.Write(TData)
+		file.Close()
+		this.read()
 	}
 }
 class FD_for_EC extends FD{
@@ -3136,14 +3136,19 @@ MouseGestureCheck:
 					B_ComputerName := A_ComputerName
 				else if (RAll = 1)
 					B_ComputerName := "default"
-				IniWrite, %ECommand%, launcher.ini, %EName%, %B_ComputerName%command
+				if (not launcherFD.fdict.HasKey(EName))
+					launcherFD.fdict[EName] := Object()
+				if (not launcherFD.fdict[EName].HasKey(B_ComputerName))
+					launcherFD.fdict[EName][B_ComputerName] := Object()
+				launcherFD.fdict[EName][B_ComputerName]["command"] := ECommand
 				if (RApp = 1)
 					EType := "Application"
 				else if (RLoc = 1)
 					EType := "LocalPath"
 				else if (RURL = 1)
 					EType := "URL"
-				IniWrite, %EType%, launcher.ini, %EName%, %B_ComputerName%type
+				launcherFD.fdict[EName][B_ComputerName]["type"] := EType
+				launcherFD.write()
 				return
 			FlaxRegisterLauncherGuiEscape:
 			FlaxRegisterLauncherGuiClose:
