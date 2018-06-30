@@ -51,7 +51,6 @@ DefVars:
 	StringReplace,ComputerName,A_ComputerName,-
 	WINDOWSO3L7BIOscreenshotdir = C:\Users\admin\Pictures\screenshot\
 	LauncherFD := new FD_for_EC("launcher.fd")
-	FileGetTime,launcherLastUpdate,launcher.ini,M
 	FileGetTime,gestureLastUpdate,MouseGesture.ini,M
 	FileGetTime,registerLastUpdate,register.ini,M
 	FileRead,ColorList,colorlist.txt
@@ -1942,7 +1941,7 @@ MouseGetPos,X,Y
 	candidate := ""
 	SysGet,MonitorSizeX,0
 	SysGet,MonitorSizeY,1
-	For, Key, Value in launcherFD.dict{
+	For Key, Value in launcherFD.dict{
 		if (Value.command != "")
 			candidate .= Key . "|"
 		else
