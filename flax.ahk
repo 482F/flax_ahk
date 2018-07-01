@@ -811,13 +811,13 @@ class FD{
 	read(FilePath=""){
 		FileGetTime, LU, % this.FilePath, M
 		if (LU == this.LastUpdate)
-			return
+			return 0
 		this.LastUpdate := LU
 		if (FilePath == "")
 			FilePath := this.FilePath
 		FileRead, TData, %FilePath%
 		this.dict := this.ConvertText_to_FlaxDict(TData)
-		return
+		return 1
 	}
 	write(FilePath="", dict=""){
 		if (FilePath == "")
