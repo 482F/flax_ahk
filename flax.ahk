@@ -811,13 +811,13 @@ class FD{
 	read(FilePath=""){
 		FileGetTime, LU, % this.FilePath, M
 		if (LU == this.LastUpdate)
-			return
+			return 0
 		this.LastUpdate := LU
 		if (FilePath == "")
 			FilePath := this.FilePath
 		FileRead, TData, %FilePath%
 		this.dict := this.ConvertText_to_FlaxDict(TData)
-		return
+		return 1
 	}
 	write(FilePath="", dict=""){
 		if (FilePath == "")
@@ -834,8 +834,6 @@ class FD{
 class FD_for_EC extends FD{
 	__New(FilePath){
 		base.__New(FilePath)
-		this.fdict := DeepCopy(this.dict)
-		this.normalization()
 	}
 	getItemDict(ItemName){
 		RD := Object()
@@ -852,6 +850,13 @@ class FD_for_EC extends FD{
 		for Key, Value in this.dict{
 			ID := this.getItemDict(Key)
 			this.dict[Key] := ID
+		}
+		return
+	}
+	read(FilePath=""){
+		if (base.read(FilePath)){
+			this.fdict := DeepCopy(this.dict)
+			this.normalization()
 		}
 	}
 	write(FilePath="", dict=""){
