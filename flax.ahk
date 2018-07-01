@@ -50,9 +50,9 @@ DefVars:
 	editmode = normal
 	StringReplace,ComputerName,A_ComputerName,-
 	WINDOWSO3L7BIOscreenshotdir = C:\Users\admin\Pictures\screenshot\
-	launcherFD := new FD_for_EC("launcher.fd")
-	gestureFD := new FD_for_EC("gesture.fd")
-	registerFD := new FD("register.fd")
+	launcherFD := new FD_for_EC("config/launcher.fd")
+	gestureFD := new FD_for_EC("config/gesture.fd")
+	registerFD := new FD("config/register.fd")
 	FileRead,ColorList,colorlist.txt
 	FileRead,TimeTable,TimeTable.txt
 	MP := Object()
