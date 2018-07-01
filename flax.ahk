@@ -50,7 +50,8 @@ DefVars:
 	editmode = normal
 	StringReplace,ComputerName,A_ComputerName,-
 	WINDOWSO3L7BIOscreenshotdir = C:\Users\admin\Pictures\screenshot\
-	LauncherFD := new FD_for_EC("launcher.fd")
+	launcherFD := new FD_for_EC("launcher.fd")
+	gestureFD := new FD_for_EC("gesture.fd")
 	FileGetTime,gestureLastUpdate,MouseGesture.ini,M
 	FileGetTime,registerLastUpdate,register.ini,M
 	FileRead,ColorList,colorlist.txt
@@ -2282,16 +2283,13 @@ MouseGestureCheck:
 		Prefix .= "!"
 	if (RetKeyState("LShift"))
 		Prefix .= "+"
-	IniRead,CommandList,MouseGesture.ini
-	Loop,Parse,CommandList,`n
-	{
-		if (InStr(A_LoopField, Prefix . MouseRoute) == 1)
+	For, Key, Value in gestureFD.dict{
+		if (InStr(Key, Prefix . MouseRoute) == 1)
 		{
-			CommandTargetWindow := IniReadFunc("MouseGesture.ini", A_LoopField, "targetwindow")
-			CommandLabel := IniReadFunc("MouseGesture.ini", A_LoopField, "label")
-			if ((WinActive(CommandTargetWindow) != 0 or CommandTargetWindow == "ERROR") and CommandValue != "ERROR")
+			CommandLabel := gestureFD.dict[Key]["label"]
+			if (CommandValue != "ERROR")
 			{
-				CandiName := SubStr(A_LoopField, StrLen(Prefix) + StrLen(MouseRoute) + 1, StrLen(A_LoopField))
+				CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MouseRoute) + 1, StrLen(Key))
 				CandiValue := CandiName == "" ? "" : " : "
 				CandiValue .= CommandLabel
 				For, Pattern, Replacement in Reg
@@ -2351,15 +2349,13 @@ MouseGestureCheck:
 			MouseRoute .= NowNEWS
 			LastNEWS := NowNEWS
 			CommandCandidate := ""
-			Loop,Parse,CommandList,`n
-			{
-				if (InStr(A_LoopField, Prefix . MouseRoute) == 1)
+			For Key, Value in gestureFD.dict{
+				if (InStr(Key, Prefix . MouseRoute) == 1)
 				{
-					CommandTargetWindow := IniReadFunc("MouseGesture.ini", A_LoopField, "targetwindow")
-					CommandLabel := IniReadFunc("MouseGesture.ini", A_LoopField, "label")
-					if ((WinActive(CommandTargetWindow) != 0 or CommandTargetWindow == "ERROR") and CommandValue != "ERROR")
+					CommandLabel := IniReadFunc("MouseGesture.ini", Key, "label")
+					if (CommandValue != "ERROR")
 					{
-						CandiName := SubStr(A_LoopField, StrLen(Prefix) + StrLen(MouseRoute) + 1, StrLen(A_LoopField))
+						CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MouseRoute) + 1, StrLen(Key))
 						CandiValue := CandiName == "" ? "" : " : "
 						CandiValue .= CommandLabel
 						For, Pattern, Replacement in Reg
