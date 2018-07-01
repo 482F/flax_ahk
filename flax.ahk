@@ -50,9 +50,9 @@ DefVars:
 	editmode = normal
 	StringReplace,ComputerName,A_ComputerName,-
 	WINDOWSO3L7BIOscreenshotdir = C:\Users\admin\Pictures\screenshot\
-	FileGetTime,launcherLastUpdate,launcher.ini,M
-	FileGetTime,gestureLastUpdate,MouseGesture.ini,M
-	FileGetTime,registerLastUpdate,register.ini,M
+	launcherFD := new FD_for_EC("launcher.fd")
+	gestureFD := new FD_for_EC("gesture.fd")
+	registerFD := new FD("register.fd")
 	FileRead,ColorList,colorlist.txt
 	FileRead,TimeTable,TimeTable.txt
 	MP := Object()
@@ -811,10 +811,29 @@ Follow_a_Link(Path){
 	}
 	return Path
 }
+DeepCopy(Array, Objs=0){
+	if !Objs
+		Objs := Object()
+	Obj := Array.Clone()
+	Objs[&Array] := Obj
+	For Key, Value in Obj{
+		if (IsObject(Value))
+			Obj[Key] := Objs[&Value] ? Objs[&Value] : DeepCopy(Value, Objs)
+	}
+	return Obj
+}
+msgobj(obj){
+	msgjoin(joinobj(obj))
+	return
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
-		this.dict := this.Read()
+		this.Read()
+		if (not(IsObject(this.dict)))
+			this.dict := Object()
+		FileGetTime, LU, % this.FilePath, M
+		this.LastUpdate := LU
 	}
 	ConvertFlaxDict_to_Text(Dict, Depth=0){
 		if not(IsObject(Dict))
@@ -857,99 +876,77 @@ class FD{
 					Data[name] := body
 					break
 				}
-				Data[name] := Trim(TData[0])
+				K := TData[0]
+				Data[name] := K
 				Text := TData[1]
 			}
 		}
 		return Data
 	}
-	Read(FilePath=""){
+	read(FilePath=""){
+		FileGetTime, LU, % this.FilePath, M
+		if (LU == this.LastUpdate)
+			return
+		this.LastUpdate := LU
 		if (FilePath == "")
 			FilePath := this.FilePath
 		FileRead, TData, %FilePath%
-		return this.ConvertText_to_FlaxDict(TData)
+		this.dict := this.ConvertText_to_FlaxDict(TData)
+		return
 	}
-	Write(FilePath=""){
+	write(FilePath="", dict=""){
 		if (FilePath == "")
 			FilePath := this.FilePath
-		TData := this.ConvertFlaxDict_to_Text(this.dict)
+		if (dict == "")
+			dict := this.dict
+		TData := this.ConvertFlaxDict_to_Text(dict)
 		file := FileOpen(this.FilePath, "w", "CP65001")
 		file.Write(TData)
+		file.Close()
+		this.read()
+	}
+}
+class FD_for_EC extends FD{
+	__New(FilePath){
+		base.__New(FilePath)
+		this.fdict := DeepCopy(this.dict)
+		this.normalization()
+	}
+	getItemDict(ItemName){
+		RD := Object()
+		FID := this.dict[ItemName]
+		for Key, Value in FID["default"]{
+			RD[Key] := Value
+		}
+		for Key, Value in FID[A_ComputerName]{
+			RD[Key] := Value
+		}
+		return RD
+	}
+	normalization(){
+		for Key, Value in this.dict{
+			ID := this.getItemDict(Key)
+			this.dict[Key] := ID
+		}
+	}
+	write(FilePath="", dict=""){
+		if (dict == "")
+			dict := this.fdict
+		base.write(FilePath, dict)
 	}
 }
 
-class XML{
-	__New(FilePath, Name:="", Value:="", Depth=0, Index=1){
-		if (FilePath != ""){
-			this.MTime := ""
-			FileRead,K,*t *P65001 %FilePath%
-			this.Node := this.SolveXML(K, 0, Index)
-			return this
-		} else {
-			this.Name := Name
-			this.Depth := Depth
-			this.Index := Index
-			this.Node := this.SolveXML(Value, Depth + 1, Index)
-			return this
-		}
-	}
-	SolveXML(Value, Depth, Index){
-		K := RetAllMatch(Value, "<([^>]*)>(.*?)</\1>")
-		if (K[1][1] == "")
-			return Value
-		L := Object()
-		while (True){
-			Name := K[A_Index][1]
-			Value := K[A_Index][2]
-			if (Name == "")
-				break
-			L[A_Index] := New XML("", Name, Value, Depth, Index . "_" . A_Index)
-		}
-		return L
-	}
-	RetByIndex(Index){
-		K := RegExMatch(Index, "(.*?)-(.*)")
-		return this.Node[K[1]].RetByIndex(K[2])
-	}
-	Add(Target, Value){
-		return
-	}
-	Remove(Target){
-		return
-	}
-	Overwrite(){
-		return
-	}
-	Check(){
-		return
-	}
-	Search(Pattern){
-		;(name=^A.*$) then ((score>80) or (count>5))
-		;name=defaulttype
-		Pattern := RetCorBracketSplit(Pattern)
-		NPattern := RetAllMatch(Pattern[1], "^(.*?)(=|<|>|<=|>=|<>|!=|include)(.*)$")
-		MatchedList := Object()
-		IoV := 0
-		if (NPattern[1] == "Name"){
-			Target := Value.Name
-		}
-		if (NPattern[2] == "="){
-			for Key, Value in this.Node{
-				if (Target == NPattern[3])
-					MatchedList[IoV] := Value
-				IoV += 1
-			}
-		}
-		return MatchedList
-	}
-}
 
 ;hotstring
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	k := new FD("D:\Dropbox\test.fd")
-	msgjoin(joinobj(k))
+	launcherFD.fdict["testname"] := Object()
+	launcherFD.fdict["testname"]["default"] := Object()
+	launcherFD.fdict["testname"]["default"]["command"] := "testcommand"
+	launcherFD.fdict["testname"]["default"]["type"] := "testtype"
+	msgjoin(joinobj(launcherFD.fdict["editlauncher"]))
+	launcherFD.write()
 	return
 ::flaxcalc::
 	Sleep 100
@@ -1943,24 +1940,19 @@ MouseGetPos,X,Y
 ;ホットキー
 +!^W::
 	Gui, New, , FlaxLauncher FlaxLauncher:
-	IniRead,ItemList,launcher.ini
-	Sort,ItemList,C
+	launcherFD.read()
 	Sleep 100
 	NoDI = 5
 	candidate := ""
 	SysGet,MonitorSizeX,0
 	SysGet,MonitorSizeY,1
-	Loop,Parse,ItemList,`n
-	{
-		IniRead,ItemCommand,launcher.ini,%A_LoopField%,%A_ComputerName%command
-		if (ItemCommand == "ERROR")
-			IniRead,ItemCommand,launcher.ini,%A_LoopField%,defaultcommand
-		if (ItemCommand != "ERROR")
-		{
-			candidate := candidate . A_LoopField . "|"
-			if (NoDI < A_Index)
-				break
-		}
+	For Key, Value in launcherFD.dict{
+		if (Value.command != "")
+			candidate .= Key . "|"
+		else
+			continue
+		if (NoDI < A_Index)
+			break
 	}
 	Gui, FlaxLauncher:Add,ComboBox,vItemName W300 R5 Simple HwndLauncherComboHwnd, %candidate%
 	Gui, FlaxLauncher:+AlwaysOnTop -Border
@@ -1995,23 +1987,18 @@ MouseGetPos,X,Y
 			ItemName := SubStr(ItemName, 1, LP-1)
 			LF := True
 		}
-		IniRead,ItemCommand,launcher.ini,%ItemName%,%A_ComputerName%command
-		if (ItemCommand = "ERROR"){
-			IniRead,ItemCommand,launcher.ini,%ItemName%,defaultcommand
-		}
+		ID := launcherFD.dict[ItemName]
+		ItemCommand := ID["command"]
 		for Key, Value in ItemParams{
 			if (A_Index == 1)
 				continue
 			ItemCommand := RegExReplace(ItemCommand, "\$P" . A_Index - 1 . "\$", Value)
 		}
 		ItemCommand := RegExReplace(ItemCommand, "\$P\d+\$", "")
-		IniRead,ItemType,launcher.ini,%ItemName%,%A_ComputerName%type
-		if (ItemType = "ERROR"){
-			IniRead,ItemType,launcher.ini,%ItemName%,defaulttype
-		}
+		ItemType := ID["type"]
 		if (ItemType = "Application"){
-			IniRead,ItemParam,launcher.ini,%ItemName%,param
-			if (ItemParam != "ERROR")
+			ItemParam := ID["param"]
+			if (ItemParam != "")
 			{
 				ItemCommand := ItemCommand . " " . ItemParam
 			}
@@ -2024,10 +2011,10 @@ MouseGetPos,X,Y
 				WinWaitActive, ahk_exe explorer.exe
 				sendraw,% ItemName1
 			}else{
-				Run,%ItemCommand%
+				Run, %ItemCommand%
 			}
 		}
-		if (ItemType = "ERROR"){
+		if (ItemType = ""){
 			msgbox,404
 		}
 		return
@@ -2043,22 +2030,11 @@ MouseGetPos,X,Y
 		Gui, FlaxLauncher:Submit,NoHide
 		candidate := ""
 		NoI = 0
-		Loop,Parse,ItemList,`n
-		{
-			StringGetPos,IP,A_LoopField,%ItemName%
-			if (IP == 0)
-			{
-				IniRead,ItemCommand,launcher.ini,%A_LoopField%,%A_ComputerName%command
-				if (ItemCommand == "ERROR")
-					IniRead,ItemCommand,launcher.ini,%A_LoopField%,defaultcommand
-				if (ItemCommand != "ERROR")
-				{
-					candidate := candidate . "|" . A_LoopField
-					NoI += 1
-					if (NoI == NoDI)
-						break
-				}
-
+		For Key, Value in launcherFD.dict{
+			StringGetPos, IP, Key, %ItemName%
+			if (IP == 0){
+				candidate .= "|" . Key
+				NoI += 1
 			}
 		}
 		GuiControl, FlaxLauncher:,ItemName,%candidate%
@@ -2180,7 +2156,8 @@ RegisterInput:
 	ClipWait, 1
 	Clipboard := RegExReplace(Clipboard, "\r\n", "\flaxnewline")
 	if (address != ""){
-		IniWrite,%Clipboard%,register.ini,General,%address%
+		registerFD.dict[address] := Clipboard
+		registerFD.write()
 	}
 	ToolTip,
 	Clipboard := ClipboardAlt
@@ -2191,12 +2168,10 @@ RegisterInput:
 	ToolTip,^#v
 	Input,address,I,{Enter}
 	if (address != ""){
-		IniRead,RegValue,register.ini,General,%address%,
-		if (RegValue != "ERROR")
-		{
-			Clipboard := RegExReplace(RegValue, "\\flaxnewline", "`n")
-			send,^v
-		}
+		registerFD.read()
+		RegValue := registerFD.dict[address]
+		Clipboard := RegExReplace(RegValue, "\\flaxnewline", "`n")
+		send,^v
 	}
 	ToolTip,
 	sleep 200
@@ -2308,16 +2283,13 @@ MouseGestureCheck:
 		Prefix .= "!"
 	if (RetKeyState("LShift"))
 		Prefix .= "+"
-	IniRead,CommandList,MouseGesture.ini
-	Loop,Parse,CommandList,`n
-	{
-		if (InStr(A_LoopField, Prefix . MouseRoute) == 1)
+	For, Key, Value in gestureFD.dict{
+		if (InStr(Key, Prefix . MouseRoute) == 1)
 		{
-			CommandTargetWindow := IniReadFunc("MouseGesture.ini", A_LoopField, "targetwindow")
-			CommandLabel := IniReadFunc("MouseGesture.ini", A_LoopField, "label")
-			if ((WinActive(CommandTargetWindow) != 0 or CommandTargetWindow == "ERROR") and CommandValue != "ERROR")
+			CommandLabel := gestureFD.dict[Key]["label"]
+			if (CommandValue != "ERROR")
 			{
-				CandiName := SubStr(A_LoopField, StrLen(Prefix) + StrLen(MouseRoute) + 1, StrLen(A_LoopField))
+				CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MouseRoute) + 1, StrLen(Key))
 				CandiValue := CandiName == "" ? "" : " : "
 				CandiValue .= CommandLabel
 				For, Pattern, Replacement in Reg
@@ -2377,15 +2349,13 @@ MouseGestureCheck:
 			MouseRoute .= NowNEWS
 			LastNEWS := NowNEWS
 			CommandCandidate := ""
-			Loop,Parse,CommandList,`n
-			{
-				if (InStr(A_LoopField, Prefix . MouseRoute) == 1)
+			For Key, Value in gestureFD.dict{
+				if (InStr(Key, Prefix . MouseRoute) == 1)
 				{
-					CommandTargetWindow := IniReadFunc("MouseGesture.ini", A_LoopField, "targetwindow")
-					CommandLabel := IniReadFunc("MouseGesture.ini", A_LoopField, "label")
-					if ((WinActive(CommandTargetWindow) != 0 or CommandTargetWindow == "ERROR") and CommandValue != "ERROR")
+					CommandLabel := gestureFD.dict[Key]["label"]
+					if (CommandValue != "ERROR")
 					{
-						CandiName := SubStr(A_LoopField, StrLen(Prefix) + StrLen(MouseRoute) + 1, StrLen(A_LoopField))
+						CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MouseRoute) + 1, StrLen(Key))
 						CandiValue := CandiName == "" ? "" : " : "
 						CandiValue .= CommandLabel
 						For, Pattern, Replacement in Reg
@@ -2410,10 +2380,9 @@ MouseGestureCheck:
 		}
 	}
 	GestureName := Prefix . MouseRoute
-	GestureType := IniReadFunc("MouseGesture.ini", GestureName, "type")
+	GestureType := gestureFD.dict[GestureName]["type"]
+	GestureCommand := gestureFD.dict[GestureName]["command"]
 	ToolTip,
-	if (GestureType != "ERROR")
-		GestureCommand := IniReadFunc("MouseGesture.ini", GestureName, "command")
 	if (GestureType == "label")
 		GoSub,%GestureCommand%
 	else if (GestureType == "LocalPath")
@@ -3106,28 +3075,10 @@ MouseGestureCheck:
 					{
 						Path := DestPath . "\New" . NNN
 						FileCreateDir,%Path%
-						Temp := ClipboardAll
-						Clipboard := ""
-						While (Clipboard != Path){
-							send, New%NNN%
-							send, ^c
-							send, {ESC}
-						}
-						send, {F2}
-						Clipboard := Temp
 						break
 					}
 					Path := DestPath . "\New" . NNN . MenuName1
 					FileCopy,CreateNew\%MenuName2%%MenuName1%,%Path%
-					Temp := ClipboardAll
-					Clipboard := ""
-					While (Clipboard != Path){
-						send, New%NNN%%MenuName1%
-						send, ^c
-						send, {ESC}
-					}
-					send, {F2}
-					Clipboard := Temp
 					break
 				}
 			}
@@ -3180,14 +3131,19 @@ MouseGestureCheck:
 					B_ComputerName := A_ComputerName
 				else if (RAll = 1)
 					B_ComputerName := "default"
-				IniWrite, %ECommand%, launcher.ini, %EName%, %B_ComputerName%command
+				if (not launcherFD.fdict.HasKey(EName))
+					launcherFD.fdict[EName] := Object()
+				if (not launcherFD.fdict[EName].HasKey(B_ComputerName))
+					launcherFD.fdict[EName][B_ComputerName] := Object()
+				launcherFD.fdict[EName][B_ComputerName]["command"] := ECommand
 				if (RApp = 1)
 					EType := "Application"
 				else if (RLoc = 1)
 					EType := "LocalPath"
 				else if (RURL = 1)
 					EType := "URL"
-				IniWrite, %EType%, launcher.ini, %EName%, %B_ComputerName%type
+				launcherFD.fdict[EName][B_ComputerName]["type"] := EType
+				launcherFD.write()
 				return
 			FlaxRegisterLauncherGuiEscape:
 			FlaxRegisterLauncherGuiClose:
