@@ -1,0 +1,79 @@
+﻿cismoodle=[
+	default=[
+		command=https://cms.cis.k.hosei.ac.jp/moodle/my/
+		type=URL
+	]
+]
+cmd=[
+	default=[
+		command=C:\Windows\System32\cmd.exe
+		type=Application
+	]
+]
+controlpanel=[
+	default=[
+		command=control.exe
+		type=Application
+	]
+]
+gmail=[
+	default=[
+		command=https://mail.google.com/mail/#inbox
+		type=URL
+	]
+]
+hetudes=[
+	default=[
+		command=https://hcms.hosei.ac.jp/portal
+		type=URL
+	]
+]
+putty=[
+	default=[
+		command=C:\Software\PuTTY\putty.exe
+		type=Application
+	]
+]
+putty_rat_room=[
+	default=[
+		command=E:\Date\PuTTY\putty.exe
+		type=Application
+		param=-load "rat_room"
+	]
+]
+ratportal=[
+	default=[
+		command=http://rat.cis.k.hosei.ac.jp/
+		type=URL
+	]
+]
+ratwiki=[
+	default=[
+		command=https://rat.cis.k.hosei.ac.jp/project/
+		type=URL
+	]
+]
+remotedesktop=[
+	default=[
+		command=C:\WINDOWS\system32\mstsc.exe
+		type=Application
+	]
+]
+startup=[
+	default=[
+		command=C:\Users\admin\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
+		type=LocalPath
+	]
+]
+taskmgr=[
+	default=[
+		command=taskmgr.exe
+		type=Application
+	]
+]
+translate=[
+	default=[
+		command=https://translate.google.co.jp/?hl=ja#$P1$/$P2$/$P3$
+		type=URL
+	]
+]
