@@ -1,0 +1,793 @@
+gtasolo=[
+	FLAXEN-PC=[
+		command=E:\Date\GTAsolo.bat
+		type=Application
+	]
+]
+minecraft=[
+	WINDOWS-O3L7BIO=[
+		command=E:\Fgame\minecraft\MinecraftLauncher.exe
+		type=Application
+	]
+]
+superputty=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Software\SuperPuTTY-1.4.0.8\SuperPutty.exe
+		type=Application
+	]
+]
+superputty_load=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Software\SuperPuTTY-1.4.0.8\SuperPutty.exe -load $P1$
+	]
+]
+	default=[
+		type=Application
+	]
+]
+webcam=[
+	default=[
+		command=https://room.rat.cis.k.hosei.ac.jp/webcam/
+		type=URL
+	]
+]
+scrapbox=[
+	default=[
+		command=https://scrapbox.io/rat
+		type=URL
+	]
+]
+gitlab=[
+	default=[
+		command=https://git.room.rat.cis.k.hosei.ac.jp/
+		type=URL
+	]
+]
+hatenabookmark=[
+	default=[
+		command=http://b.hatena.ne.jp/hotentry/it
+		type=URL
+	]
+]
+cisco=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Program Files (x86)\Cisco\Cisco AnyConnect Secure Mobility Client\vpnui.exe
+		type=Application
+	]
+]
+nekoden=[
+	WINDOWS-O3L7BIO=[
+		command=E:\document\nekoden
+		type=LocalPath
+	]
+]
+cmd=[
+	default=[
+		command=C:\Windows\System32\cmd.exe
+		type=Application
+	]
+]
+mycomputer=[
+	default=[
+		command=explorer.exe
+		type=Application
+	]
+]
+snapcrab=[
+	WINDOWS-O3L7BIO=[
+		command=D:\utl\SnapCrab for Windows\SnapCrab.exe
+	]
+]
+	default=[
+		type=Application
+	]
+]
+	FLAXEN-PC=[
+		command=E:\Date\SnapCrab for Windows\SnapCrab.exe
+		type=Application
+	]
+]
+e-typing=[
+	default=[
+		command=https://www.e-typing.ne.jp/member/$P1$/karte/
+		type=URL
+	]
+]
+yuuenmonogatari=[
+	WINDOWS-O3L7BIO=[
+		command=D:\Fgame\óIâìï®åÍ\Game.exe
+		type=Application
+	]
+]
+randomdungeon=[
+	WINDOWS-O3L7BIO=[
+		command=D:\Fgame\ÇÁÇÒÇæÇﬁÉ_ÉìÉWÉáÉì\Game.exe
+		type=Application
+	]
+]
+elona=[
+	WINDOWS-O3L7BIO=[
+		command=D:\Fgame\elona\elona.exe
+		type=Application
+	]
+]
+ppsspp=[
+	WINDOWS-O3L7BIO=[
+		command=E:\Fgame\ppsspp\PPSSPPWindows64.exe
+		type=Application
+	]
+]
+randomscp=[
+	default=[
+		command=http://ja.scp-wiki.net/random:random-redirect/tags/scp
+		type=URL
+	]
+]
+autohotkeywiki=[
+	DESKTOP-AEDD2O7command=ht=[
+		command=http://ahkwiki.net/Commands_Category
+		type=URL
+	]
+]
+chrome=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
+		type=Application
+	]
+]
+traintimetable=[
+	WINDOWS-O3L7BIO=[
+		command=E:\document\â‘è¨ã‡à‰âw(êºïêêVèhê¸)ÇÃéûçèï\
+		type=LocalPath
+	]
+]
+scoop=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Users\admin\scoop
+		type=LocalPath
+	]
+]
+editlauncher=[
+	WINDOWS-O3L7BIO=[
+		command=D:\Dropbox\autohotkey\launcher.ini
+		type=Application
+	]
+]
+		DESKTOP-AEDD2O7command=C:\Users\admin\Dropbox\aut=[
+		command=C:\Users\admin\Dropbox\autohotkey\launcher.ini
+		type=Application
+		]
+]
+	FLAXEN-PC=[
+		command=C:\Users\Flaxen\Dropbox\autohotkey\launcher.ini
+		type=Application
+	]
+]
+editgesture=[
+	WINDOWS-O3L7BIO=[
+		command=D:\Dropbox\autohotkey\MouseGesture.ini
+		type=Application
+	]
+]
+		DESKTOP-AEDD2O7command=C:\Users\admin\Dropbox\aut=[
+		command=C:\Users\admin\Dropbox\autohotkey\MouseGesture.ini
+		type=Application
+		]
+]
+	FLAXEN-PC=[
+		command=C:\Users\Flaxen\Dropbox\autohotkey\MouseGesture.ini
+		type=Application
+	]
+]
+editregister=[
+	WINDOWS-O3L7BIO=[
+		command=D:\Dropbox\autohotkey\register.ini
+		type=Application
+	]
+]
+		DESKTOP-AEDD2O7command=C:\Users\admin\Dropbox\aut=[
+		command=C:\Users\admin\Dropbox\autohotkey\register.ini
+		type=Application
+		]
+]
+	FLAXEN-PC=[
+		command=C:\Users\Flaxen\Dropbox\autohotkey\register.ini
+		type=Application
+	]
+]
+ekitan=[
+	default=[
+		command=https://ekitan.com/
+		type=URL
+	]
+]
+idm=[
+	WINDOWS-O3L7BIO=[
+		command=D:\utl\idm\IDM.exe
+		type=Application
+	]
+]
+	FLAXEN-PC=[
+		command=E:\Date\idm810\IDM.exe
+		type=Application
+	]
+]
+dropbox=[
+	WINDOWS-O3L7BIO=[
+		command=D:\Dropbox
+		type=LocalPath
+	]
+]
+	DESKTOP-AEDD2O7=[
+		command=C:\Users\admin\Dropbox
+		type=LocalPath
+	]
+]
+	FLAXEN-PC=[
+		command=C:\Users\Flaxen\Dropbox
+		type=LocalPath
+	]
+]
+ratmyworking=[
+	DESKTOP-AEDD2O7=[
+		command=R:\Working\Ishikawa
+		type=LocalPath
+	]
+]
+	WINDOWS-O3L7BIO=[
+		command=R:\Working\Ishikawa
+		type=LocalPath
+	]
+]
+quartus=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Software\Quartus\quartus\bin64\quartus.exe
+		type=Application
+	]
+]
+doc=[
+	default=[
+		command=C:\document
+		type=LocalPath
+	]
+]
+	DESKTOP-AEDD2O7=[
+		command=C:\Users\admin\Documents
+		type=LocalPath
+	]
+]
+	WINDOWS-O3L7BIO=[
+		command=E:\document
+		type=LocalPath
+	]
+]
+e:\=[
+	default=[
+		command=E:\
+		type=LocalPath
+	]
+]
+twitter=[
+	default=[
+		command=https://twitter.com/search-advanced?lang=ja
+		type=URL
+	]
+]
+koganeiopac=[
+	default=[
+		command=https://www1.library.koganei.tokyo.jp/winj/opac/login.do?lang=ja&dispatch=/opac/mylibrary.do
+		type=URL
+	]
+]
+ratwiki=[
+	default=[
+		command=https://rat.cis.k.hosei.ac.jp/project/
+		type=URL
+	]
+]
+cismoodle=[
+	default=[
+		command=https://cms.cis.k.hosei.ac.jp/moodle/my/
+		type=URL
+	]
+]
+excel=[
+	default=[
+		command=C:\Program Files (x86)\Microsoft Office\Office16\EXCEL.EXE
+		type=Application
+	]
+]
+word=[
+	default=[
+		command=C:\Program Files (x86)\Microsoft Office\Office16\WINWORD.EXE
+		type=Application
+	]
+]
+pdn=[
+	WINDOWS-O3L7BIO=[
+		command=D:\utl\paint.net\PaintDotNet.exe
+		type=Application
+	]
+]
+	DESKTOP-AEDD2O7=[
+		command=C:\Software\paint.net\PaintDotNet.exe
+		type=Application
+	]
+]
+	FLAXEN-PC=[
+		command=E:\Date\Paint.net\PaintDotNet.exe
+		type=Application
+	]
+]
+pri=[
+	WINDOWS-O3L7BIO=[
+		command=E:\pri
+		type=LocalPath
+	]
+]
+gcal=[
+	default=[
+		command=https://calendar.google.com/calendar
+		type=URL
+	]
+]
+alc=[
+	default=[
+		command=https://alc.k.hosei.ac.jp/anet2/
+		type=URL
+	]
+]
+ratportal=[
+	default=[
+		command=http://rat.cis.k.hosei.ac.jp/
+		type=URL
+	]
+]
+controlpanel=[
+	default=[
+		command=control.exe
+		type=Application
+	]
+]
+gmail=[
+	default=[
+		command=https://mail.google.com/mail/#inbox
+		type=URL
+	]
+]
+taskmgr=[
+	default=[
+		command=taskmgr.exe
+		type=Application
+	]
+]
+utl=[
+	WINDOWS-O3L7BIO=[
+		command=D:\utl
+		type=LocalPath
+	]
+]
+newmail=[
+	default=[
+		command=https://mail.google.com/mail/#inbox?compose=new
+		type=URL
+	]
+]
+flexren=[
+	WINDOWS-O3L7BIO=[
+		command=D:\utl\FlexRena84\Flexible Renamer.exe
+		type=Application
+	]
+]
+hetudes=[
+	default=[
+		command=https://hcms.hosei.ac.jp/portal
+		type=URL
+	]
+]
+dow=[
+	WINDOWS-O3L7BIO=[
+		command=D:\download
+		type=LocalPath
+	]
+]
+	DESKTOP-AEDD2O7=[
+		command=C:\Users\admin\Downloads
+		type=LocalPath
+	]
+]
+hoseiopac=[
+	default=[
+		command=http://opac.lib.hosei.ac.jp/opac/
+		type=URL
+	]
+]
+vol=[
+	default=[
+		command=C:\Windows\System32\SndVol.exe
+		type=Application
+	]
+]
+translate=[
+	default=[
+		command=https://translate.google.co.jp/?hl=ja#$P1$/$P2$/$P3$
+		type=URL
+	]
+]
+scratch=[
+	default=[
+		command=https://scratch.mit.edu/projects/159513071/#editor
+		type=URL
+	]
+]
+idle=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Software\Python\python\Lib\idlelib\idle.bat
+		type=Application
+	]
+]
+vmware=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Software\VMware\VMware Workstation Pro\vmware.exe
+		type=Application
+	]
+]
+	DESKTOP-AEDD2O7=[
+		command=C:\Software\VMware\VMware Workstation Pro\vmware.exe
+		type=Application
+	]
+]
+putty_ConoHa=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Software\PuTTY\putty.exe
+		type=Application
+	]
+]
+	DESKTOP-AEDD2O7=[
+		command=C:\Software\PuTTY\putty.exe
+		type=Application
+	]
+]
+	FLAXEN-PC=[
+		command=E:\Date\PuTTY\putty.exe
+		type=Application
+	]
+]
+	default=[
+		param=-load "ConoHa"
+	]
+]
+putty_app04=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Software\PuTTY\putty.exe
+		type=Application
+	]
+]
+	DESKTOP-AEDD2O7=[
+		command=C:\Software\PuTTY\putty.exe
+		type=Application
+	]
+]
+	FLAXEN-PC=[
+		command=E:\Date\PuTTY\putty.exe
+		type=Application
+	]
+]
+	default=[
+		param=-load "app04"
+	]
+]
+putty_rat_room=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Software\PuTTY\putty.exe
+		type=Application
+	]
+]
+	KTOP-AEDD2O7=[
+		command=C:\Software\PuTTY\putty.exe
+		type=Application
+	]
+]
+	FLAXEN-PC=[
+		command=E:\Date\PuTTY\putty.exe
+		type=Application
+	]
+]
+	default=[
+		param=-load "rat_room"
+	]
+]
+putty=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Software\PuTTY\putty.exe
+		type=Application
+	]
+]
+	DESKTOP-AEDD2O7=[
+		command=C:\Software\PuTTY\putty.exe
+		type=Application
+	]
+]
+	FLAXEN-PC=[
+		command=E:\Date\PuTTY\putty.exe
+		type=Application
+	]
+]
+potplayer=[
+	WINDOWS-O3L7BIO=[
+		command=E:\PotPlayer\PotPlayerMini.exe
+		type=Application
+	]
+]
+atom=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Users\admin\AppData\Local\atom\atom.exe
+		type=Application
+	]
+]
+music=[
+	WINDOWS-O3L7BIO=[
+		command=E:\document\MUSIC
+		type=LocalPath
+	]
+]
+line=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Users\admin\AppData\Local\LINE\bin\current\LINE.exe
+		type=Application
+	]
+]
+tools=[
+	WINDOWS-O3L7BIO=[
+		command=E:\pri\tools
+		type=LocalPath
+	]
+]
+mathematica=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Software\Mathematica\SystemFiles\FrontEnd\Binaries\Windows-x86-64\Mathematica.exe
+		type=Application
+	]
+]
+screenshot=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Users\admin\Pictures\screenshot
+		type=LocalPath
+	]
+]
+otbedit=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Software\OTBEdit\otbedit.exe
+		type=Application
+	]
+]
+	DESKTOP-AEDD2O7=[
+		command=C:\Software\OTBEdit\otbedit.exe
+		type=Application
+	]
+]
+ratdoc=[
+	WINDOWS-O3L7BIO=[
+		command=E:\document\RAT
+		type=LocalPath
+	]
+]
+software=[
+	DESKTOP-AEDD=[
+		command=C:\Software
+		type=LocalPath
+	]
+]
+evernote=[
+	WINDOWS-O3L7BIO=[
+		command=D:\utl\Evernote\Evernote.exe
+	]
+]
+	DESKTOP-AEDD2O7=[
+		command=C:\Software\Evernote\Evernote.exe
+	]
+]
+	default=[
+		type=Application
+	]
+]
+alarm=[
+	WINDOWS-O3L7BIO=[
+		command=D:\utl\FreeAlarmClockPortable\FreeAlarmClock.exe
+		type=Application
+	]
+]
+startup=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Users\admin\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
+		type=LocalPath
+	]
+]
+	DESKTOP-AEDD2O7=[
+		command=C:\Users\admin\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
+		type=LocalPath
+	]
+]
+	FLAXEN-PC=[
+		command=C:\Users\flaxen\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
+		type=LocalPath
+	]
+]
+cygwin=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Cygwin\bin\mintty.exe
+		param=-i /Cygwin-Terminal.ico -
+		type=Application
+	]
+]
+flax=[
+	WINDOWS-O3L7BIO=[
+		command=D:\Dropbox\autohotkey\flax.ahk
+		type=Application
+	]
+]
+windowspy=[
+	WINDOWS-O3L7BIO=[
+		command=D:\utl\AutoHotkey\AU3_Spy.exe
+		type=Application
+	]
+]
+class=[
+	WINDOWS-O3L7BIO=[
+		command=E:\document\éˆã∆
+		type=LocalPath
+	]
+]
+ecmenu=[
+	WINDOWS-O3L7BIO=[
+		command=D:\utl\EcMenu_v1.6\EcMenu_x64.exe
+		type=Application
+	]
+]
+classschedule=[
+	WINDOWS-O3L7BIO=[
+		command=E:\document\óöèCä÷åW
+		type=LocalPath
+	]
+]
+remotedesktop=[
+	default=[
+		command=C:\WINDOWS\system32\mstsc.exe
+		type=Application
+	]
+]
+steam=[
+	WINDOWS-O3L7BIO=[
+		command=E:\steam\Steam.exe
+		type=Application
+	]
+]
+gtav_solo=[
+	FLAXEN-PC=[
+		command=E:\Fgame\GTAV_solo.bat
+		type=Application
+	]
+]
+olliolli2=[
+	WINDOWS-O3L7BIO=[
+		command=C:\steam\steamapps\common\OlliOlli2\olliolli2.exe
+		type=Application
+	]
+]
+ronin=[
+	WINDOWS-O3L7BIO=[
+		command=C:\steam\steamapps\common\RONIN\Ronin.exe
+		type=Application
+	]
+]
+rlogin=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Software\RLogin\RLogin.exe
+		type=Application
+	]
+]
+anydesk=[
+	FLAXEN-PC=[
+		command=E:\Date\AnyDesk.exe
+		type=Application
+	]
+]
+nexusclient=[
+	FLAXEN-PC=[
+		command=E:\Fgame\SkyrimSE\NMM\NexusClient.exe
+		type=Application
+	]
+]
+eclipse_cdt=[
+	WINDOWS-O3L7BIO=[
+		command=C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Pleiades All in One CDT 4.6.2 (EclipseCDT).lnk
+		type=Application
+	]
+]
+eclipse=[
+	WINDOWS-O3L7BIO=[
+		command=C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Pleiades All in One Java 4.6.2 (Eclipse).lnk
+		type=Application
+	]
+]
+winauth=[
+	DESKTOP-AEDD=[
+		command=C:\software\WinAuth\WinAuth.exe
+		type=Application
+	]
+]
+	WINDOWS-O3L7BIO=[
+		command=C:\Software\WinAuth\WinAuth.exe
+		type=Application
+	]
+]
+test=[
+	WINDOWS-O3L7BIO=[
+		command=E:\document\MUSIC\ÇªÇÃëº\ÉLÉìÉÇÉNÉZÉC\ñ≤Ç≈àßÇ¶ÇΩÇÁ.mp3
+		type=Application
+	]
+]
+gvim=[
+	WINDOWS-O3L7BIO=[
+		command=D:\utl\vim80-kaoriya-win64\gvim.exe
+		type=Application
+	]
+]
+	DESKTOP-AEDD2O7=[
+		command=D:\utl\vim80-kaoriya-win64\gvim.exe
+		type=Application
+	]
+]
+	FLAXEN-PC=[
+		command=E:\Date\vim80-kaoriya-win64_sym\gvim.exe
+		type=Application
+	]
+]
+discord=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Users\admin\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Discord Inc\Discord.lnk
+		type=Application
+	]
+]
+anki=[
+	WINDOWS-O3L7BIO=[
+		command=D:\utl\Anki\anki.exe
+		type=Application
+	]
+]
+project2a=[
+	default=[
+		command=https://hidaka.cis.k.hosei.ac.jp/lectures/project.html
+		type=URL
+	]
+]
+sinerider=[
+	WINDOWS-O3L7BIO=[
+		command=E:\Fgame\SineRider+Windows\SineRider.exe
+		type=Application
+	]
+]
+invisibleinc=[
+	WINDOWS-O3L7BIO=[
+		command=C:\steam\steamapps\common\InvisibleInc\invisibleinc.exe
+		type=Application
+	]
+]
+book.txt=[
+	WINDOWS-O3L7BIO=[
+		command=D:\Dropbox\book.txt
+		type=Application
+	]
+]
+gdrive=[
+	default=[
+		command=https://drive.google.com/drive/u/0/my-drive
+		type=URL
+	]
+]
+mattermost=[
+	WINDOWS-O3L7BIO=[
+		command=C:\Users\admin\AppData\Local\mattermost\Mattermost.exe
+		type=Application
+	]
+]
