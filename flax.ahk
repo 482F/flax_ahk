@@ -53,8 +53,8 @@ DefVars:
 	launcherFD := new FD_for_EC("config/launcher.fd")
 	gestureFD := new FD_for_EC("config/gesture.fd")
 	registerFD := new FD("config/register.fd")
+	timetableFD := new FD("config/timetable.fd")
 	FileRead,ColorList,colorlist.txt
-	FileRead, TimeTable, config/TimeTable.txt
 	MP := Object()
 	global Pi := 3.14159265358979
 	msgbox,ready
@@ -1799,6 +1799,7 @@ MouseGetPos,X,Y
 	msgjoin(CmdRun("netsh wlan connect name=RAT-WIRELESS-A", 0))
 	return
 ::flaxtimetable::
+	timetableFD.read()
 	sleep 300
 	TTCellWidth = 100
 	TTCellHeight = 100
@@ -1808,19 +1809,18 @@ MouseGetPos,X,Y
 	Gui, FlaxTimeTable:+AlwaysOnTop -Border
 	x := marg
 	y := marg
-	Loop, Parse, TimeTable, `n
-	{
-		Text := ""
-		Loop, Parse, A_LoopField, `,
-		{
-			Text .= "`n" . A_LoopField
-		}
-		Gui, FlaxTimeTable:Add, Text, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center gOpenClassFolder, %Text%
-		if mod(A_Index, 6) == 0{
-			x += TTCellWidth
-			y := marg
-		}else{
-			y += TTCellHeight
+	Loop, 6{
+		R := A_Index - 1
+		Loop, 7{
+			C := A_Index - 1
+			x := marg + C * TTCellWidth
+			y := marg + R * TTCellHeight
+			Text := ""
+			Loop, 4{
+				L := A_Index - 1
+				Text .= "`n" timetableFD.dict[R][C][L]
+			}
+			Gui, FlaxTimeTable:Add, Text, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center gOpenClassFolder, %Text%
 		}
 	}
 	Gui, FlaxTimeTable:Show, , FlaxTimeTable
