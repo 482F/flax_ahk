@@ -48,17 +48,16 @@ DefVars:
 	copymode = normal
 	FIFOClip := Object()
 	editmode = normal
-	StringReplace,ComputerName,A_ComputerName,-
-	WINDOWSO3L7BIOscreenshotdir = C:\Users\admin\Pictures\screenshot\
 	launcherFD := new FD_for_EC("config/launcher.fd")
 	gestureFD := new FD_for_EC("config/gesture.fd")
 	registerFD := new FD("config/register.fd")
+	timetableFD := new FD("config/timetable.fd")
+	pathFD := new FD_for_EC("config/path.fd")
+	pathFD.dict := pathFD.dict["path"]
 	FileRead,ColorList,colorlist.txt
-	FileRead, TimeTable, config/TimeTable.txt
 	MP := Object()
 	global Pi := 3.14159265358979
 	msgbox,ready
-;	SetTimer,DefaultLoop,1000
 	return
 }
 GoSub,DefVars
@@ -255,50 +254,6 @@ IME_SetConvMode(ConvMode,WinTitle="A"){
 		  ,  Int, 0x002	   ;wParam  : IMC_SETCONVERSIONMODE
 		  ,  Int, ConvMode)   ;lParam  : CONVERSIONMODE
 }
-retpath(name){
-	if (A_ComputerName = "WINDOWS-O3L7BIO")
-	{
-		if (name = "screenshot")
-			return "C:\Users\admin\Pictures\screenshot\"
-		if (name = "document")
-			return "E:\document\"
-		if (name = "picture")
-			return "C:\Users\admin\Pictures\"
-		if (name = "music")
-			return "E:\document\MUSIC\"
-		if (name = "class")
-			return "E:\document\授業\2年春\"
-		if (name = "download")
-			return "D:\download\"
-		if (name = "python.exe")
-			return "C:\software\Python\python-3.6.0\python.exe"
-		if (name = "gvim")
-			return "D:\utl\vim80-kaoriya-win64\gvim.exe"
-	}
-	else if (A_ComputerName = "FLAXEN-PC")
-	{
-		if (name = "screenshot")
-			return "Z:\ライブラリ\ピクチャ\pcscreenshot\"
-		if (name = "document")
-			return "C:\Users\Flaxen\Documents\"
-		if (name = "picture")
-			return "Z:\ライブラリ\ピクチャ\"
-		if (name = "music")
-			return "Z:\ライブラリ\ミュージック\"
-		if (name = "download")
-			return "Z:\Downloads\"
-		if (name = "python.exe")
-			return "C:\Software\Python\python\python.exe"
-		if (name = "gvim")
-			return "H:\Date\vim80-kaoriya-win64\gvim.exe"
-	}
-	else if (A_ComputerName = "DESKTOP-AEDD2O7")
-	{
-		if (name = "gvim")
-			return "D:\utl\vim80-kaoriya-win64\gvim.exe"	
-	}
-	return
-}
 proofreadingratwikireg(Text,Rule){
 	StringGetPos,BR,Text,\begin{flaxconstant}
 	StringGetPos,ER,Text,\end{flaxconstant}
@@ -363,11 +318,11 @@ screenshot(SX,SY,EX,EY,destination,Flag=2){
 	send,!s
 	while True
 	{
-		IfExist,% retpath("screenshot") . PictName
+		IfExist,% pathFD.dict["screenshot"] . PictName
 			break
 		sleep 300
 	}
-	PictPath := retpath("screenshot") . PictName
+	PictPath := pathFD.dict["screenshot"] . PictName
 	FileMove,%PictPath%,%destination%,%Flag%
 	return
 }
@@ -570,8 +525,8 @@ RetMousePos(){
 	MouseGetPos,X,Y
 	return Object("X", X, "Y", Y)
 }
-RetPointsDist(X1, Y1, X2, Y2){
-	return ((X1 - X2) ** 2 + (Y1 - Y2) ** 2) ** (1 / 2)
+RetPointsDist(M1, M2){
+	return ((M1["X"] - M2["X"]) ** 2 + (M1["Y"] - M2["Y"]) ** 2) ** (1/2)
 }
 RetKeyState(KeyName,Mode="P"){
 	GetKeyState,K,%KeyName%,%Mode%
@@ -751,6 +706,28 @@ msgobj(obj){
 	msgjoin(joinobj(obj))
 	return
 }
+RetRLDU(Radian){
+	if (15/8 < Radian or Radian <= 1/8)
+		return "R"
+	if (1/8 < Radian and Radian <= 3/8)
+		return "BDR"
+	if (3/8 < Radian and Radian <= 5/8)
+		return "D"
+	if (5/8 < Radian and Radian <= 7/8)
+		return "BDL"
+	if (7/8 < Radian and Radian <= 9/8)
+		return "L"
+	if (9/8 < Radian and Radian <= 11/8)
+		return "BUL"
+	if (11/8 < Radian and Radian <= 13/8)
+		return "U"
+	if (13/8 < Radian and Radian <= 15/8)
+		return "BUR"
+	return
+}
+RetMPatan2(MP1, MP2){
+	return atan2(MP1["X"], MP1["Y"], MP2["X"], MP2["Y"])
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
@@ -865,18 +842,62 @@ class FD_for_EC extends FD{
 		base.write(FilePath, dict)
 	}
 }
-
+class MouseRoute{
+	__New(){
+		this.LineLength := 100
+		this.route := ""
+		this.Reg := Object("BUR", Chr(0x2197), "BUL", Chr(0x2196), "BDR", Chr(0x2198), "BDL", Chr(0x2199), "U", "↑", "R", "→", "L", "←", "D", "↓")
+		this.NoS := 10
+		this.Index := 0
+		this.MPL := Object()
+		this.SMP := Object()
+		this.LastDirection := ""
+	}
+	check(){
+		RV := 0
+		if (this.SMP["X"] == "")
+			this.SMP := RetMousePos()
+		ICE := Mod(this.Index, this.NoS) ;  Index Current End
+		ILS := Mod(ICE + 1, this.NoS) ;Index Last Start
+		ILE := Mod(ICE + 5, this.NoS) ;Index Last End
+		ICS := Mod(ICE + 6, this.NoS) ;Index Current Start
+		this.Index += 1
+		this.MPL[ICE] := RetMousePos()
+		if (this.LineLength <= RetPointsDist(this.MPL[ICE], this.SMP)){
+			MRA := RetMPatan2(this.SMP, this.MPL[ICE]) / Pi
+			this.SMP := DeepCopy(this.MPL[ICE])
+			CurrentDirection := RetRLDU(MRA)
+			if (CurrentDirection == this.LastDirection)
+				return RV
+			this.route .= CurrentDirection
+			this.LastDirection := CurrentDirection
+			RV := 1
+		}
+		MPatanL := RetMPatan2(this.MPL[ILS], this.MPL[ILE])
+		MPatanC := RetMPatan2(this.MPL[ICS], this.MPL[ICE])
+		diff := Abs(MPatanL - MPatanC) / Pi
+		if (MPatanL != 0 and MPatanC != 0 and ((0.4 < diff and diff < 1.6) or 2.4 < diff))
+			this.SMP := RetMousePos()
+		return RV
+	}
+	getMRSymbol(){
+		MRS := this.route
+		for Pattern, Replacement in this.Reg
+			MRS := RegExReplace(MRS, Pattern, Replacement)
+		return MRS
+	}
+}
 
 ;hotstring
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	launcherFD.fdict["testname"] := Object()
-	launcherFD.fdict["testname"]["default"] := Object()
-	launcherFD.fdict["testname"]["default"]["command"] := "testcommand"
-	launcherFD.fdict["testname"]["default"]["type"] := "testtype"
-	msgjoin(joinobj(launcherFD.fdict["editlauncher"]))
-	launcherFD.write()
+	mr := new MouseRoute()
+	while True{
+		if (mr.check())
+			ToolTip, % "A" . mr.getMRSymbol()
+			sleep 100
+	}
 	return
 ::flaxcalc::
 	Sleep 100
@@ -1038,7 +1059,6 @@ class FD_for_EC extends FD{
 	Gui, New, , FlaxCode_Maker
 	Gui, FlaxCode_Make:Font,,Meiryo UI
 	Gui, FlaxCode_Make:Margin,10,10
-	Gui, FlaxCode_Make: -Border +ToolWindow
 	Gui, FlaxCode_Make:Add,Text,,&Clear Text
 	Gui, FlaxCode_Make:Add,Edit,W500 Multi Password* vCText
 	Gui, FlaxCode_Make:Add,Text,,&Seed
@@ -1053,8 +1073,6 @@ class FD_for_EC extends FD{
 	Gui, FlaxCode_Make:Add,Button,Default gMakeCodeGuiOK,OK
 	Gui, FlaxCode_Make:-Resize
 	Gui, FlaxCode_Make:Show,Autosize,flaxCode_Maker
-	; WinWaitNotActive,flaxCode_Maker
-	; Gui, FlaxCode_Make:Destroy
 	return
 	FlaxCode_MakeGuiClose:
 	FlaxCode_MakeGuiEscape:
@@ -1294,41 +1312,6 @@ class FD_for_EC extends FD{
 	send,%clipboard%
 	Clipboard := K
 	return
-::flaxproofreadingratwiki::
-	sleep 200
-	PreProofreadingRule =
-	(
-\[(.*?)\]:::flaxdelimiter:::\begin{flaxconstant}[$1]\end{flaxconstant}
-\{\{pre(.*?)\}\}:::flaxdelimiter:::\begin{flaxconstant}{{pre$1}}\end{flaxconstant}
-\"\"([^\n]*)\n:::flaxdelimiter:::\begin{flaxconstant}""$1\n\end{flaxconstant}
-)
-	ProofreadingRule =
-	(
-。\n:::flaxdelimiter:::\n
-([^\s\t\n\[\(\{\<。、])([\[\(\{\<]):::flaxdelimiter:::$1 $2
-([\]\)\}\>])([^\s\t\n\]\)\}\>。、]):::flaxdelimiter:::$1 $2
-\n(([!\*])\2*+)([^\s\2]):::flaxdelimiter:::\n$1 $3
-\!+ ([^\n]*?)\n[\n\t\s]*[\*\!]:::flaxdelimiter::::::flaxerror:::
-!!! [^\n]*?(\n[^!\n][^\n]*?|\n)*?(\n\![^\!]):::flaxdelimiter:::$2:::flaxerror:::
-[^\*]\* [^\n]*?(\n[^*\n][^\n]*?|\n)*?(\n\*\*\*):::flaxdelimiter::::::flaxerror:::
-!+ ([^\n]*?)(\n[^!\*\n][^\n]*?|\n)*?(\n\*\*\*?):::flaxdelimiter::::::flaxerror:::
-:::flaxerror::::::flaxdelimiter:::\n\n\n\n\n\n\n\n\n\n\n\n\n\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
-)
-	Gui, New, , FlaxProofreadintRatWiki
-	Gui, FlaxProofreadintRatWiki:Font,,Meiryo UI
-	Gui, FlaxProofreadintRatWiki:Margin,10,10
-	Gui, FlaxProofreadintRatWiki:Add,Edit,W500 R20 Multi vBText
-	Gui, FlaxProofreadintRatWiki:Add,Edit,W500 R20 ys+0 Multi vAText
-	Gui, FlaxProofreadintRatWiki:Add,Button,Default gproofreadingratwikiOK,&Encode
-	Gui, FlaxProofreadintRatWiki:-Resize
-	Gui, FlaxProofreadintRatWiki:Show,Autosize,ProofreadingRatWiki
-	return
-	proofreadingratwikiOK:
-		Gui, FlaxProofreadintRatWiki:Submit,NoHide
-		BText := proofreadingratwikireg(BText,PreProofreadingRule)
-		BText := proofreadingratwikireg(BText,ProofreadingRule)
-		GuiControl,Text,AText,%BText%
-		return
 ::flaxcsvmaker::
 	sleep 200
 	RetCellHwnd(R,C)
@@ -1564,8 +1547,8 @@ class FD_for_EC extends FD{
 	Gui,New,,colorviewerC
 	Gui,New,,colorviewerV
 	gui,margin,0,0
-	Gui, colorviewerV: -Border +ToolWindow
-	Gui, colorviewerC:-Border +ToolWindow
+	Gui, colorviewerV: -Border
+	Gui, colorviewerC:-Border
 	Gui, colorviewerV:Add,Slider,vRV gColorSliderMoved Vertical Invert Range0-255 Center Y0 X180 W40 H300 AltSubmit -BackGround
 	Gui, colorviewerV:Add,Slider,vGV gColorSliderMoved Vertical Invert Range0-255 Center Y0 X220 W40 H300 AltSubmit -BackGround
 	Gui, colorviewerV:Add,Slider,vBV gColorSliderMoved Vertical Invert Range0-255 Center Y0 X260 W40 H300 AltSubmit -BackGround
@@ -1576,9 +1559,6 @@ class FD_for_EC extends FD{
 	Gui, colorviewerC:Color,%Clopboard%
 	Gui, colorviewerC:Show,Y100 X102 H277 W177
 	Gui, colorviewerV:Show,Y100 X100 H300 W300
-	; WinWaitNotActive,colorviewerV
-	; Gui, colorviewerV:Destroy
-	; Gui, colorviewerC:Destroy
 	return
 	colorviewerCGuiEscape:
 	colorviewerVGuiEscape:
@@ -1687,16 +1667,6 @@ MouseGetPos,X,Y
 		Clipboard := RegExReplace(Clipboard,"\n,|^,", "`n")
 		Gui, FlaxMakeTruthTable:Destroy
 		Return
-::flaxscreensaver::
-	Gui,Add,Button,vScreenButton
-	Gui,Show,W1000 H500
-	while true
-	{
-		sleep 1/60
-		MouseGetPos,MouseX,MouseY
-		GuiControl,Move,ScreenButton,X%MouseX% Y%MouseY%
-	}
-	return
 ::flaxfifo::
 	IoFWP := 0
 	IoFRP := 0
@@ -1799,6 +1769,7 @@ MouseGetPos,X,Y
 	msgjoin(CmdRun("netsh wlan connect name=RAT-WIRELESS-A", 0))
 	return
 ::flaxtimetable::
+	timetableFD.read()
 	sleep 300
 	TTCellWidth = 100
 	TTCellHeight = 100
@@ -1808,24 +1779,21 @@ MouseGetPos,X,Y
 	Gui, FlaxTimeTable:+AlwaysOnTop -Border
 	x := marg
 	y := marg
-	Loop, Parse, TimeTable, `n
-	{
-		Text := ""
-		Loop, Parse, A_LoopField, `,
-		{
-			Text .= "`n" . A_LoopField
-		}
-		Gui, FlaxTimeTable:Add, Text, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center gOpenClassFolder, %Text%
-		if mod(A_Index, 6) == 0{
-			x += TTCellWidth
-			y := marg
-		}else{
-			y += TTCellHeight
+	Loop, 6{
+		R := A_Index - 1
+		Loop, 7{
+			C := A_Index - 1
+			x := marg + C * TTCellWidth
+			y := marg + R * TTCellHeight
+			Text := ""
+			Loop, 4{
+				L := A_Index - 1
+				Text .= "`n" timetableFD.dict[R][C][L]
+			}
+			Gui, FlaxTimeTable:Add, Text, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center gOpenClassFolder, %Text%
 		}
 	}
 	Gui, FlaxTimeTable:Show, , FlaxTimeTable
-	WinWaitNotActive,FlaxTimeTable
-	Gui, FlaxTimeTable:Destroy
 	return
 	OpenClassFolder:
 		Loop, Parse, A_GuiControl, `n
@@ -1836,7 +1804,7 @@ MouseGetPos,X,Y
 				break
 			}
 		}
-		ClassPath := retpath("class") . ClassName
+		ClassPath := pathFD.dict["class"] . ClassName
 		Run, %ClassPath%
 		return
 	FlaxTimeTableGuiEscape:
@@ -1845,7 +1813,7 @@ MouseGetPos,X,Y
 		return
 ::flaxhanoy::
 	sleep 400
-	CmdRun(retpath("python.exe") . " Hanoy.py ")
+	CmdRun(pathFD.dict["python"] . " Hanoy.py ")
 	return
 ::flaxtransparent::
 	sleep 400
@@ -1856,6 +1824,152 @@ MouseGetPos,X,Y
 		flaxtransparent_k := 255
 		WinSet, Transparent, OFF, A
 	}
+	return
+::flaxeditgesture::
+	sleep 400
+	Gui, New, , FlaxEditGesture
+	Gui, FlaxEditGesture:Font, , Meiryo UI
+	Gui, FlaxEditGesture:Margin, 10, 10
+	Gui, FlaxEditGesture:Add, Text, , &Gesture
+	Gui, FlaxEditGesture:Add, Edit, w400 vEGesture
+	Gui, FlaxEditGesture:Add, Text, vSymbol w400
+	Gui, FlaxEditGesture:Add, Button, gEditGestureREC, &REC
+	Gui, FlaxEditGesture:Add, Text, , &Command
+	Gui, FlaxEditGesture:Add, Edit, w400 vECommand
+	Gui, FlaxEditGesture:Add, Text, , &Label
+	Gui, FlaxEditGesture:Add, Edit, w400 Section vELabel
+	Gui, FlaxEditGesture:Add, Text, xs+0 ys+50, Mouse Button
+	Gui, FlaxEditGesture:Add, Radio, vRL Checked, &LeftButton
+	Gui, FlaxEditGesture:Add, Radio, vRM, &MiddleButton
+	Gui, FlaxEditGesture:Add, Radio, vRR, &RightButton
+	Gui, FlaxEditGesture:Add, Text, , Modifier Key
+	Gui, FlaxEditGesture:Add, Checkbox, vCCtrl, &Ctrl
+	Gui, FlaxEditGesture:Add, Checkbox, vCAlt, &Alt
+	Gui, FlaxEditGesture:Add, Checkbox, vCShift, &Shift
+	Gui, FlaxEditGesture:Add, Text, xs+200 ys+50, Computer
+	Gui, FlaxEditGesture:Add, Radio, vRThi Checked, &ThisComputer
+	Gui, FlaxEditGesture:Add, Radio, vRAll, &AllComputer
+	Gui, FlaxEditGesture:Add, Text, , Type
+	Gui, FlaxEditGesture:Add, Radio, vRLab, &Label
+	Gui, FlaxEditGesture:Add, Radio, vRLoc, &LocalPath
+	Gui, FlaxEditGesture:Add, Radio, vRApp, &Application
+	Gui, FlaxEditGesture:Add, Radio, vRURL, &URL
+	Gui, FlaxEditGesture:Add, Radio, vRLau, &Launcher
+	Gui, FlaxEditGesture:Add, Button, Default gEditGestureOK, &OK
+	Gui, FlaxEditGesture:-Resize
+	Gui, FlaxEditGesture:Show,Autosize, FlaxEditGesture
+	return
+	EditGestureREC:
+		RECG := 1
+		MR := new MouseRoute()
+		while (RECG){
+			if (MR.check()){
+				GuiControl, , EGesture, % MR.route
+				GuiControl, , Symbol, % MR.getMRSymbol()
+			}
+			sleep 100
+		}
+		return
+	EditGestureOK:
+		Gui, FlaxEditGesture:Submit
+		Prefix := ""
+		if (RL)
+			Prefix .= "LB"
+		else if (RM)
+			Prefix .= "MB"
+		else if (RR)
+			Prefix .= "RB"
+		if (CCtrl)
+			Prefix .= "^"
+		if (CAlt)
+			Prefix .= "!"
+		if (CShift)
+			Prefix .= "+"
+		B_ComputerName := ""
+		if (RThi = 1)
+			B_ComputerName := A_ComputerName
+		else if (RAll = 1)
+			B_ComputerName := "default"
+		if (RLab)
+			Type := "Label"
+		else if (RLoc)
+			Type := "LocalPath"
+		else if (App)
+			Type := "Application"
+		else if (URL)
+			Type := "URL"
+		else if (Lau)
+			Type := "Launcher"
+		EGesture := Prefix . EGesture
+		if (not gestureFD.fdict.HasKey(EGesture))
+			gestureFD.fdict[EGesture] := Object()
+		if (not gestureFD.fdict[EGesture].HasKey(B_ComputerName))
+			gestureFD.fdict[EGesture][B_ComputerName] := Object()
+		gestureFD.fdict[EGesture][B_ComputerName]["command"] := ECommand
+		gestureFD.fdict[EGesture][B_ComputerName]["type"] := Type
+		gestureFD.fdict[EGesture][B_ComputerName]["label"] := ELabel
+		gestureFD.write()
+		return
+	FlaxEditGestureGuiEscape:
+		if (RECG){
+			RECG := 0
+			return
+		}
+	FlaxEditGestureGuiClose:
+		Gui, FlaxEditGesture:Destroy
+		return
+	return
+::flaxedittimetable::
+	timetableFD.read()
+	sleep 300
+	TTCellWidth = 100
+	TTCellHeight = 100
+	Gui, New, , FlaxEditTimeTable
+	Gui, FlaxEditTimeTable:Font, MeiryoUI
+	Gui, FlaxEditTimeTable:Margin, 50, 50
+	x := marg
+	y := marg
+	Loop, 6{
+		R := A_Index - 1
+		Loop, 7{
+			C := A_Index - 1
+			x := marg + C * TTCellWidth
+			y := marg + R * TTCellHeight
+			Text := ""
+			Loop, 4{
+				L := A_Index - 1
+				Text .= "`n" timetableFD.dict[R][C][L]
+			}
+			Gui, FlaxEditTimeTable:Add, Edit, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center vE%R%%C% -VScroll, %Text%
+		}
+	}
+	Gui, FlaxEditTimeTable:Add, Button, Default gEditTimeTableOK, OK
+	Gui, FlaxEditTimeTable:Show, , FlaxEditTimeTable
+	return
+	EditTimeTableOK:
+		Gui, FlaxEditTimeTable:Submit
+		Loop, 6{
+			R := A_Index - 1
+			Loop, 7{
+				C := A_Index - 1
+				Text := E%R%%C%
+				Loop, Parse, Text, `n
+				{
+					if (2 <= A_Index){
+						if (not timetableFD.dict.HasKey(R))
+							timetableFD.dict[R] := Object()
+						if (not timetableFD.dict[R].HasKey(C))
+							timetableFD.dict[R][C] := Object()
+						timetableFD.dict[R][C][A_Index - 2] := A_LoopField
+					}
+				}
+			}
+		}
+		timetableFD.write()
+	FlaxEditTimeTableGuiEscape:
+	FlaxEditTimeTableGuiClose:
+		Gui, FlaxEditTimeTable:Destroy
+		return
 	return
 
 
@@ -1881,7 +1995,6 @@ MouseGetPos,X,Y
 	Gui, FlaxLauncher:+AlwaysOnTop -Border
 	Gui, FlaxLauncher:Show,Hide
 	Gui, FlaxLauncher:+LastFound
-	Gui, FlaxLauncher:+ToolWindow
 	WinGetPos,,,w,h
 	Gui, FlaxLauncher:Add,Button,Default Hidden gLauncherOK,OK
 	w := MonitorSizeX - marg - w
@@ -2100,28 +2213,6 @@ RegisterInput:
 	sleep 200
 	Clipboard := ClipboardAlt
 	return
-+#Right::
-	WinRestore, A
-	WinMove, A, ,% A_ScreenWidth / 2, 0, % A_ScreenWidth / 2, % A_ScreenHeight
-	return
-+#Left::
-	WinRestore, A
-	WinMove, A, , 0, 0, % A_ScreenWidth / 2, % A_ScreenHeight
-	return
-+#Up::
-	WinRestore, A
-	WinGetActiveStats, Title, Width, Height, X, Y
-	if ((Y == 0) and (Height == A_ScreenHeight / 2)){
-		WinMaximize, A
-	}else{
-		WinMove, A, , %X%, 0, Width, % A_ScreenHeight / 2
-	}
-	return
-+#Down::
-	WinRestore, A
-	WinGetActiveStats, Title, Width, Height, X, Y
-	WinMove, A, , %X%, % A_ScreenHeight / 2, Width, % A_ScreenHeight / 2
-	return
 +#Space::
 	Menu, WindowResizer, Add, 1280x720, Resize
 	Menu, WindowResizer, Add, 1160x800, Resize
@@ -2196,10 +2287,8 @@ vk1Dsc07B & 5::send,0
 	GoSub,MouseGestureCheck
 	return
 MouseGestureCheck:
-	MouseRoute := ""
+	MR := new MouseRoute()
 	CommandCandidate := ""
-	LastNEWS := ""
-	Reg := Object("BNE", Chr(0x2197), "BNW", Chr(0x2196), "BSE", Chr(0x2198), "BSW", Chr(0x2199), "N", "↑", "E", "→", "W", "←", "S", "↓")
 	if (RetKeyState("LCtrl"))
 		Prefix .= "^"
 	if (RetKeyState("LAlt"))
@@ -2207,15 +2296,15 @@ MouseGestureCheck:
 	if (RetKeyState("LShift"))
 		Prefix .= "+"
 	For, Key, Value in gestureFD.dict{
-		if (InStr(Key, Prefix . MouseRoute) == 1)
+		if (InStr(Key, Prefix . MR.route) == 1)
 		{
 			CommandLabel := gestureFD.dict[Key]["label"]
 			if (CommandValue != "ERROR")
 			{
-				CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MouseRoute) + 1, StrLen(Key))
+				CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MR.route) + 1, StrLen(Key))
 				CandiValue := CandiName == "" ? "" : " : "
 				CandiValue .= CommandLabel
-				For, Pattern, Replacement in Reg
+				For, Pattern, Replacement in MR.Reg
 					CandiName := RegExReplace(CandiName, Pattern, Replacement)
 				CommandCandidate .= CandiName . CandiValue . "`n"
 			}
@@ -2223,65 +2312,20 @@ MouseGestureCheck:
 	}
 	CommandCandidate := CommandCandidate == "" ? "None" : CommandCandidate
 	ToolTip,% CommandCandidate
-	LineLength := 100
-	NMP := RetMousePos()
-	SMP := Object()
-	SMP["X"] := NMP["X"]
-	SMP["Y"] := NMP["Y"]
-	NMP := Object()
-	RetNEWS(Radian){ ;NS が画面の座標の関係で入れ替わっているので注意
-		if (15/8 < Radian or Radian <= 1/8)
-			return "E"
-		if (1/8 < Radian and Radian <= 3/8)
-			return "BSE"
-		if (3/8 < Radian and Radian <= 5/8)
-			return "S"
-		if (5/8 < Radian and Radian <= 7/8)
-			return "BSW"
-		if (7/8 < Radian and Radian <= 9/8)
-			return "W"
-		if (9/8 < Radian and Radian <= 11/8)
-			return "BNW"
-		if (11/8 < Radian and Radian <= 13/8)
-			return "N"
-		if (13/8 < Radian and Radian <= 15/8)
-			return "BNE"
-		return
-	}
-	RetMPatan2(MP1, MP2){
-		return atan2(MP1["X"], MP1["Y"], MP2["X"], MP2["Y"])
-	}
-	while (RetKeyState(Button) and RetKeyState("LWin"))
-	{
-		ILD := Mod(A_Index, 10)
-		M9 := Mod(ILD + 1, 10)
-		M5 := Mod(ILD + 5, 10)
-		M4 := Mod(ILD + 6, 10)
+	while (RetKeyState(Button) and RetKeyState("LWin")){
 		sleep 100
-		NMP[ILD] := RetMousePos()
-		if (LineLength <= RetPointsDist(NMP[ILD]["X"], NMP[ILD]["Y"], SMP["X"], SMP["Y"]))
-		{
-			MRA := atan2(SMP["X"], SMP["Y"], NMP[ILD]["X"], NMP[ILD]["Y"]) / Pi
-			SMP["X"] := NMP[ILD]["X"]
-			SMP["Y"] := NMP[ILD]["Y"]
-			NowNEWS := RetNEWS(MRA)
-			if (NowNEWS == LastNEWS)
-			{
-				continue
-			}
-			MouseRoute .= NowNEWS
-			LastNEWS := NowNEWS
+		if (MR.check()){
 			CommandCandidate := ""
 			For Key, Value in gestureFD.dict{
-				if (InStr(Key, Prefix . MouseRoute) == 1)
+				if (InStr(Key, Prefix . MR.route) == 1)
 				{
 					CommandLabel := gestureFD.dict[Key]["label"]
 					if (CommandValue != "ERROR")
 					{
-						CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MouseRoute) + 1, StrLen(Key))
+						CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MR.route) + 1, StrLen(Key))
 						CandiValue := CandiName == "" ? "" : " : "
 						CandiValue .= CommandLabel
-						For, Pattern, Replacement in Reg
+						For, Pattern, Replacement in MR.Reg
 							CandiName := RegExReplace(CandiName, Pattern, Replacement)
 						CommandCandidate .= CandiName . CandiValue . "`n"
 					}
@@ -2290,19 +2334,8 @@ MouseGestureCheck:
 			CommandCandidate := CommandCandidate == "" ? "None" : CommandCandidate
 			ToolTip,%CommandCandidate%
 		}
-		MPatan95 := RetMPatan2(NMP[M9], NMP[M5])
-		MPatan4I := RetMPatan2(NMP[M4], NMP[ILD])
-		K := (Abs(RetMPatan2(NMP[M9], NMP[M5]) - RetMPatan2(NMP[M4], NMP[ILD])) / Pi)
-		;ToolTip,% JoinStr(RetMPatan2(NMP[M9], NMP[M5]) / Pi, RetMPatan2(NMP[M4], NMP[ILD]) / Pi, NMP[M4]["X"], NMP[M4]["Y"], NMP[ILD]["X"], NMP[ILD]["Y"], M9, M5, M4, ILD)
-		;ToolTip,% JoinStr(K, MPatan4I, Mpatan95)
-		if ((MPatan4I == 0 or MPatan95 == 0))
-			continue
-		if ((0.4 < K and K < 1.6) or 2.4 < K)
-		{
-			SMP := RetMousePos()
-		}
 	}
-	GestureName := Prefix . MouseRoute
+	GestureName := Prefix . MR.route
 	GestureType := gestureFD.dict[GestureName]["type"]
 	GestureCommand := gestureFD.dict[GestureName]["command"]
 	ToolTip,
@@ -2351,8 +2384,6 @@ MouseGestureCheck:
 ^+!c::send,!+,
 ^+!d::send,!+.
 ^+!r::send,!+l
-;AppsKey::RAlt
-;vkF2sc070::RWin
 
 
 #IfWinActive ahk_exe excel.exe
@@ -2527,362 +2558,6 @@ MouseGestureCheck:
 			sleep 100tton
 		}
 		return
-	^Enter::
-		msgbox,Start
-		alcblacklist()
-		{
-			IMageSearch,FX,FY,479,359,773,567,*100 C:\Users\admin\Pictures\screenshot\alc\alcblacklist.png
-			If (ErrorLevel = 0)
-			{
-				sleep 100
-				send,{Enter}
-				sleep 100
-			}
-			return
-		}
-		FileDelete,C:\Users\admin\Pictures\screenshot\alc*.png
-		MSRSX = 340
-		MSRSY = 218
-		MSREX = 1055
-		MSREY = 285
-		SWSRSX = 171
-		SWSRSY = 242
-		SWSREX = 338
-		SWSREY = 300
-		SRSX = 330
-		SRSY = 250
-		SREX = 1100
-		SREY = 400
-		While True
-		{
-			GetKeyState,GKS,1,P
-			If (GKS = "D")
-			{
-				Msgbox,Suspending
-			}
-			MouseMove,1139,211
-			sleep 200
-			MouseMove,1139,201
-			alcblacklist()
-
-			ImageSearch,FX,FY,%SWSRSX%,%SWSRSY%,%SWSREX%,%SWSREY%,*100 C:\Users\admin\Pictures\screenshot\alc\alcwrong.png
-			if (ErrorLevel = 0)
-			{
-				send,{Enter}
-			}
-			ImageSearch,FX,FY,%MSRSX%,%MSRSY%,%MSREX%,%MSREX%,*100 C:\Users\admin\Pictures\screenshot\alc\alccorrectselect.png
-			if (ErrorLevel = 0)
-			{
-				Mode = correctselect
-			}
-			else
-			{
-				ImageSearch,FX,FY,%MSRSX%,%MSRSY%,%MSREX%,%MSREX%,*100 C:\Users\admin\Pictures\screenshot\alc\alctypesort.png
-				if (ErrorLevel = 0)
-				{
-					Mode = typesort
-				}
-				else
-				{
-					ImageSearch,FX,FY,%MSRSX%,%MSRSY%,%MSREX%,%MSREX%,*100 C:\Users\admin\Pictures\screenshot\alc\alcmeanselect.png
-					if (ErrorLevel = 0)
-					{
-						Mode = meanselect
-					}
-					else
-					{
-						ImageSearch,FX,FY,%MSRSX%,%MSRSY%,%MSREX%,%MSREX%,*100 C:\Users\admin\Pictures\screenshot\alc\alctypesort2.png
-						if (ErrorLevel = 0)
-						{
-							Mode = typesort
-						}
-						else
-						{
-							ImageSearch,FX,FY,63,209,138,269,*100 C:\Users\admin\Pictures\screenshot\alc\alclastest.png
-							if (ErrorLevel = 0)
-							{
-								Mode = lastest
-							}
-							else
-							{
-								;msgbox,notfound
-								continue
-							}
-						}
-					}
-				}
-			}
-			;msgbox,A%Mode%
-			sleep 500
-			if (Mode = "typesort")
-			{
-				FileName = 404
-				Loop,C:\Users\admin\Pictures\screenshot\alctypesort*str.png
-				{
-					ImageSearch,FX,FY,%SRSX%,%SRSY%,%SREX%,%SREY%,*100 %A_LoopFileFullPath%
-					if (ErrorLevel = 0)
-					{
-						StringLen,Len,A_LoopFileName
-						StringMid,FileName,A_LoopFileName,12,% Len - 18
-						Break
-					}
-				}
-				if (FileName != 404)
-				{
-					sleep 300
-					send,% FileName
-					sleep 200
-					send,{Enter}
-				}
-				else
-				{
-					;send,^+{F12}
-					sleep 300
-					screenshot(345,270,1048,330,retpath("screenshot") . "alctypesort.png")
-					;CoordMode,Mouse,Screen
-					;MouseMove,345,270
-					;sleep 100
-					;send,{LButton down}
-					;sleep 100
-					;MouseMove,1048,330
-					;sleep 100
-					;send,{LButton up}
-					;sleep 300
-					;MouseClick,L,1030,360
-					;sleep 500
-					;send,!n
-					;sleep 100
-					;send,alctypesort
-					;sleep 300
-					;send,{Enter}
-					sleep 500
-					MouseClick,L,609,190
-					sleep 300
-					send,{Enter}
-					sleep 500
-					alcblacklist()
-					sleep 500
-					CoordMode,Mouse,Relative
-					sleep 300
-					MouseClick,L,635,334
-					sleep 300
-					MouseClick,L,635,334
-					sleep 300
-					send,^c
-					sleep 500
-					string := Clipboard
-					FileMoveDir,C:\Users\admin\Pictures\screenshot\alctypesort.png,C:\Users\admin\Pictures\screenshot\alctypesort%string%str.png,R
-					send,{Enter}
-				}
-			}
-			else if (Mode = "lastest")
-			{
-				sleep 300
-				MouseClick,L,986,836
-				sleep 500
-				MouseClick,L,864,695
-				sleep 500
-				MouseClick,L,975, 886
-				sleep 500
-				MouseClick,L,977, 891
-				sleep 500
-				FileDelete,C:\Users\admin\Pictures\screenshot\alc*.png
-			}
-			else
-			{
-				FileName = 404
-				Loop,C:\Users\admin\Pictures\screenshot\alc%Mode%*str.png
-				{
-					ImageSearch,FX,FY,%SRSX%,%SRSY%,%SREX%,%SREY%,*100 %A_LoopFileFullPath%
-					if (ErrorLevel = 0)
-					{
-						;msgbox,% A_LoopFileName
-						sleep 500
-						StringLen,ModeLen,Mode
-						StringLen,Len,A_LoopFileName
-						StringMid,FileName,A_LoopFileName,% ModeLen + 4,% Len - (ModeLen + 10)
-						Break
-					}
-				}
-				;msgbox,filename%FileName%
-				sleep 500
-				if (FileName != 404)
-				{
-					ImageSearch,FX,FY,437,356,1054,594,*100 C:\Users\admin\Pictures\screenshot\alc%Mode%%FileName%*correct.png
-					If (ErrorLevel = 0)
-					{
-						MouseClick,L,%FX%,%FY%
-					}
-					else
-					{
-						Loop,C:\Users\admin\Pictures\screenshot\alc%Mode%%FileName%*.png
-						{
-							ImageSearch,FX,FY,437,356,1054,620,*100 %A_LoopFileFullPath%
-							If (ErrorLevel = 0)
-							{
-								MouseClick,L,%FX%,%FY%
-								ImageSearch,FX,FY,%SWSRSX%,%SWSRSY%,%SWSREX%,%SWSREY%,*100 C:\Users\admin\Pictures\screenshot\alc\alc%Mode%wrong.png
-								if (ErrorLevel = 0)
-								{
-									FileDelete,C:\Users\admin\Pictures\screenshot\alc%Mode%1.png
-									MouseClick,L,635,334
-									sleep 100
-									MouseClick,L,635,334
-									send,^c
-									sleep 500
-									string := Clipboard
-									FileMoveDir,C:\Users\admin\Pictures\screenshot\alc%Mode%str.png,C:\Users\admin\Pictures\screenshot\alc%Mode%%string%str.png,R
-									FileMoveDir,C:\Users\admin\Pictures\screenshot\alc%Mode%2.png,C:\Users\admin\Pictures\screenshot\alc%Mode%%string%2.png,R
-									FileMoveDir,C:\Users\admin\Pictures\screenshot\alc%Mode%3.png,C:\Users\admin\Pictures\screenshot\alc%Mode%%string%3.png,R
-									send,{Enter}
-								}
-								else
-								{
-									FileDelete,C:\Users\admin\Pictures\screenshot\alc%Mode%2.png
-									FileDelete,C:\Users\admin\Pictures\screenshot\alc%Mode%3.png
-									FileMoveDir,C:\Users\admin\Pictures\screenshot\alc%Mode%1.png,C:\Users\admin\Pictures\screenshot\alc%Mode%%string%correct.png,R
-								}
-								Break
-							}
-							else
-							{
-								FileDelete,%A_LoopFileFullPath%
-								StringLen,Len,A_LoopFileName
-								StringMid,FilePath,A_LoopFileName,1,% Len - 5
-								;msgbox,%FilePath%
-								sleep 500
-								BFilePath := FilePath . "3.png"
-								AFilePath := FilePath . "correct.png"
-								FileMoveDir,%BFilePath%,%AFilePath%
-								break
-							}
-						}
-					}
-				}
-				else
-				{
-					screenshot(345,270,1048,330,retpath("screenshot") . "alc" . Mode . "str.png")
-					;send,^+{F12}
-					;sleep 300
-					;CoordMode,Mouse,Screen
-					;MouseMove,345,270
-					;sleep 100
-					;send,{LButton down}
-					;sleep 100
-					;MouseMove,1048,330
-					;sleep 100
-					;send,{LButton up}
-					;sleep 300
-					;MouseClick,L,1030,360
-					;sleep 500
-					;send,!n
-					;sleep 100
-					;send,alc%Mode%str
-					;sleep 100
-					;send,{Enter}
-					sleep 500
-					MouseMove,1139,211
-					MouseClick,
-					sleep 500
-					screenshot(443,363,1033,410,retpath("screenshot") . "alc" . Mode . "1.png")
-					;send,^+{F12}
-					;sleep 500
-					;MouseMove,443,363
-					;sleep 100
-					;send,{LButton down}
-					;sleep 100
-					;MouseMove,1033,410
-					;sleep 100
-					;send,{LButton up}
-					;sleep 300
-					;MouseClick,L,1013,440
-					;sleep 500
-					;send,!n
-					;sleep 100
-					;send,alc%Mode%1
-					;sleep 100
-					;send,{Enter}
-					sleep 500
-					MouseMove,1139,211
-					mouseclick,L,1139,211
-					sleep 500
-					screenshot(443,446,1032,493,retpath("screenshot") . "alc" . Mode . "2.png")
-					;send,^+{F12}
-					;sleep 500
-					;MouseMove,443,446
-					;sleep 100
-					;send,{LButton down}
-					;;;sleep 100
-					;MouseMove,1032,493
-					;sleep 100
-					;send,{LButton up}
-					;sleep 300
-					;MouseClick,L,1012,523
-					;sleep 500
-					;send,!n
-					;sleep 100
-					;send,alc%Mode%2
-					;sleep 100
-					;send,{Enter}
-					sleep 500
-					MouseMove,1139,211
-					sleep 500
-					mouseclick,L,1139,211
-					screenshot(440,537,1032,572,retpath("screenshot") . "alc" . Mode . "3.png")
-					;send,^+{F12}
-					;sleep 500
-					;MouseMove,440,537
-					;sleep 100
-					;send,{LButton down}
-					;sleep 100
-					;MouseMove,1032,582
-					;sleep 100
-					;send,{LButton up}
-					;sleep 300
-					;MouseClick,L,1013,602
-					;sleep 500
-					;send,!n
-					;sleep 100
-					;send,alc%Mode%3
-					;sleep 100
-					;send,{Enter}
-					sleep 500
-					mouseclick,L,1139,211
-					CoordMode,Mouse,Relative
-					;msgbox,save
-					sleep 300
-					MouseClick,L,615,399
-					sleep 600
-					alcblacklist()
-					sleep 600
-					ImageSearch,FX,FY,%SWSRSX%,%SWSRSY%,%SWSREX%,%SWSREY%,*100 C:\Users\admin\Pictures\screenshot\alc\alc%Mode%wrong.png
-					if (ErrorLevel = 0)
-					{
-						FileDelete,C:\Users\admin\Pictures\screenshot\alc%Mode%1.png
-						MouseClick,L,635,334
-						sleep 100
-						MouseClick,L,635,334
-						send,^c
-						sleep 500
-						string := Clipboard
-						FileMoveDir,C:\Users\admin\Pictures\screenshot\alc%Mode%str.png,C:\Users\admin\Pictures\screenshot\alc%Mode%%string%str.png,R
-						FileMoveDir,C:\Users\admin\Pictures\screenshot\alc%Mode%2.png,C:\Users\admin\Pictures\screenshot\alc%Mode%%string%2.png,R
-						FileMoveDir,C:\Users\admin\Pictures\screenshot\alc%Mode%3.png,C:\Users\admin\Pictures\screenshot\alc%Mode%%string%3.png,R
-						send,{Enter}
-					}
-					else
-					{
-						FileDelete,C:\Users\admin\Pictures\screenshot\alc%Mode%2.png
-						FileDelete,C:\Users\admin\Pictures\screenshot\alc%Mode%3.png
-						Tick := A_TickCount
-						FileMoveDir,C:\Users\admin\Pictures\screenshot\alc%Mode%1.png,C:\Users\admin\Pictures\screenshot\alc%Mode%%Tick%correct.png,R
-						FileMoveDir,C:\Users\admin\Pictures\screenshot\alc%Mode%str.png,C:\Users\admin\Pictures\screenshot\alc%Mode%%Tick%str.png,R
-					}
-				}
-			}
-			Mode =
-		}
-		return
 #IfWinActive,ahk_exe eclipse.exe
 	::flaxexclude::
 		sleep 100
@@ -3028,7 +2703,6 @@ MouseGestureCheck:
 			Gui, New, , FlaxRegisterLauncher
 			Gui, FlaxRegisterLauncher:Font,,Meiryo UI
 			Gui, FlaxRegisterLauncher:Margin,10,10
-			Gui, FlaxRegisterLauncher: -Border +ToolWindow
 			Gui, FlaxRegisterLauncher:Add,Text,,&Name
 			SplitPath, FilePath, FileName
 			Gui, FlaxRegisterLauncher:Add,Edit, w800 vEName, %FileName%
@@ -3044,8 +2718,6 @@ MouseGestureCheck:
 			Gui, FlaxRegisterLauncher:Add,Button,Default gRegisterLauncherOK,&OK
 			Gui, FlaxRegisterLauncher:-Resize
 			Gui, FlaxRegisterLauncher:Show,Autosize, FlaxRegisterLauncher
-			WinWaitNotActive, FlaxRegisterLauncher
-			Gui, FlaxRegisterLauncher:Destroy
 			return
 			RegisterLauncherOK:
 				Gui, FlaxRegisterLauncher: Submit
@@ -3113,31 +2785,7 @@ MouseGestureCheck:
 #IfWinActive,ahk_exe chrome.exe
  	^+q::return
 	^+w::return
-#IfWinActive ahk_exe Doukutsu.exe
-	x::
-		drapidflag = True
-		while (drapidflag = "True")
-		{
-			send,{x down}
-			sleep 50
-			send,{x up}
-			sleep 50
-		}
-		return
-	x up::
-		drapidflag = False
-		return
-	Left::,
-	Down::.
-	Right::/
-	Up::l
-#IfWinActive Terraria.exe
-	XButton2::e
-	XButton1::m
 #IfWinActive
-#If (flaxmode = "vim")
-{
-}
 #If (copymode = "FIFO")
 {
 	^c::
@@ -3160,8 +2808,5 @@ MouseGestureCheck:
 		send,^v
 		IoFRP += IoFWP == IoFRP + 1 ? 0 : 1
 		return
-}
-#If (editmode = "C++")
-{
 }
 #If (True)
