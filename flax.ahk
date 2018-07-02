@@ -48,8 +48,6 @@ DefVars:
 	copymode = normal
 	FIFOClip := Object()
 	editmode = normal
-	StringReplace,ComputerName,A_ComputerName,-
-	WINDOWSO3L7BIOscreenshotdir = C:\Users\admin\Pictures\screenshot\
 	launcherFD := new FD_for_EC("config/launcher.fd")
 	gestureFD := new FD_for_EC("config/gesture.fd")
 	registerFD := new FD("config/register.fd")
@@ -60,7 +58,6 @@ DefVars:
 	MP := Object()
 	global Pi := 3.14159265358979
 	msgbox,ready
-;	SetTimer,DefaultLoop,1000
 	return
 }
 GoSub,DefVars
@@ -1315,41 +1312,6 @@ class MouseRoute{
 	send,%clipboard%
 	Clipboard := K
 	return
-::flaxproofreadingratwiki::
-	sleep 200
-	PreProofreadingRule =
-	(
-\[(.*?)\]:::flaxdelimiter:::\begin{flaxconstant}[$1]\end{flaxconstant}
-\{\{pre(.*?)\}\}:::flaxdelimiter:::\begin{flaxconstant}{{pre$1}}\end{flaxconstant}
-\"\"([^\n]*)\n:::flaxdelimiter:::\begin{flaxconstant}""$1\n\end{flaxconstant}
-)
-	ProofreadingRule =
-	(
-。\n:::flaxdelimiter:::\n
-([^\s\t\n\[\(\{\<。、])([\[\(\{\<]):::flaxdelimiter:::$1 $2
-([\]\)\}\>])([^\s\t\n\]\)\}\>。、]):::flaxdelimiter:::$1 $2
-\n(([!\*])\2*+)([^\s\2]):::flaxdelimiter:::\n$1 $3
-\!+ ([^\n]*?)\n[\n\t\s]*[\*\!]:::flaxdelimiter::::::flaxerror:::
-!!! [^\n]*?(\n[^!\n][^\n]*?|\n)*?(\n\![^\!]):::flaxdelimiter:::$2:::flaxerror:::
-[^\*]\* [^\n]*?(\n[^*\n][^\n]*?|\n)*?(\n\*\*\*):::flaxdelimiter::::::flaxerror:::
-!+ ([^\n]*?)(\n[^!\*\n][^\n]*?|\n)*?(\n\*\*\*?):::flaxdelimiter::::::flaxerror:::
-:::flaxerror::::::flaxdelimiter:::\n\n\n\n\n\n\n\n\n\n\n\n\n\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
-)
-	Gui, New, , FlaxProofreadintRatWiki
-	Gui, FlaxProofreadintRatWiki:Font,,Meiryo UI
-	Gui, FlaxProofreadintRatWiki:Margin,10,10
-	Gui, FlaxProofreadintRatWiki:Add,Edit,W500 R20 Multi vBText
-	Gui, FlaxProofreadintRatWiki:Add,Edit,W500 R20 ys+0 Multi vAText
-	Gui, FlaxProofreadintRatWiki:Add,Button,Default gproofreadingratwikiOK,&Encode
-	Gui, FlaxProofreadintRatWiki:-Resize
-	Gui, FlaxProofreadintRatWiki:Show,Autosize,ProofreadingRatWiki
-	return
-	proofreadingratwikiOK:
-		Gui, FlaxProofreadintRatWiki:Submit,NoHide
-		BText := proofreadingratwikireg(BText,PreProofreadingRule)
-		BText := proofreadingratwikireg(BText,ProofreadingRule)
-		GuiControl,Text,AText,%BText%
-		return
 ::flaxcsvmaker::
 	sleep 200
 	RetCellHwnd(R,C)
@@ -1705,16 +1667,6 @@ MouseGetPos,X,Y
 		Clipboard := RegExReplace(Clipboard,"\n,|^,", "`n")
 		Gui, FlaxMakeTruthTable:Destroy
 		Return
-::flaxscreensaver::
-	Gui,Add,Button,vScreenButton
-	Gui,Show,W1000 H500
-	while true
-	{
-		sleep 1/60
-		MouseGetPos,MouseX,MouseY
-		GuiControl,Move,ScreenButton,X%MouseX% Y%MouseY%
-	}
-	return
 ::flaxfifo::
 	IoFWP := 0
 	IoFRP := 0
@@ -2261,28 +2213,6 @@ RegisterInput:
 	sleep 200
 	Clipboard := ClipboardAlt
 	return
-+#Right::
-	WinRestore, A
-	WinMove, A, ,% A_ScreenWidth / 2, 0, % A_ScreenWidth / 2, % A_ScreenHeight
-	return
-+#Left::
-	WinRestore, A
-	WinMove, A, , 0, 0, % A_ScreenWidth / 2, % A_ScreenHeight
-	return
-+#Up::
-	WinRestore, A
-	WinGetActiveStats, Title, Width, Height, X, Y
-	if ((Y == 0) and (Height == A_ScreenHeight / 2)){
-		WinMaximize, A
-	}else{
-		WinMove, A, , %X%, 0, Width, % A_ScreenHeight / 2
-	}
-	return
-+#Down::
-	WinRestore, A
-	WinGetActiveStats, Title, Width, Height, X, Y
-	WinMove, A, , %X%, % A_ScreenHeight / 2, Width, % A_ScreenHeight / 2
-	return
 +#Space::
 	Menu, WindowResizer, Add, 1280x720, Resize
 	Menu, WindowResizer, Add, 1160x800, Resize
@@ -2454,8 +2384,6 @@ MouseGestureCheck:
 ^+!c::send,!+,
 ^+!d::send,!+.
 ^+!r::send,!+l
-;AppsKey::RAlt
-;vkF2sc070::RWin
 
 
 #IfWinActive ahk_exe excel.exe
@@ -2857,31 +2785,7 @@ MouseGestureCheck:
 #IfWinActive,ahk_exe chrome.exe
  	^+q::return
 	^+w::return
-#IfWinActive ahk_exe Doukutsu.exe
-	x::
-		drapidflag = True
-		while (drapidflag = "True")
-		{
-			send,{x down}
-			sleep 50
-			send,{x up}
-			sleep 50
-		}
-		return
-	x up::
-		drapidflag = False
-		return
-	Left::,
-	Down::.
-	Right::/
-	Up::l
-#IfWinActive Terraria.exe
-	XButton2::e
-	XButton1::m
 #IfWinActive
-#If (flaxmode = "vim")
-{
-}
 #If (copymode = "FIFO")
 {
 	^c::
@@ -2904,8 +2808,5 @@ MouseGestureCheck:
 		send,^v
 		IoFRP += IoFWP == IoFRP + 1 ? 0 : 1
 		return
-}
-#If (editmode = "C++")
-{
 }
 #If (True)
