@@ -812,12 +812,12 @@ Follow_a_Link(Path){
 	}
 	return Path
 }
-LauncherGetCommand(dict, label){
-	command := dict[A_ComputerName]
-	if (command != "")
-		return command
+LauncherGetValue(item, label){
+	value := item[A_ComputerName][label]
+	if (value != "")
+		return value
 	else
-		return dict["default"]
+		return item["default"][label]
 }
 class FD{
 	__New(FilePath){
@@ -867,7 +867,9 @@ class FD{
 					Data[name] := body
 					break
 				}
-				Data[name] := Trim(TData[0])
+				K := TData[0]
+				StringTrimRight, K, K, 1
+				Data[name] := K
 				Text := TData[1]
 			}
 		}
@@ -1941,28 +1943,25 @@ MouseGetPos,X,Y
 			ItemName := SubStr(ItemName, 1, LP-1)
 			LF := True
 		}
-		ItemCommand := launcherFD.dict[ItemName][A_ComputerName]
-		IniRead,ItemCommand,launcher.ini,%ItemName%,%A_ComputerName%command
-		if (ItemCommand = "ERROR"){
-			IniRead,ItemCommand,launcher.ini,%ItemName%,defaultcommand
-		}
+		Item := launcherFD.dict[ItemName]
+		LauncherGetValue(launcherFD.dict, "Command")
+		ItemCommand := LauncherGetValue(Item, "Command")
 		for Key, Value in ItemParams{
 			if (A_Index == 1)
 				continue
 			ItemCommand := RegExReplace(ItemCommand, "\$P" . A_Index - 1 . "\$", Value)
 		}
 		ItemCommand := RegExReplace(ItemCommand, "\$P\d+\$", "")
-		IniRead,ItemType,launcher.ini,%ItemName%,%A_ComputerName%type
-		if (ItemType = "ERROR"){
-			IniRead,ItemType,launcher.ini,%ItemName%,defaulttype
-		}
+		ItemType := LauncherGetValue(Item, "Type")
 		if (ItemType = "Application"){
-			IniRead,ItemParam,launcher.ini,%ItemName%,param
-			if (ItemParam != "ERROR")
+			ItemParam := LauncherGetValue(Item, "Param")
+			if (ItemParam != "")
 			{
 				ItemCommand := ItemCommand . " " . ItemParam
 			}
 		}
+		Clipboard := ItemType
+		msgjoin(ItemCommand, ItemType, "Application",  ItemType = "Application")
 		if (ItemType = "URL" or ItemType = "LocalPath" or ItemType = "Application"){
 			if (LF and ItemType != "URL"){
 				LP := RegExMatch(ItemCommand, "\\([^\\]*)$", ItemName)
@@ -1971,10 +1970,12 @@ MouseGetPos,X,Y
 				WinWaitActive, ahk_exe explorer.exe
 				sendraw,% ItemName1
 			}else{
-				Run,%ItemCommand%
+				msgjoin(ItemCommand)
+				Run, %ItemCommand%
+				msgjoin("B")
 			}
 		}
-		if (ItemType = "ERROR"){
+		if (ItemType = ""){
 			msgbox,404
 		}
 		return
