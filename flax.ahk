@@ -2152,7 +2152,7 @@ MouseGestureCheck:
 	MouseRoute := ""
 	CommandCandidate := ""
 	LastNEWS := ""
-	Reg := Object("BNE", Chr(0x2197), "BNW", Chr(0x2196), "BSE", Chr(0x2198), "BSW", Chr(0x2199), "N", "↑", "E", "→", "W", "←", "S", "↓")
+	Reg := Object("BUR", Chr(0x2197), "BUL", Chr(0x2196), "BDR", Chr(0x2198), "BDL", Chr(0x2199), "U", "↑", "R", "→", "L", "←", "D", "↓")
 	if (RetKeyState("LCtrl"))
 		Prefix .= "^"
 	if (RetKeyState("LAlt"))
@@ -2182,23 +2182,23 @@ MouseGestureCheck:
 	SMP["X"] := NMP["X"]
 	SMP["Y"] := NMP["Y"]
 	NMP := Object()
-	RetNEWS(Radian){ ;NS が画面の座標の関係で入れ替わっているので注意
+	RetRLDU(Radian){ ;NS が画面の座標の関係で入れ替わっているので注意
 		if (15/8 < Radian or Radian <= 1/8)
-			return "E"
+			return "R"
 		if (1/8 < Radian and Radian <= 3/8)
-			return "BSE"
+			return "BDR"
 		if (3/8 < Radian and Radian <= 5/8)
-			return "S"
+			return "D"
 		if (5/8 < Radian and Radian <= 7/8)
-			return "BSW"
+			return "BDL"
 		if (7/8 < Radian and Radian <= 9/8)
-			return "W"
+			return "L"
 		if (9/8 < Radian and Radian <= 11/8)
-			return "BNW"
+			return "BUL"
 		if (11/8 < Radian and Radian <= 13/8)
-			return "N"
+			return "U"
 		if (13/8 < Radian and Radian <= 15/8)
-			return "BNE"
+			return "BUL"
 		return
 	}
 	RetMPatan2(MP1, MP2){
@@ -2217,7 +2217,7 @@ MouseGestureCheck:
 			MRA := atan2(SMP["X"], SMP["Y"], NMP[ILD]["X"], NMP[ILD]["Y"]) / Pi
 			SMP["X"] := NMP[ILD]["X"]
 			SMP["Y"] := NMP[ILD]["Y"]
-			NowNEWS := RetNEWS(MRA)
+			NowNEWS := RetRLDU(MRA)
 			if (NowNEWS == LastNEWS)
 			{
 				continue
