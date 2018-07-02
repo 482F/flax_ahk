@@ -4,7 +4,7 @@
 		- 設定は config/launcher.fd に記述
 		- エクスプローラ上で Ctrl + r -> [Launcher に登録 (R)] を選択で登録 GUI が起動
 			- Name
-				- そのまま。キーワード。
+				- そのままの意味。キーワード。
 			- Command
 				- パスや URL。
 			- Type
