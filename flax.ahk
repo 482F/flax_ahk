@@ -1881,6 +1881,100 @@ MouseGetPos,X,Y
 		WinSet, Transparent, OFF, A
 	}
 	return
+::flaxeditgesture::
+	sleep 400
+	Gui, New, , FlaxEditGesture
+	Gui, FlaxEditGesture:Font, , Meiryo UI
+	Gui, FlaxEditGesture:Margin, 10, 10
+	Gui, FlaxEditGesture:Add, Text, , &Gesture
+	Gui, FlaxEditGesture:Add, Edit, w400 vEGesture
+	Gui, FlaxEditGesture:Add, Text, vSymbol w400
+	Gui, FlaxEditGesture:Add, Button, gEditGestureREC, &REC
+	Gui, FlaxEditGesture:Add, Text, , &Command
+	Gui, FlaxEditGesture:Add, Edit, w400 vECommand
+	Gui, FlaxEditGesture:Add, Text, , &Label
+	Gui, FlaxEditGesture:Add, Edit, w400 Section vELabel
+	Gui, FlaxEditGesture:Add, Text, xs+0 ys+50, Mouse Button
+	Gui, FlaxEditGesture:Add, Radio, vRL Checked, &LeftButton
+	Gui, FlaxEditGesture:Add, Radio, vRM, &MiddleButton
+	Gui, FlaxEditGesture:Add, Radio, vRR, &RightButton
+	Gui, FlaxEditGesture:Add, Text, , Modifier Key
+	Gui, FlaxEditGesture:Add, Checkbox, vCCtrl, &Ctrl
+	Gui, FlaxEditGesture:Add, Checkbox, vCAlt, &Alt
+	Gui, FlaxEditGesture:Add, Checkbox, vCShift, &Shift
+	Gui, FlaxEditGesture:Add, Text, xs+200 ys+50, Computer
+	Gui, FlaxEditGesture:Add, Radio, vRThi Checked, &ThisComputer
+	Gui, FlaxEditGesture:Add, Radio, vRAll, &AllComputer
+	Gui, FlaxEditGesture:Add, Text, , Type
+	Gui, FlaxEditGesture:Add, Radio, vRLab, &Label
+	Gui, FlaxEditGesture:Add, Radio, vRLoc, &LocalPath
+	Gui, FlaxEditGesture:Add, Radio, vRApp, &Application
+	Gui, FlaxEditGesture:Add, Radio, vRURL, &URL
+	Gui, FlaxEditGesture:Add, Radio, vRLau, &Launcher
+	Gui, FlaxEditGesture:Add, Button, Default gEditGestureOK, &OK
+	Gui, FlaxEditGesture:-Resize
+	Gui, FlaxEditGesture:Show,Autosize, FlaxEditGesture
+	return
+	EditGestureREC:
+		RECG := 1
+		MR := new MouseRoute()
+		while (RECG){
+			if (MR.check()){
+				GuiControl, , EGesture, % MR.route
+				GuiControl, , Symbol, % MR.getMRSymbol()
+			}
+			sleep 100
+		}
+		return
+	EditGestureOK:
+		Gui, FlaxEditGesture:Submit
+		Prefix := ""
+		if (RL)
+			Prefix .= "LB"
+		else if (RM)
+			Prefix .= "MB"
+		else if (RR)
+			Prefix .= "RB"
+		if (CCtrl)
+			Prefix .= "^"
+		if (CAlt)
+			Prefix .= "!"
+		if (CShift)
+			Prefix .= "+"
+		B_ComputerName := ""
+		if (RThi = 1)
+			B_ComputerName := A_ComputerName
+		else if (RAll = 1)
+			B_ComputerName := "default"
+		if (RLab)
+			Type := "Label"
+		else if (RLoc)
+			Type := "LocalPath"
+		else if (App)
+			Type := "Application"
+		else if (URL)
+			Type := "URL"
+		else if (Lau)
+			Type := "Launcher"
+		EGesture := Prefix . EGesture
+		if (not gestureFD.fdict.HasKey(EGesture))
+			gestureFD.fdict[EGesture] := Object()
+		if (not gestureFD.fdict[EGesture].HasKey(B_ComputerName))
+			gestureFD.fdict[EGesture][B_ComputerName] := Object()
+		gestureFD.fdict[EGesture][B_ComputerName]["command"] := ECommand
+		gestureFD.fdict[EGesture][B_ComputerName]["type"] := Type
+		gestureFD.fdict[EGesture][B_ComputerName]["label"] := ELabel
+		gestureFD.write()
+		return
+	FlaxEditGestureGuiEscape:
+		if (RECG){
+			RECG := 0
+			return
+		}
+	FlaxEditGestureGuiClose:
+		Gui, FlaxEditGesture:Destroy
+		return
+	return
 
 
 ;hotkey
