@@ -1062,7 +1062,6 @@ class MouseRoute{
 	Gui, New, , FlaxCode_Maker
 	Gui, FlaxCode_Make:Font,,Meiryo UI
 	Gui, FlaxCode_Make:Margin,10,10
-	Gui, FlaxCode_Make: -Border +ToolWindow
 	Gui, FlaxCode_Make:Add,Text,,&Clear Text
 	Gui, FlaxCode_Make:Add,Edit,W500 Multi Password* vCText
 	Gui, FlaxCode_Make:Add,Text,,&Seed
@@ -1077,8 +1076,6 @@ class MouseRoute{
 	Gui, FlaxCode_Make:Add,Button,Default gMakeCodeGuiOK,OK
 	Gui, FlaxCode_Make:-Resize
 	Gui, FlaxCode_Make:Show,Autosize,flaxCode_Maker
-	; WinWaitNotActive,flaxCode_Maker
-	; Gui, FlaxCode_Make:Destroy
 	return
 	FlaxCode_MakeGuiClose:
 	FlaxCode_MakeGuiEscape:
@@ -1588,8 +1585,8 @@ class MouseRoute{
 	Gui,New,,colorviewerC
 	Gui,New,,colorviewerV
 	gui,margin,0,0
-	Gui, colorviewerV: -Border +ToolWindow
-	Gui, colorviewerC:-Border +ToolWindow
+	Gui, colorviewerV: -Border
+	Gui, colorviewerC:-Border
 	Gui, colorviewerV:Add,Slider,vRV gColorSliderMoved Vertical Invert Range0-255 Center Y0 X180 W40 H300 AltSubmit -BackGround
 	Gui, colorviewerV:Add,Slider,vGV gColorSliderMoved Vertical Invert Range0-255 Center Y0 X220 W40 H300 AltSubmit -BackGround
 	Gui, colorviewerV:Add,Slider,vBV gColorSliderMoved Vertical Invert Range0-255 Center Y0 X260 W40 H300 AltSubmit -BackGround
@@ -1600,9 +1597,6 @@ class MouseRoute{
 	Gui, colorviewerC:Color,%Clopboard%
 	Gui, colorviewerC:Show,Y100 X102 H277 W177
 	Gui, colorviewerV:Show,Y100 X100 H300 W300
-	; WinWaitNotActive,colorviewerV
-	; Gui, colorviewerV:Destroy
-	; Gui, colorviewerC:Destroy
 	return
 	colorviewerCGuiEscape:
 	colorviewerVGuiEscape:
@@ -1848,8 +1842,6 @@ MouseGetPos,X,Y
 		}
 	}
 	Gui, FlaxTimeTable:Show, , FlaxTimeTable
-	WinWaitNotActive,FlaxTimeTable
-	Gui, FlaxTimeTable:Destroy
 	return
 	OpenClassFolder:
 		Loop, Parse, A_GuiControl, `n
@@ -2051,7 +2043,6 @@ MouseGetPos,X,Y
 	Gui, FlaxLauncher:+AlwaysOnTop -Border
 	Gui, FlaxLauncher:Show,Hide
 	Gui, FlaxLauncher:+LastFound
-	Gui, FlaxLauncher:+ToolWindow
 	WinGetPos,,,w,h
 	Gui, FlaxLauncher:Add,Button,Default Hidden gLauncherOK,OK
 	w := MonitorSizeX - marg - w
@@ -2784,7 +2775,6 @@ MouseGestureCheck:
 			Gui, New, , FlaxRegisterLauncher
 			Gui, FlaxRegisterLauncher:Font,,Meiryo UI
 			Gui, FlaxRegisterLauncher:Margin,10,10
-			Gui, FlaxRegisterLauncher: -Border +ToolWindow
 			Gui, FlaxRegisterLauncher:Add,Text,,&Name
 			SplitPath, FilePath, FileName
 			Gui, FlaxRegisterLauncher:Add,Edit, w800 vEName, %FileName%
@@ -2800,8 +2790,6 @@ MouseGestureCheck:
 			Gui, FlaxRegisterLauncher:Add,Button,Default gRegisterLauncherOK,&OK
 			Gui, FlaxRegisterLauncher:-Resize
 			Gui, FlaxRegisterLauncher:Show,Autosize, FlaxRegisterLauncher
-			WinWaitNotActive, FlaxRegisterLauncher
-			Gui, FlaxRegisterLauncher:Destroy
 			return
 			RegisterLauncherOK:
 				Gui, FlaxRegisterLauncher: Submit
