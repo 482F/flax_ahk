@@ -42,3 +42,4 @@
 		- ホットストリング flaxtimetable で起動
 		- 設定は config/timetable.fd に記述
 		- GUI で設定する機能を追加する予定
+		- セルをクリックして開かれるパスの定義は config/path.fd に記述
