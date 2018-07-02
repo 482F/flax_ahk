@@ -893,14 +893,27 @@ class FD{
 		file.Write(TData)
 	}
 }
+class FD_for_EC extends FD{
+	getItemDict(ItemName){
+		RD := Object()
+		FID := this.dict[ItemName]
+		for Key, Value in FID["default"]{
+			RD[Key] := Value
+		}
+		for Key, Value in FID[A_ComputerName]{
+			RD[Key] := Value
+		}
+		return RD
+	}
+}
 
 
 ;hotstring
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	k := new FD("D:\Dropbox\test.fd")
-	msgjoin(joinobj(k))
+	k := new FD_for_EC("launcher.fd")
+	msgjoin(joinobj(k.getItemDict("dropbox")))
 	return
 ::flaxcalc::
 	Sleep 100
@@ -1960,8 +1973,6 @@ MouseGetPos,X,Y
 				ItemCommand := ItemCommand . " " . ItemParam
 			}
 		}
-		Clipboard := ItemType
-		msgjoin(ItemCommand, ItemType, "Application",  ItemType = "Application")
 		if (ItemType = "URL" or ItemType = "LocalPath" or ItemType = "Application"){
 			if (LF and ItemType != "URL"){
 				LP := RegExMatch(ItemCommand, "\\([^\\]*)$", ItemName)
@@ -1970,9 +1981,7 @@ MouseGetPos,X,Y
 				WinWaitActive, ahk_exe explorer.exe
 				sendraw,% ItemName1
 			}else{
-				msgjoin(ItemCommand)
 				Run, %ItemCommand%
-				msgjoin("B")
 			}
 		}
 		if (ItemType = ""){
