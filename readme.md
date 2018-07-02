@@ -24,7 +24,20 @@
 				- !: Alt
 				- +: Shift
 			- マウスの移動経路
-				- 
+				- L: 左
+				- R: 右
+				- D: 下
+				- U: 上
+				- BUR: 右上
+				- BUL: 左上
+				- BDR: 右下
+				- BDL: 左下
+		- GUI で設定する機能を追加する予定
+	- エクスプローラ関係
+		- ファイル / フォルダを Ctrl + c して、
+			- Ctrl + Shift + v でショートカット作成
+			- Alt + v でシンボリックリンク作成
+		- ファイル / フォルダを Ctrl + Shift + v でパスをクリップボードにコピー
 	- 時間割表示
 		- ホットストリング flaxtimetable で起動
 		- 設定は config/timetable.fd に記述
