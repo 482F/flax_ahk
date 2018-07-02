@@ -54,6 +54,8 @@ DefVars:
 	gestureFD := new FD_for_EC("config/gesture.fd")
 	registerFD := new FD("config/register.fd")
 	timetableFD := new FD("config/timetable.fd")
+	pathFD := new FD_for_EC("config/path.fd")
+	pathFD.dict := pathFD.dict["path"]
 	FileRead,ColorList,colorlist.txt
 	MP := Object()
 	global Pi := 3.14159265358979
@@ -255,50 +257,6 @@ IME_SetConvMode(ConvMode,WinTitle="A"){
 		  ,  Int, 0x002	   ;wParam  : IMC_SETCONVERSIONMODE
 		  ,  Int, ConvMode)   ;lParam  : CONVERSIONMODE
 }
-retpath(name){
-	if (A_ComputerName = "WINDOWS-O3L7BIO")
-	{
-		if (name = "screenshot")
-			return "C:\Users\admin\Pictures\screenshot\"
-		if (name = "document")
-			return "E:\document\"
-		if (name = "picture")
-			return "C:\Users\admin\Pictures\"
-		if (name = "music")
-			return "E:\document\MUSIC\"
-		if (name = "class")
-			return "E:\document\授業\2年春\"
-		if (name = "download")
-			return "D:\download\"
-		if (name = "python.exe")
-			return "C:\software\Python\python-3.6.0\python.exe"
-		if (name = "gvim")
-			return "D:\utl\vim80-kaoriya-win64\gvim.exe"
-	}
-	else if (A_ComputerName = "FLAXEN-PC")
-	{
-		if (name = "screenshot")
-			return "Z:\ライブラリ\ピクチャ\pcscreenshot\"
-		if (name = "document")
-			return "C:\Users\Flaxen\Documents\"
-		if (name = "picture")
-			return "Z:\ライブラリ\ピクチャ\"
-		if (name = "music")
-			return "Z:\ライブラリ\ミュージック\"
-		if (name = "download")
-			return "Z:\Downloads\"
-		if (name = "python.exe")
-			return "C:\Software\Python\python\python.exe"
-		if (name = "gvim")
-			return "H:\Date\vim80-kaoriya-win64\gvim.exe"
-	}
-	else if (A_ComputerName = "DESKTOP-AEDD2O7")
-	{
-		if (name = "gvim")
-			return "D:\utl\vim80-kaoriya-win64\gvim.exe"	
-	}
-	return
-}
 proofreadingratwikireg(Text,Rule){
 	StringGetPos,BR,Text,\begin{flaxconstant}
 	StringGetPos,ER,Text,\end{flaxconstant}
@@ -363,11 +321,11 @@ screenshot(SX,SY,EX,EY,destination,Flag=2){
 	send,!s
 	while True
 	{
-		IfExist,% retpath("screenshot") . PictName
+		IfExist,% pathFD.dict["screenshot"] . PictName
 			break
 		sleep 300
 	}
-	PictPath := retpath("screenshot") . PictName
+	PictPath := pathFD.dict["screenshot"] . PictName
 	FileMove,%PictPath%,%destination%,%Flag%
 	return
 }
@@ -871,12 +829,7 @@ class FD_for_EC extends FD{
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	launcherFD.fdict["testname"] := Object()
-	launcherFD.fdict["testname"]["default"] := Object()
-	launcherFD.fdict["testname"]["default"]["command"] := "testcommand"
-	launcherFD.fdict["testname"]["default"]["type"] := "testtype"
-	msgjoin(joinobj(launcherFD.fdict["editlauncher"]))
-	launcherFD.write()
+	msgobj(pathFD.dict)
 	return
 ::flaxcalc::
 	Sleep 100
@@ -1836,7 +1789,7 @@ MouseGetPos,X,Y
 				break
 			}
 		}
-		ClassPath := retpath("class") . ClassName
+		ClassPath := pathFD.dict["class"] . ClassName
 		Run, %ClassPath%
 		return
 	FlaxTimeTableGuiEscape:
@@ -1845,7 +1798,7 @@ MouseGetPos,X,Y
 		return
 ::flaxhanoy::
 	sleep 400
-	CmdRun(retpath("python.exe") . " Hanoy.py ")
+	CmdRun(pathFD.dict["python"] . " Hanoy.py ")
 	return
 ::flaxtransparent::
 	sleep 400
@@ -2638,7 +2591,7 @@ MouseGestureCheck:
 				{
 					;send,^+{F12}
 					sleep 300
-					screenshot(345,270,1048,330,retpath("screenshot") . "alctypesort.png")
+					screenshot(345,270,1048,330,pathFD.dict["screenshot"] . "alctypesort.png")
 					;CoordMode,Mouse,Screen
 					;MouseMove,345,270
 					;sleep 100
@@ -2761,7 +2714,7 @@ MouseGestureCheck:
 				}
 				else
 				{
-					screenshot(345,270,1048,330,retpath("screenshot") . "alc" . Mode . "str.png")
+					screenshot(345,270,1048,330,pathFD.dict["screenshot"] . "alc" . Mode . "str.png")
 					;send,^+{F12}
 					;sleep 300
 					;CoordMode,Mouse,Screen
@@ -2784,7 +2737,7 @@ MouseGestureCheck:
 					MouseMove,1139,211
 					MouseClick,
 					sleep 500
-					screenshot(443,363,1033,410,retpath("screenshot") . "alc" . Mode . "1.png")
+					screenshot(443,363,1033,410,pathFD.dict["screenshot"] . "alc" . Mode . "1.png")
 					;send,^+{F12}
 					;sleep 500
 					;MouseMove,443,363
@@ -2806,7 +2759,7 @@ MouseGestureCheck:
 					MouseMove,1139,211
 					mouseclick,L,1139,211
 					sleep 500
-					screenshot(443,446,1032,493,retpath("screenshot") . "alc" . Mode . "2.png")
+					screenshot(443,446,1032,493,pathFD.dict["screenshot"] . "alc" . Mode . "2.png")
 					;send,^+{F12}
 					;sleep 500
 					;MouseMove,443,446
@@ -2828,7 +2781,7 @@ MouseGestureCheck:
 					MouseMove,1139,211
 					sleep 500
 					mouseclick,L,1139,211
-					screenshot(440,537,1032,572,retpath("screenshot") . "alc" . Mode . "3.png")
+					screenshot(440,537,1032,572,pathFD.dict["screenshot"] . "alc" . Mode . "3.png")
 					;send,^+{F12}
 					;sleep 500
 					;MouseMove,440,537
