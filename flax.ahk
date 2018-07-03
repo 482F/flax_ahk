@@ -822,6 +822,10 @@ DeepCopy(Array, Objs=0){
 	}
 	return Obj
 }
+msgobj(obj){
+	msgjoin(joinobj(obj))
+	return
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
