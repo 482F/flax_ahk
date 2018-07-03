@@ -3080,28 +3080,10 @@ MouseGestureCheck:
 					{
 						Path := DestPath . "\New" . NNN
 						FileCreateDir,%Path%
-						Temp := ClipboardAll
-						Clipboard := ""
-						While (Clipboard != Path){
-							send, New%NNN%
-							send, ^c
-							send, {ESC}
-						}
-						send, {F2}
-						Clipboard := Temp
 						break
 					}
 					Path := DestPath . "\New" . NNN . MenuName1
 					FileCopy,CreateNew\%MenuName2%%MenuName1%,%Path%
-					Temp := ClipboardAll
-					Clipboard := ""
-					While (Clipboard != Path){
-						send, New%NNN%%MenuName1%
-						send, ^c
-						send, {ESC}
-					}
-					send, {F2}
-					Clipboard := Temp
 					break
 				}
 			}
