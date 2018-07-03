@@ -1914,16 +1914,13 @@ MouseGetPos,X,Y
 +!^W::
 	Gui, New, , FlaxLauncher FlaxLauncher:
 	launcherFD.read()
-	IniRead,ItemList,launcher.ini
-	Sort,ItemList,C
 	Sleep 100
 	NoDI = 5
 	candidate := ""
 	SysGet,MonitorSizeX,0
 	SysGet,MonitorSizeY,1
 	For, Key, Value in launcherFD.dict{
-		ID := launcherFD.getItemDict(key)
-		if (ID.command != "")
+		if (Value.command != "")
 			candidate .= Key . "|"
 		else
 			continue
@@ -1963,7 +1960,7 @@ MouseGetPos,X,Y
 			ItemName := SubStr(ItemName, 1, LP-1)
 			LF := True
 		}
-		ID := launcherFD.getItemDict(ItemName)
+		ID := launcherFD.dict[ItemName]
 		ItemCommand := ID["command"]
 		for Key, Value in ItemParams{
 			if (A_Index == 1)
@@ -2006,22 +2003,11 @@ MouseGetPos,X,Y
 		Gui, FlaxLauncher:Submit,NoHide
 		candidate := ""
 		NoI = 0
-		Loop,Parse,ItemList,`n
-		{
-			StringGetPos,IP,A_LoopField,%ItemName%
-			if (IP == 0)
-			{
-				IniRead,ItemCommand,launcher.ini,%A_LoopField%,%A_ComputerName%command
-				if (ItemCommand == "ERROR")
-					IniRead,ItemCommand,launcher.ini,%A_LoopField%,defaultcommand
-				if (ItemCommand != "ERROR")
-				{
-					candidate := candidate . "|" . A_LoopField
-					NoI += 1
-					if (NoI == NoDI)
-						break
-				}
-
+		For Key, Value in launcherFD.dict{
+			StringGetPos, IP, Key, %ItemName%
+			if (IP == 0){
+				candidate .= "|" . Key
+				NoI += 1
 			}
 		}
 		GuiControl, FlaxLauncher:,ItemName,%candidate%
