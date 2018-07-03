@@ -71,3 +71,78 @@
 		- flaxreload
 			- スクリプトを再読み込みする。困ったときはこれ。
 		- flaxmakecodegui
+			- Clear Text に平文、Seed にシード値 (文字列) を入れると暗号文が出力される。暗号文は暗号化時に使用したシード値で複合できる。
+		- flaxsendclip
+			- クリップボードの中身が出力される。コピー禁止の入力欄などに用いる。
+		- flaxcolorviewer
+			- カラーパレットが表示される
+		- flaxpickcolor
+			- マウスカーソル下の色がクリップボードに保存される。
+		- flaxcountstrlen
+			- クリップボードにある文字列の文字数をメッセージボックスで表示する。
+		- flaxfifo
+			- コピーペーストを FIFO にする。トグル式。
+		- flaxvirtualfolder
+			- 仮想フォルダが表示される。ファイルをドラッグアンドドロップして、Dist Path にパスを入力、Confirm でドロップされたファイルフォルダのショートカットが Dist Path 下に作られる。Rename は未実装。
+		- flaxconnectratwifi
+			- RAT-WIRELESS-A に接続される。
+		- flaxtimetable
+			- 時間割が表示される。セルをクリックで config/path.fd の class のパス + セルの 1 行目のディレクトリに飛ぶ。
+		- flaxtransparent
+			- アクティブウィンドウを薄くする。
+		- flaxeditgesture
+			- ジェスチャー設定 GUI。使い方はメイン機能の項を参照。
+		- flaxedittimetable
+			- 時間割設定 GUI。使い方はメイン機能の項を参照。
+	- ホットキー
+		- Ctrl + Alt + w
+			- ランチャーを起動。使い方はメイン機能の項を参照。
+		- Ctrl + Enter
+			- 下に空行を挿入して移動。所構わず起動するので若干使いづらい。
+		- Ctrl + Shift + Enter
+			- 上に空行を挿入して移動。所構わず起動するので若干使いづらい。
+		- Ctrl + Alt + m
+			- アクティブウィンドウをミュート
+		- Ctrl + Win + c, x
+			- レジスタにコピー, 切り取り
+		- Ctrl + Win + v
+			- レジスタから貼り付け
+		- 無変換 + h, j, k, l
+			- アローキーに対応
+		- 無変換 + Space
+			- Enter
+		- 無変換 + 1, 2, 3, 4, 5
+			- 6, 7, 8, 9, 0
+		- Ctrl + Win + h, l
+			- 仮想デスクトップの移動
+		- Win + (修飾キー) + マウスクリック
+			- マウスジェスチャー起動。使い方はメイン機能の項を参照。
+		- Win + Enter
+			- Ctrl + Shift + Enter
+		- Ctrl + Alt + Shift + c, d, r
+			- Alt + Shift + ,, ., l
+	- ウィンドウ毎の機能
+		- excel.exe
+			- Ctrl + (Shift) + Tab
+				- シートの切り替え
+		- LINE.exe
+			- Ctrl + e
+				- Shift + 右アローキー
+		- eclipse.exe
+			- flaxexclude
+				- 現在編集中のファイルをビルド対象から外す。というかトグル。
+			- Ctrl + (Shift) + Tab
+				- タブを移動
+			- F5
+				- Alt + r -> s -> Enter
+		-explorer.exe
+			- Ctrl + Shift + c
+				- ファイルのパスをコピー
+			- Ctrl + c -> Ctrl + Shift + v
+				- ショートカットを作成
+			- Ctrl + c -> Alt + v
+				- シンボリックリンクを作成
+			- Ctrl + n
+				- CreateNew フォルダ内のファイルに即した新規ファイルを作成。サンプル作成予定。
+			- Ctrl + r
+				- メニュー表示。プログラムから開くは未実装。Launcher に登録についてはメイン機能の項を参照。
