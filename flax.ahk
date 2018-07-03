@@ -812,6 +812,17 @@ Follow_a_Link(Path){
 	}
 	return Path
 }
+DeepCopy(Array, Objs=0){
+	if !Objs
+		Objs := Object()
+	Obj := Array.Clone()
+	Objs[&Array] := Obj
+	For Key, Value in Obj{
+		if (IsObject(Value))
+			Obj[Key] := Objs[&Value] ? Objs[&Value] : DeepCopy(Value, Objs)
+	}
+	return Obj
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
@@ -868,7 +879,7 @@ class FD{
 		}
 		return Data
 	}
-	Read(FilePath=""){
+	read(FilePath=""){
 		FileGetTime, LU, % this.FilePath, M
 		if (LU == this.LastUpdate)
 			return
@@ -879,10 +890,14 @@ class FD{
 		this.dict := this.ConvertText_to_FlaxDict(TData)
 		return
 	}
-	Write(FilePath=""){
+	write(FilePath="", dict=""){
 		if (FilePath == "")
 			FilePath := this.FilePath
-		TData := this.ConvertFlaxDict_to_Text(this.dict)
+		msgjoin(joinobj(dict))
+		if (dict == "")
+			dict := this.dict
+		msgjoin(joinobj(dict))
+		TData := this.ConvertFlaxDict_to_Text(dict)
 		file := FileOpen(this.FilePath, "w", "CP65001")
 		file.Write(TData)
 	}
@@ -890,6 +905,7 @@ class FD{
 class FD_for_EC extends FD{
 	__New(FilePath){
 		base.__New(FilePath)
+		this.fdict := DeepCopy(this.dict)
 		this.normalization()
 	}
 	getItemDict(ItemName){
@@ -909,6 +925,11 @@ class FD_for_EC extends FD{
 			this.dict[Key] := ID
 		}
 	}
+	write(FilePath="", dict=""){
+		if (dict == "")
+			dict := this.fdict
+		base.write(FilePath, dict)
+	}
 }
 
 
@@ -916,10 +937,12 @@ class FD_for_EC extends FD{
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	k := new FD_for_EC("launcher.fd")
-	for Key, Value in k.dict{
-		msgjoin(Key, joinobj(Value))
-	}
+	launcherFD.fdict["testname"] := Object()
+	launcherFD.fdict["testname"]["default"] := Object()
+	launcherFD.fdict["testname"]["default"]["command"] := "testcommand"
+	launcherFD.fdict["testname"]["default"]["type"] := "testtype"
+	msgjoin(joinobj(launcherFD.fdict["editlauncher"]))
+	launcherFD.write()
 	return
 ::flaxcalc::
 	Sleep 100
