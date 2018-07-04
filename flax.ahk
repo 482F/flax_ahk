@@ -834,8 +834,6 @@ class FD{
 class FD_for_EC extends FD{
 	__New(FilePath){
 		base.__New(FilePath)
-		this.fdict := DeepCopy(this.dict)
-		this.normalization()
 	}
 	getItemDict(ItemName){
 		RD := Object()
@@ -852,6 +850,13 @@ class FD_for_EC extends FD{
 		for Key, Value in this.dict{
 			ID := this.getItemDict(Key)
 			this.dict[Key] := ID
+		}
+		return
+	}
+	read(FilePath=""){
+		if (base.read(FilePath)){
+			this.fdict := DeepCopy(this.dict)
+			this.normalization()
 		}
 	}
 	write(FilePath="", dict=""){
