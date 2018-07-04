@@ -2015,7 +2015,10 @@ MouseGetPos,X,Y
 			LF := True
 		}
 		ID := launcherFD.dict[ItemName]
-		ItemCommand := ID["command"]
+		if ((ItemCommand := ID["command"]) == ""){
+			msgbox, 404
+			return
+		}
 		for Key, Value in ItemParams{
 			if (A_Index == 1)
 				continue
