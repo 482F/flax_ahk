@@ -54,7 +54,7 @@ DefVars:
 	gestureFD := new FD_for_EC("config/gesture.fd")
 	registerFD := new FD("config/register.fd")
 	FileRead,ColorList,colorlist.txt
-	FileRead,TimeTable,TimeTable.txt
+	FileRead, TimeTable, config/TimeTable.txt
 	MP := Object()
 	global Pi := 3.14159265358979
 	msgbox,ready
