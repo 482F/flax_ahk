@@ -2059,7 +2059,10 @@ MouseGetPos,X,Y
 		NoI = 0
 		For Key, Value in launcherFD.dict{
 			StringGetPos, IP, Key, %ItemName%
-			if (IP == 0){
+			command := ""
+			if (IP == 0)
+				command := launcherFD.dict[Key]["command"]
+			if (command != ""){
 				candidate .= "|" . Key
 				NoI += 1
 			}
