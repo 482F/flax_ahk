@@ -52,8 +52,6 @@ DefVars:
 	WINDOWSO3L7BIOscreenshotdir = C:\Users\admin\Pictures\screenshot\
 	launcherFD := new FD_for_EC("launcher.fd")
 	gestureFD := new FD_for_EC("gesture.fd")
-	FileGetTime,gestureLastUpdate,MouseGesture.ini,M
-	FileGetTime,registerLastUpdate,register.ini,M
 	FileRead,ColorList,colorlist.txt
 	FileRead,TimeTable,TimeTable.txt
 	MP := Object()
@@ -2352,7 +2350,7 @@ MouseGestureCheck:
 			For Key, Value in gestureFD.dict{
 				if (InStr(Key, Prefix . MouseRoute) == 1)
 				{
-					CommandLabel := IniReadFunc("MouseGesture.ini", Key, "label")
+					CommandLabel := gestureFD.dict[Key]["label"]
 					if (CommandValue != "ERROR")
 					{
 						CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MouseRoute) + 1, StrLen(Key))
@@ -2380,10 +2378,9 @@ MouseGestureCheck:
 		}
 	}
 	GestureName := Prefix . MouseRoute
-	GestureType := IniReadFunc("MouseGesture.ini", GestureName, "type")
+	GestureType := gestureFD.dict[GestureName]["type"]
+	GestureCommand := gestureFD.dict[GestureName]["command"]
 	ToolTip,
-	if (GestureType != "ERROR")
-		GestureCommand := IniReadFunc("MouseGesture.ini", GestureName, "command")
 	if (GestureType == "label")
 		GoSub,%GestureCommand%
 	else if (GestureType == "LocalPath")
