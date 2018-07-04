@@ -63,13 +63,6 @@ DefVars:
 }
 GoSub,DefVars
 
-;ループ部分
-DefaultLoop:
-{
-sleep 1000
-	alarmcheck()
-	return
-}
 return
 ;Gui の特殊ラベル
 GuiClose:
@@ -261,53 +254,6 @@ IME_SetConvMode(ConvMode,WinTitle="A"){
 		  , UInt, 0x0283	  ;Message : WM_IME_CONTROL
 		  ,  Int, 0x002	   ;wParam  : IMC_SETCONVERSIONMODE
 		  ,  Int, ConvMode)   ;lParam  : CONVERSIONMODE
-}
-alarmcheck(){
-	IniRead,alarmlist,alarm.ini
-	Loop,Parse,alarmlist,`n
-	{
-		sleep 100
-		IniRead,alarmday,alarm.ini,%A_LoopField%,day
-		IniRead,alarmtime,alarm.ini,%A_LoopField%,time
-		IniRead,alarmtype,alarm.ini,%A_LoopField%,type
-		IniRead,alarmcommand,alarm.ini,%A_LoopField%,command
-		IniRead,alarmparam,alarm.ini,%A_LoopField%,param
-		IniRead,alarmdone,alarm.ini,%A_LoopField%,done
-		IniRead,alarmdelete,alarm.ini,%A_LoopField%,delete
-		IniRead,alarmenabled,alarm.ini,%A_LoopField%,enabled
-		if (alarmday == "everyday" or alarmday == A_YYYY . "/" . A_MM . "/" . A_DD and alarmenabled == "True")
-		{
-			if (alarmtime == A_Hour . ":" . A_Min)
-			{
-				if (alarmdone = "False")
-				{
-					if (alarmtype == "run")
-					{
-						run,%alarmcommand%
-						IniWrite,True,alarm.ini,%A_LoopField%,done
-						msgbox,%A_LoopField%
-					}
-					else if (alrmtype == "msg")
-					{
-						msgbox,%A_LoopField%
-					}
-					if (alarmdelete == "True")
-					{
-						IniDelete,alarm.ini,%A_LoopField%
-					}
-					else if (alarmdelete == "once")
-					{
-						IniWrite,False,alrm.ini,%A_LoopField%,enabled
-					}
-				}
-			}
-			else
-			{
-				IniWrite,False,alarm.ini,%A_LoopField%,done
-			}
-		}
-	}
-	return
 }
 retpath(name){
 	if (A_ComputerName = "WINDOWS-O3L7BIO")
@@ -654,27 +600,6 @@ atan2(X1, Y1, X2, Y2){
 		}
 	}
 	return K
-}
-IniReadFunc(FileName, Section="", Key="", ComputerName=""){
-	if (ComputerName == "" and Key != "")
-		ComputerName := A_ComputerName
-	IniRead,K,%FileName%,%Section%,% ComputerName . Key
-	if (K == "ERROR")
-		IniRead,K,%FileName%,%Section%,default%Key%
-	if (K == "ERROR")
-		IniRead,K,%FileName%,%Section%,%Key%
-	return K
-}
-IniCheckAndRead(ByRef OutputVar, FileName, Section="", Key="", ComputerName="", ByRef LastUpdate=""){
-	FileGetTime,LastUpdateA,%FileName%,M
-	msgjoin(LastUpdate, LastUpdateA)
-	if (LastUpdate == "" or LastUpdate != LastUpdateA)
-	{
-		OutputVar := IniReadFunc(FileName, Section, Key, ComputerName)
-		LastUpdate := LastUpdateA
-		msgbox,A
-	}
-	return
 }
 ToolSplash(Text=""){
 	if (Text == ""){
@@ -1686,13 +1611,6 @@ MouseGetPos,X,Y
 ::flaxsendcompname::
 	sleep 300
 	send,%A_ComputerName%
-	return
-::flaxgetDfromurllist::
-	Loop,Read,Z:\Ggame\漫画\未分類\URLlist.txt
-	{
-		GetDoujinAntena(A_LoopReadLine)
-	}
-	msgbox,完了
 	return
 ::flaxcountstrlen::
 	sleep 300
@@ -3188,49 +3106,8 @@ MouseGestureCheck:
 				Gui, FlaxEditMp3Tags:Destroy
 				return
 #IfWinActive,ahk_exe chrome.exe
-	GetDoujinAntena(URL)
-			{
-				run,% URL
-				while (True)
-				{
-					sleep 300
-					WinGetTitle,FName,A
-					if (RegExMatch(FName,"同人あんてな") != 0)
-						break
-				}
-				send,^w
-				FName := RegExReplace(FName,"(.*)\-同人あんてな(.*)","$1.zip")
-				Name := RegExReplace(URL,"http://.*id=(.*)","$1")
-				BURL := URL
-				URL := RegExReplace(URL,"http://","http://cdn.")
-				URL := RegExReplace(URL,"(page|dl1).php\?id=(.*)","zip/$2.zip")
-				run,% URL
-				Path := retpath("download") . Name . ".zip"
-				while (True)
-				{
-					sleep 1000
-					if (A_Index = 1800)
-					{
-						FileAppend,% FName . "," . URL . "`n",Z:\Ggame\漫画\未分類\Error.txt
-						return
-					}
-					if (FileExist(Path))
-						break
-				}
-				DestPath := "Z:\Ggame\漫画\未分類\" . FName
-				FileMove,%Path%,%DestPath%,1
-				return
-			}
  	^+q::return
 	^+w::return
-	^+Enter::
-		send,!d
-		sleep 200
-		send,^c
-		sleep 200
-		URL := Clipboard
-		GetDoujinAntena(URL)
-		return
 #IfWinActive ahk_exe Doukutsu.exe
 	x::
 		drapidflag = True
