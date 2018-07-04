@@ -52,6 +52,7 @@ DefVars:
 	WINDOWSO3L7BIOscreenshotdir = C:\Users\admin\Pictures\screenshot\
 	launcherFD := new FD_for_EC("launcher.fd")
 	gestureFD := new FD_for_EC("gesture.fd")
+	registerFD := new FD("register.fd")
 	FileRead,ColorList,colorlist.txt
 	FileRead,TimeTable,TimeTable.txt
 	MP := Object()
@@ -829,6 +830,8 @@ class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
 		this.Read()
+		if (not(IsObject(this.dict)))
+			this.dict := Object()
 		FileGetTime, LU, % this.FilePath, M
 		this.LastUpdate := LU
 	}
@@ -2153,7 +2156,8 @@ RegisterInput:
 	ClipWait, 1
 	Clipboard := RegExReplace(Clipboard, "\r\n", "\flaxnewline")
 	if (address != ""){
-		IniWrite,%Clipboard%,register.ini,General,%address%
+		registerFD.dict[address] := Clipboard
+		registerFD.write()
 	}
 	ToolTip,
 	Clipboard := ClipboardAlt
@@ -2164,12 +2168,10 @@ RegisterInput:
 	ToolTip,^#v
 	Input,address,I,{Enter}
 	if (address != ""){
-		IniRead,RegValue,register.ini,General,%address%,
-		if (RegValue != "ERROR")
-		{
-			Clipboard := RegExReplace(RegValue, "\\flaxnewline", "`n")
-			send,^v
-		}
+		registerFD.read()
+		RegValue := registerFD.dict[address]
+		Clipboard := RegExReplace(RegValue, "\\flaxnewline", "`n")
+		send,^v
 	}
 	ToolTip,
 	sleep 200
