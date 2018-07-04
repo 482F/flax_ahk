@@ -54,6 +54,7 @@ DefVars:
 	timetableFD := new FD("config/timetable.fd")
 	pathFD := new FD_for_EC("config/path.fd")
 	pathFD.dict := pathFD.dict["path"]
+	configFD.dict := FD("config/config.fd")
 	MP := Object()
 	global Pi := 3.14159265358979
 	msgbox,ready
