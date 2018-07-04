@@ -887,12 +887,18 @@ class MouseRoute{
 		return MRS
 	}
 }
+class TestObj{
+	__New(value){
+		this.value := value
+	}
+}
 
 ;hotstring
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	ListHotkeys
+	k := new TestObj(3)
+	msgjoin(k.value)
 	return
 ::flaxcalc::
 	Sleep 100
