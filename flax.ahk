@@ -53,6 +53,7 @@ DefVars:
 	launcherFD := new FD_for_EC("config/launcher.fd")
 	gestureFD := new FD_for_EC("config/gesture.fd")
 	registerFD := new FD("config/register.fd")
+	timetableFD := new FD_for_timetable("config/timetable.fd")
 	FileRead,ColorList,colorlist.txt
 	FileRead, TimeTable, config/TimeTable.txt
 	MP := Object()
@@ -863,6 +864,22 @@ class FD_for_EC extends FD{
 		if (dict == "")
 			dict := this.fdict
 		base.write(FilePath, dict)
+	}
+}
+class FD_for_timetable extends FD{
+	__New(FilePath){
+		base.__New(FilePath)
+		this.dict[0][1] := "月"
+		this.dict[0][2] := "火"
+		this.dict[0][3] := "水"
+		this.dict[0][4] := "木"
+		this.dict[0][5] := "金"
+		this.dict[0][6] := "土"
+		this.dict[1][0] := "09:00 - 10:40"
+		this.dict[2][0] := "10:50 - 12:30"
+		this.dict[3][0] := "13:20 - 15:00"
+		this.dict[4][0] := "15:10 - 16:50"
+		this.dict[5][0] := "17:00 - 18:40"
 	}
 }
 
