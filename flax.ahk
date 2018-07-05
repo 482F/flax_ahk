@@ -528,8 +528,8 @@ RetMousePos(){
 	MouseGetPos,X,Y
 	return Object("X", X, "Y", Y)
 }
-RetPointsDist(X1, Y1, X2, Y2){
-	return ((X1 - X2) ** 2 + (Y1 - Y2) ** 2) ** (1 / 2)
+RetPointsDist(M1, M2){
+	return ((M1["X"] - M2["X"]) ** 2 + (M1["Y"] - M2["Y"]) ** 2) ** (1/2)
 }
 RetKeyState(KeyName,Mode="P"){
 	GetKeyState,K,%KeyName%,%Mode%
@@ -709,6 +709,28 @@ msgobj(obj){
 	msgjoin(joinobj(obj))
 	return
 }
+RetRLDU(Radian){
+	if (15/8 < Radian or Radian <= 1/8)
+		return "R"
+	if (1/8 < Radian and Radian <= 3/8)
+		return "BDR"
+	if (3/8 < Radian and Radian <= 5/8)
+		return "D"
+	if (5/8 < Radian and Radian <= 7/8)
+		return "BDL"
+	if (7/8 < Radian and Radian <= 9/8)
+		return "L"
+	if (9/8 < Radian and Radian <= 11/8)
+		return "BUL"
+	if (11/8 < Radian and Radian <= 13/8)
+		return "U"
+	if (13/8 < Radian and Radian <= 15/8)
+		return "BUR"
+	return
+}
+RetMPatan2(MP1, MP2){
+	return atan2(MP1["X"], MP1["Y"], MP2["X"], MP2["Y"])
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
@@ -823,13 +845,62 @@ class FD_for_EC extends FD{
 		base.write(FilePath, dict)
 	}
 }
-
+class MouseRoute{
+	__New(){
+		this.LineLength := 100
+		this.route := ""
+		this.Reg := Object("BUR", Chr(0x2197), "BUL", Chr(0x2196), "BDR", Chr(0x2198), "BDL", Chr(0x2199), "U", "↑", "R", "→", "L", "←", "D", "↓")
+		this.NoS := 10
+		this.Index := 0
+		this.MPL := Object()
+		this.SMP := Object()
+		this.LastDirection := ""
+	}
+	check(){
+		RV := 0
+		if (this.SMP["X"] == "")
+			this.SMP := RetMousePos()
+		ICE := Mod(this.Index, this.NoS) ;  Index Current End
+		ILS := Mod(ICE + 1, this.NoS) ;Index Last Start
+		ILE := Mod(ICE + 5, this.NoS) ;Index Last End
+		ICS := Mod(ICE + 6, this.NoS) ;Index Current Start
+		this.Index += 1
+		this.MPL[ICE] := RetMousePos()
+		if (this.LineLength <= RetPointsDist(this.MPL[ICE], this.SMP)){
+			MRA := RetMPatan2(this.SMP, this.MPL[ICE]) / Pi
+			this.SMP := DeepCopy(this.MPL[ICE])
+			CurrentDirection := RetRLDU(MRA)
+			if (CurrentDirection == this.LastDirection)
+				return RV
+			this.route .= CurrentDirection
+			this.LastDirection := CurrentDirection
+			RV := 1
+		}
+		MPatanL := RetMPatan2(this.MPL[ILS], this.MPL[ILE])
+		MPatanC := RetMPatan2(this.MPL[ICS], this.MPL[ICE])
+		diff := Abs(MPatanL - MPatanC) / Pi
+		if (MPatanL != 0 and MPatanC != 0 and ((0.4 < diff and diff < 1.6) or 2.4 < diff))
+			this.SMP := RetMousePos()
+		return RV
+	}
+	getMRSymbol(){
+		MRS := this.route
+		for Pattern, Replacement in this.Reg
+			MRS := RegExReplace(MRS, Pattern, Replacement)
+		return MRS
+	}
+}
 
 ;hotstring
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	msgobj(pathFD.dict)
+	mr := new MouseRoute()
+	while True{
+		if (mr.check())
+			ToolTip, % "A" . mr.getMRSymbol()
+			sleep 100
+	}
 	return
 ::flaxcalc::
 	Sleep 100
@@ -2149,10 +2220,8 @@ vk1Dsc07B & 5::send,0
 	GoSub,MouseGestureCheck
 	return
 MouseGestureCheck:
-	MouseRoute := ""
+	MR := new MouseRoute()
 	CommandCandidate := ""
-	LastNEWS := ""
-	Reg := Object("BUR", Chr(0x2197), "BUL", Chr(0x2196), "BDR", Chr(0x2198), "BDL", Chr(0x2199), "U", "↑", "R", "→", "L", "←", "D", "↓")
 	if (RetKeyState("LCtrl"))
 		Prefix .= "^"
 	if (RetKeyState("LAlt"))
@@ -2160,15 +2229,15 @@ MouseGestureCheck:
 	if (RetKeyState("LShift"))
 		Prefix .= "+"
 	For, Key, Value in gestureFD.dict{
-		if (InStr(Key, Prefix . MouseRoute) == 1)
+		if (InStr(Key, Prefix . MR.route) == 1)
 		{
 			CommandLabel := gestureFD.dict[Key]["label"]
 			if (CommandValue != "ERROR")
 			{
-				CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MouseRoute) + 1, StrLen(Key))
+				CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MR.route) + 1, StrLen(Key))
 				CandiValue := CandiName == "" ? "" : " : "
 				CandiValue .= CommandLabel
-				For, Pattern, Replacement in Reg
+				For, Pattern, Replacement in MR.Reg
 					CandiName := RegExReplace(CandiName, Pattern, Replacement)
 				CommandCandidate .= CandiName . CandiValue . "`n"
 			}
@@ -2176,65 +2245,20 @@ MouseGestureCheck:
 	}
 	CommandCandidate := CommandCandidate == "" ? "None" : CommandCandidate
 	ToolTip,% CommandCandidate
-	LineLength := 100
-	NMP := RetMousePos()
-	SMP := Object()
-	SMP["X"] := NMP["X"]
-	SMP["Y"] := NMP["Y"]
-	NMP := Object()
-	RetRLDU(Radian){ ;NS が画面の座標の関係で入れ替わっているので注意
-		if (15/8 < Radian or Radian <= 1/8)
-			return "R"
-		if (1/8 < Radian and Radian <= 3/8)
-			return "BDR"
-		if (3/8 < Radian and Radian <= 5/8)
-			return "D"
-		if (5/8 < Radian and Radian <= 7/8)
-			return "BDL"
-		if (7/8 < Radian and Radian <= 9/8)
-			return "L"
-		if (9/8 < Radian and Radian <= 11/8)
-			return "BUL"
-		if (11/8 < Radian and Radian <= 13/8)
-			return "U"
-		if (13/8 < Radian and Radian <= 15/8)
-			return "BUR"
-		return
-	}
-	RetMPatan2(MP1, MP2){
-		return atan2(MP1["X"], MP1["Y"], MP2["X"], MP2["Y"])
-	}
-	while (RetKeyState(Button) and RetKeyState("LWin"))
-	{
-		ILD := Mod(A_Index, 10)
-		M9 := Mod(ILD + 1, 10)
-		M5 := Mod(ILD + 5, 10)
-		M4 := Mod(ILD + 6, 10)
+	while (RetKeyState(Button) and RetKeyState("LWin")){
 		sleep 100
-		NMP[ILD] := RetMousePos()
-		if (LineLength <= RetPointsDist(NMP[ILD]["X"], NMP[ILD]["Y"], SMP["X"], SMP["Y"]))
-		{
-			MRA := atan2(SMP["X"], SMP["Y"], NMP[ILD]["X"], NMP[ILD]["Y"]) / Pi
-			SMP["X"] := NMP[ILD]["X"]
-			SMP["Y"] := NMP[ILD]["Y"]
-			NowNEWS := RetRLDU(MRA)
-			if (NowNEWS == LastNEWS)
-			{
-				continue
-			}
-			MouseRoute .= NowNEWS
-			LastNEWS := NowNEWS
+		if (MR.check()){
 			CommandCandidate := ""
 			For Key, Value in gestureFD.dict{
-				if (InStr(Key, Prefix . MouseRoute) == 1)
+				if (InStr(Key, Prefix . MR.route) == 1)
 				{
 					CommandLabel := gestureFD.dict[Key]["label"]
 					if (CommandValue != "ERROR")
 					{
-						CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MouseRoute) + 1, StrLen(Key))
+						CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MR.route) + 1, StrLen(Key))
 						CandiValue := CandiName == "" ? "" : " : "
 						CandiValue .= CommandLabel
-						For, Pattern, Replacement in Reg
+						For, Pattern, Replacement in MR.Reg
 							CandiName := RegExReplace(CandiName, Pattern, Replacement)
 						CommandCandidate .= CandiName . CandiValue . "`n"
 					}
@@ -2243,19 +2267,8 @@ MouseGestureCheck:
 			CommandCandidate := CommandCandidate == "" ? "None" : CommandCandidate
 			ToolTip,%CommandCandidate%
 		}
-		MPatan95 := RetMPatan2(NMP[M9], NMP[M5])
-		MPatan4I := RetMPatan2(NMP[M4], NMP[ILD])
-		K := (Abs(RetMPatan2(NMP[M9], NMP[M5]) - RetMPatan2(NMP[M4], NMP[ILD])) / Pi)
-		;ToolTip,% JoinStr(RetMPatan2(NMP[M9], NMP[M5]) / Pi, RetMPatan2(NMP[M4], NMP[ILD]) / Pi, NMP[M4]["X"], NMP[M4]["Y"], NMP[ILD]["X"], NMP[ILD]["Y"], M9, M5, M4, ILD)
-		;ToolTip,% JoinStr(K, MPatan4I, Mpatan95)
-		if ((MPatan4I == 0 or MPatan95 == 0))
-			continue
-		if ((0.4 < K and K < 1.6) or 2.4 < K)
-		{
-			SMP := RetMousePos()
-		}
 	}
-	GestureName := Prefix . MouseRoute
+	GestureName := Prefix . MR.route
 	GestureType := gestureFD.dict[GestureName]["type"]
 	GestureCommand := gestureFD.dict[GestureName]["command"]
 	ToolTip,
