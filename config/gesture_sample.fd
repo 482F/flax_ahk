@@ -1,0 +1,35 @@
+﻿LB^LU=[
+	default=[
+		command=::flaxgetprocessname
+		label=アクティブウィンドウのプロセスネームを取得
+		type=label
+	]
+]
+LBBDRBUR=[
+	default=[
+		command=::flaxvirtualfolder
+		label=仮想フォルダ
+		type=label
+	]
+]
+LBUD=[
+	default=[
+		command=::flaxmonitoroff
+		label=モニターオフ
+		type=label
+	]
+]
+LBDR=[
+	default=[
+		command=::flaxtimetable
+		label=時間割
+		type=label
+	]
+]
+RBUR=[
+	default=[
+		command=::flaxreload
+		label=flax をリロード
+		type=label
+	]
+]
