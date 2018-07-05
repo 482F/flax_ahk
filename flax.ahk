@@ -848,7 +848,7 @@ class FD_for_EC extends FD{
 class MouseRoute{
 	__New(){
 		this.LineLength := 100
-		this.MR := ""
+		this.route := ""
 		this.Reg := Object("BUR", Chr(0x2197), "BUL", Chr(0x2196), "BDR", Chr(0x2198), "BDL", Chr(0x2199), "U", "↑", "R", "→", "L", "←", "D", "↓")
 		this.NoS := 10
 		this.Index := 0
@@ -872,7 +872,7 @@ class MouseRoute{
 			CurrentDirection := RetRLDU(MRA)
 			if (CurrentDirection == this.LastDirection)
 				return RV
-			this.MR .= CurrentDirection
+			this.route .= CurrentDirection
 			this.LastDirection := CurrentDirection
 			RV := 1
 		}
@@ -884,7 +884,7 @@ class MouseRoute{
 		return RV
 	}
 	getMRSymbol(){
-		MRS := this.MR
+		MRS := this.route
 		for Pattern, Replacement in this.Reg
 			MRS := RegExReplace(MRS, Pattern, Replacement)
 		return MRS
@@ -2220,10 +2220,8 @@ vk1Dsc07B & 5::send,0
 	GoSub,MouseGestureCheck
 	return
 MouseGestureCheck:
-	MouseRoute := ""
+	MR := new MouseRoute()
 	CommandCandidate := ""
-	LastNEWS := ""
-	Reg := Object("BUR", Chr(0x2197), "BUL", Chr(0x2196), "BDR", Chr(0x2198), "BDL", Chr(0x2199), "U", "↑", "R", "→", "L", "←", "D", "↓")
 	if (RetKeyState("LCtrl"))
 		Prefix .= "^"
 	if (RetKeyState("LAlt"))
@@ -2231,15 +2229,15 @@ MouseGestureCheck:
 	if (RetKeyState("LShift"))
 		Prefix .= "+"
 	For, Key, Value in gestureFD.dict{
-		if (InStr(Key, Prefix . MouseRoute) == 1)
+		if (InStr(Key, Prefix . MR.route) == 1)
 		{
 			CommandLabel := gestureFD.dict[Key]["label"]
 			if (CommandValue != "ERROR")
 			{
-				CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MouseRoute) + 1, StrLen(Key))
+				CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MR.route) + 1, StrLen(Key))
 				CandiValue := CandiName == "" ? "" : " : "
 				CandiValue .= CommandLabel
-				For, Pattern, Replacement in Reg
+				For, Pattern, Replacement in MR.Reg
 					CandiName := RegExReplace(CandiName, Pattern, Replacement)
 				CommandCandidate .= CandiName . CandiValue . "`n"
 			}
@@ -2247,43 +2245,20 @@ MouseGestureCheck:
 	}
 	CommandCandidate := CommandCandidate == "" ? "None" : CommandCandidate
 	ToolTip,% CommandCandidate
-	LineLength := 100
-	NMP := RetMousePos()
-	SMP := Object()
-	SMP["X"] := NMP["X"]
-	SMP["Y"] := NMP["Y"]
-	NMP := Object()
-	while (RetKeyState(Button) and RetKeyState("LWin"))
-	{
-		ILD := Mod(A_Index, 10)
-		M9 := Mod(ILD + 1, 10)
-		M5 := Mod(ILD + 5, 10)
-		M4 := Mod(ILD + 6, 10)
+	while (RetKeyState(Button) and RetKeyState("LWin")){
 		sleep 100
-		NMP[ILD] := RetMousePos()
-		if (LineLength <= RetPointsDist(NMP[ILD], SMP))
-		{
-			MRA := atan2(SMP["X"], SMP["Y"], NMP[ILD]["X"], NMP[ILD]["Y"]) / Pi
-			SMP["X"] := NMP[ILD]["X"]
-			SMP["Y"] := NMP[ILD]["Y"]
-			NowNEWS := RetRLDU(MRA)
-			if (NowNEWS == LastNEWS)
-			{
-				continue
-			}
-			MouseRoute .= NowNEWS
-			LastNEWS := NowNEWS
+		if (MR.check()){
 			CommandCandidate := ""
 			For Key, Value in gestureFD.dict{
-				if (InStr(Key, Prefix . MouseRoute) == 1)
+				if (InStr(Key, Prefix . MR.route) == 1)
 				{
 					CommandLabel := gestureFD.dict[Key]["label"]
 					if (CommandValue != "ERROR")
 					{
-						CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MouseRoute) + 1, StrLen(Key))
+						CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MR.route) + 1, StrLen(Key))
 						CandiValue := CandiName == "" ? "" : " : "
 						CandiValue .= CommandLabel
-						For, Pattern, Replacement in Reg
+						For, Pattern, Replacement in MR.Reg
 							CandiName := RegExReplace(CandiName, Pattern, Replacement)
 						CommandCandidate .= CandiName . CandiValue . "`n"
 					}
@@ -2292,17 +2267,8 @@ MouseGestureCheck:
 			CommandCandidate := CommandCandidate == "" ? "None" : CommandCandidate
 			ToolTip,%CommandCandidate%
 		}
-		MPatan95 := RetMPatan2(NMP[M9], NMP[M5])
-		MPatan4I := RetMPatan2(NMP[M4], NMP[ILD])
-		K := (Abs(RetMPatan2(NMP[M9], NMP[M5]) - RetMPatan2(NMP[M4], NMP[ILD])) / Pi)
-		if ((MPatan4I == 0 or MPatan95 == 0))
-			continue
-		if ((0.4 < K and K < 1.6) or 2.4 < K)
-		{
-			SMP := RetMousePos()
-		}
 	}
-	GestureName := Prefix . MouseRoute
+	GestureName := Prefix . MR.route
 	GestureType := gestureFD.dict[GestureName]["type"]
 	GestureCommand := gestureFD.dict[GestureName]["command"]
 	ToolTip,
