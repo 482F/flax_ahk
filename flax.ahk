@@ -528,8 +528,8 @@ RetMousePos(){
 	MouseGetPos,X,Y
 	return Object("X", X, "Y", Y)
 }
-RetPointsDist(X1, Y1, X2, Y2){
-	return ((X1 - X2) ** 2 + (Y1 - Y2) ** 2) ** (1 / 2)
+RetPointsDist(M1, M2){
+	return ((M1["X"] - M2["X"]) ** 2 + (M1["Y"] - M2["Y"]) ** 2) ** (1/2)
 }
 RetKeyState(KeyName,Mode="P"){
 	GetKeyState,K,%KeyName%,%Mode%
@@ -2212,7 +2212,7 @@ MouseGestureCheck:
 		M4 := Mod(ILD + 6, 10)
 		sleep 100
 		NMP[ILD] := RetMousePos()
-		if (LineLength <= RetPointsDist(NMP[ILD]["X"], NMP[ILD]["Y"], SMP["X"], SMP["Y"]))
+		if (LineLength <= RetPointsDist(NMP[ILD], SMP))
 		{
 			MRA := atan2(SMP["X"], SMP["Y"], NMP[ILD]["X"], NMP[ILD]["Y"]) / Pi
 			SMP["X"] := NMP[ILD]["X"]
