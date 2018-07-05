@@ -2198,7 +2198,7 @@ MouseGestureCheck:
 		if (11/8 < Radian and Radian <= 13/8)
 			return "U"
 		if (13/8 < Radian and Radian <= 15/8)
-			return "BUL"
+			return "BUR"
 		return
 	}
 	RetMPatan2(MP1, MP2){
