@@ -1975,6 +1975,58 @@ MouseGetPos,X,Y
 		Gui, FlaxEditGesture:Destroy
 		return
 	return
+::flaxedittimetable::
+	timetableFD.read()
+	sleep 300
+	TTCellWidth = 100
+	TTCellHeight = 100
+	Gui, New, , FlaxEditTimeTable
+	Gui, FlaxEditTimeTable:Font, MeiryoUI
+	Gui, FlaxEditTimeTable:Margin, 50, 50
+	x := marg
+	y := marg
+	Loop, 6{
+		R := A_Index - 1
+		Loop, 7{
+			C := A_Index - 1
+			x := marg + C * TTCellWidth
+			y := marg + R * TTCellHeight
+			Text := ""
+			Loop, 4{
+				L := A_Index - 1
+				Text .= "`n" timetableFD.dict[R][C][L]
+			}
+			Gui, FlaxEditTimeTable:Add, Edit, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center vE%R%%C% -VScroll, %Text%
+		}
+	}
+	Gui, FlaxEditTimeTable:Add, Button, Default gEditTimeTableOK, OK
+	Gui, FlaxEditTimeTable:Show, , FlaxEditTimeTable
+	return
+	EditTimeTableOK:
+		Gui, FlaxEditTimeTable:Submit
+		Loop, 6{
+			R := A_Index - 1
+			Loop, 7{
+				C := A_Index - 1
+				Text := E%R%%C%
+				Loop, Parse, Text, `n
+				{
+					if (2 <= A_Index){
+						if (not timetableFD.dict.HasKey(R))
+							timetableFD.dict[R] := Object()
+						if (not timetableFD.dict[R].HasKey(C))
+							timetableFD.dict[R][C] := Object()
+						timetableFD.dict[R][C][A_Index - 2] := A_LoopField
+					}
+				}
+			}
+		}
+		timetableFD.write()
+	FlaxEditTimeTableGuiEscape:
+	FlaxEditTimeTableGuiClose:
+		Gui, FlaxEditTimeTable:Destroy
+		return
+	return
 
 
 ;hotkey
