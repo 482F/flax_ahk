@@ -2256,16 +2256,16 @@ RegisterInput:
 		MoveFlag := False
 		return
 #If (True)
-vk1Dsc07B & j::send,{down}
-vk1Dsc07B & k::send,{up}
-vk1Dsc07B & h::send,{left}
-vk1Dsc07B & l::send,{right}
-vk1Dsc07B & Space::send,{Enter}
-vk1Dsc07B & 1::send,6
-vk1Dsc07B & 2::send,7
-vk1Dsc07B & 3::send,8
-vk1Dsc07B & 4::send,9
-vk1Dsc07B & 5::send,0
+vk1D & j::send,{down}
+vk1D & k::send,{up}
+vk1D & h::send,{left}
+vk1D & l::send,{right}
+vk1D & Space::send,{Enter}
+vk1D & 1::send,6
+vk1D & 2::send,7
+vk1D & 3::send,8
+vk1D & 4::send,9
+vk1D & 5::send,0
 
 #^l::send,^#{Right}
 #^h::send,^#{Left}
