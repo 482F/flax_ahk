@@ -2278,6 +2278,7 @@ vk1Dsc07B & 5::send,0
 	GoSub,MouseGestureCheck
 	return
 MouseGestureCheck:
+	gestureFD.read()
 	MR := new MouseRoute()
 	CommandCandidate := ""
 	if (RetKeyState("LCtrl"))
