@@ -1885,7 +1885,7 @@ MouseGetPos,X,Y
 		else if (RAll = 1)
 			B_ComputerName := "default"
 		if (RLab)
-			Type := "Label"
+			Type := "label"
 		else if (RLoc)
 			Type := "LocalPath"
 		else if (App)
@@ -1893,7 +1893,7 @@ MouseGetPos,X,Y
 		else if (URL)
 			Type := "URL"
 		else if (Lau)
-			Type := "Launcher"
+			Type := "launcher"
 		EGesture := Prefix . EGesture
 		if (not gestureFD.fdict.HasKey(EGesture))
 			gestureFD.fdict[EGesture] := Object()
