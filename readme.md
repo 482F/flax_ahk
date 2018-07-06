@@ -3,7 +3,7 @@
 	- config フォルダ内にサンプルファイルがあるため、[_sample] を除去し、それを拡張する形で使用していただくのが吉。
 - メイン機能
 	- ランチャー
-		- Ctrl + Alt + Shift + r で起動
+		- Ctrl + Alt + Shift + w で起動
 		- 設定は config/launcher.fd に記述
 		- エクスプローラ上で Ctrl + r -> [Launcher に登録 (R)] を選択で登録 GUI が起動
 			- Name
