@@ -54,7 +54,6 @@ DefVars:
 	timetableFD := new FD("config/timetable.fd")
 	pathFD := new FD_for_EC("config/path.fd")
 	pathFD.dict := pathFD.dict["path"]
-	FileRead,ColorList,colorlist.txt
 	MP := Object()
 	global Pi := 3.14159265358979
 	msgbox,ready
@@ -1574,8 +1573,6 @@ class MouseRoute{
 			GuiControl, colorviewerV:,GV,% Hex2Dec(SubStr(ColorEdit,3,2))
 			GuiControl, colorviewerV:,BV,% Hex2Dec(SubStr(ColorEdit,5,2))
 			Gui, colorviewerC:Color,%ColorEdit%
-			if (RegExMatch(ColorList,"\n([^,\n]*)," . ColorEdit,NearColorName) != 0)
-				GuiControl, colorviewerV:,ColorName,%NearColorName%
 		}
 		return
 	ButtonColorOK:
