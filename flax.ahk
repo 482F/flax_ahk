@@ -892,12 +892,7 @@ class MouseRoute{
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	mr := new MouseRoute()
-	while True{
-		if (mr.check())
-			ToolTip, % "A" . mr.getMRSymbol()
-			sleep 100
-	}
+	ListHotkeys
 	return
 ::flaxcalc::
 	Sleep 100
@@ -1806,6 +1801,7 @@ MouseGetPos,X,Y
 		}
 		ClassPath := pathFD.dict["class"] . ClassName
 		Run, %ClassPath%
+		Gui, FlaxTimeTable:Destroy
 		return
 	FlaxTimeTableGuiEscape:
 	FlaxTimeTableGuiClose:
