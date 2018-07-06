@@ -2015,7 +2015,10 @@ MouseGetPos,X,Y
 			LF := True
 		}
 		ID := launcherFD.dict[ItemName]
-		ItemCommand := ID["command"]
+		if ((ItemCommand := ID["command"]) == ""){
+			msgbox, 404
+			return
+		}
 		for Key, Value in ItemParams{
 			if (A_Index == 1)
 				continue
@@ -2059,7 +2062,10 @@ MouseGetPos,X,Y
 		NoI = 0
 		For Key, Value in launcherFD.dict{
 			StringGetPos, IP, Key, %ItemName%
-			if (IP == 0){
+			command := ""
+			if (IP == 0)
+				command := launcherFD.dict[Key]["command"]
+			if (command != ""){
 				candidate .= "|" . Key
 				NoI += 1
 			}
