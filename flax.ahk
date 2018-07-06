@@ -1953,15 +1953,13 @@ MouseGetPos,X,Y
 			Loop, 7{
 				C := A_Index - 1
 				Text := E%R%%C%
-				Loop, Parse, Text, `n
-				{
-					if (2 <= A_Index){
-						if (not timetableFD.dict.HasKey(R))
-							timetableFD.dict[R] := Object()
-						if (not timetableFD.dict[R].HasKey(C))
-							timetableFD.dict[R][C] := Object()
-						timetableFD.dict[R][C][A_Index - 2] := A_LoopField
-					}
+				Text := StrSplit(Text, "`n")
+				Loop, 4{
+					if (not timetableFD.dict.HasKey(R))
+						timetableFD.dict[R] := Object()
+					if (not timetableFD.dict[R].HasKey(C))
+						timetableFD.dict[R][C] := Object()
+					timetableFD.dict[R][C][A_Index - 1] := Text[A_Index + 1]
 				}
 			}
 		}
