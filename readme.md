@@ -95,7 +95,7 @@
 		- flaxedittimetable
 			- 時間割設定 GUI。使い方はメイン機能の項を参照。
 	- ホットキー
-		- Ctrl + Alt + w
+		- Ctrl + Alt + Shift + w
 			- ランチャーを起動。使い方はメイン機能の項を参照。
 		- Ctrl + Enter
 			- 下に空行を挿入して移動。所構わず起動するので若干使いづらい。
