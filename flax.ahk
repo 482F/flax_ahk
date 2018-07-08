@@ -728,6 +728,24 @@ RetRLDU(Radian){
 RetMPatan2(MP1, MP2){
 	return atan2(MP1["X"], MP1["Y"], MP2["X"], MP2["Y"])
 }
+GestureCandidate(MR, gFD){
+	route := MR.route
+	reg := MR.Reg
+	CommandCandidate := ""
+	For Key, Value in gFD.dict{
+		if (InStr(Key, route) == 1){
+			CommandLabel := gFD.dict[Key]["label"]
+			CandiName := SubStr(Key, StrLen(route) + 1, StrLen(Key))
+			CandiValue := CandiName == "" ? "" : " : "
+			CandiValue .= CommandLabel
+			For, Pattern, Replacement in reg
+				CandiName := RegExReplace(CandiName, Pattern, Replacement)
+			CommandCandidate .= CandiName . CandiValue . "`n"
+		}
+	}
+	CommandCandidate := CommandCandidate == "" ? "None" : CommandCandidate
+	return CommandCandidate
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
