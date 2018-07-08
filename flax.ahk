@@ -862,9 +862,9 @@ class FD_for_EC extends FD{
 	}
 }
 class MouseRoute{
-	__New(){
+	__New(Prefix){
 		this.LineLength := 100
-		this.route := ""
+		this.route := Prefix
 		this.Reg := Object("BUR", Chr(0x2197), "BUL", Chr(0x2196), "BDR", Chr(0x2198), "BDL", Chr(0x2199), "U", "↑", "R", "→", "L", "←", "D", "↓")
 		this.NoS := 10
 		this.Index := 0
@@ -2305,7 +2305,6 @@ vk1D & 5::send,0
 	return
 MouseGestureCheck:
 	gestureFD.read()
-	MR := new MouseRoute()
 	CommandCandidate := ""
 	if (RetKeyState("LCtrl"))
 		Prefix .= "^"
