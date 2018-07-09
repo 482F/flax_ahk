@@ -2738,6 +2738,7 @@ MouseGestureCheck:
 					EType := "URL"
 				launcherFD.fdict[EName][B_ComputerName]["type"] := EType
 				launcherFD.write()
+				Gui, FlaxRegisterLauncher:Destroy
 				return
 			FlaxRegisterLauncherGuiEscape:
 			FlaxRegisterLauncherGuiClose:
