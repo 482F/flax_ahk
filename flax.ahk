@@ -54,7 +54,8 @@ DefVars:
 	timetableFD := new FD("config/timetable.fd")
 	pathFD := new FD_for_EC("config/path.fd")
 	pathFD.dict := pathFD.dict["path"]
-	configFD.dict := new FD("config/config.fd")
+	configFD := new FD("config/config.fd")
+	EvalConfig(configFD)
 	MP := Object()
 	global Pi := 3.14159265358979
 	msgbox,ready
@@ -746,6 +747,21 @@ GestureCandidate(MR, gFD){
 	CommandCandidate := CommandCandidate == "" ? "None" : CommandCandidate
 	return CommandCandidate
 }
+EvalConfig(cFD){
+	for Key, Value in cFD.dict["ChangeHotkey"]{
+		HotKey, IfWinActive
+		for SubCommand, Parameter in Value{
+			if (SubCommand == "Key")
+				continue
+			HotKey, %SubCommand%, %Parameter%
+		}
+		Value := Value["Key"]
+		if (Value != "Off")
+			HotKey, %Value%, %Key%
+		HotKey, %Key%, Off
+	}
+	return
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
@@ -938,7 +954,7 @@ class KeyRoute extends MouseRoute{
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	ListHotkeys
+	EvalConfig(configFD)
 	return
 ::flaxcalc::
 	Sleep 100
@@ -2301,7 +2317,7 @@ RegisterInput:
 	Enter::
 		MoveFlag := False
 		return
-#If (True)
+#If
 vk1D & j::send,{down}
 vk1D & k::send,{up}
 vk1D & h::send,{left}
@@ -2862,4 +2878,4 @@ MouseGestureExecute:
 		IoFRP += IoFWP == IoFRP + 1 ? 0 : 1
 		return
 }
-#If (True)
+#If
