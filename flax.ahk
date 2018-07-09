@@ -728,6 +728,24 @@ RetRLDU(Radian){
 RetMPatan2(MP1, MP2){
 	return atan2(MP1["X"], MP1["Y"], MP2["X"], MP2["Y"])
 }
+GestureCandidate(MR, gFD){
+	route := MR.route
+	reg := MR.Reg
+	CommandCandidate := ""
+	For Key, Value in gFD.dict{
+		if (InStr(Key, route) == 1){
+			CommandLabel := gFD.dict[Key]["label"]
+			CandiName := SubStr(Key, StrLen(route) + 1, StrLen(Key))
+			CandiValue := CandiName == "" ? "" : " : "
+			CandiValue .= CommandLabel
+			For, Pattern, Replacement in reg
+				CandiName := RegExReplace(CandiName, Pattern, Replacement)
+			CommandCandidate .= CandiName . CandiValue . "`n"
+		}
+	}
+	CommandCandidate := CommandCandidate == "" ? "None" : CommandCandidate
+	return CommandCandidate
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
@@ -844,9 +862,9 @@ class FD_for_EC extends FD{
 	}
 }
 class MouseRoute{
-	__New(){
+	__New(Prefix){
 		this.LineLength := 100
-		this.route := ""
+		this.route := Prefix
 		this.Reg := Object("BUR", Chr(0x2197), "BUL", Chr(0x2196), "BDR", Chr(0x2198), "BDL", Chr(0x2199), "U", "↑", "R", "→", "L", "←", "D", "↓")
 		this.NoS := 10
 		this.Index := 0
@@ -886,6 +904,33 @@ class MouseRoute{
 		for Pattern, Replacement in this.Reg
 			MRS := RegExReplace(MRS, Pattern, Replacement)
 		return MRS
+	}
+}
+class KeyRoute extends MouseRoute{
+	__New(Prefix){
+		base.__New(Prefix)
+		this.LastKey := ""
+		this.LastKeyPressedTime := 0
+		this.delay := configFD.dict["KeyGestureDelay"]
+		if (this.delay == "")
+			this.delay := 50
+	}
+	check(Key){
+		if ((A_TickCount - this.LastKeyPressedTime) < this.delay){
+			TempKey := "B"
+			if (Key == "U" or Key == "D")
+				TempKey .= Key . this.LastKey
+			else
+				TempKey .= this.LastKey . Key
+			if (this.Reg.HasKey(TempKey)){
+				this.route := SubStr(this.route, 1, StrLen(this.route) - 1) . TempKey
+				this.LastKey := ""
+				return
+			}
+		}
+		this.route .= Key
+		this.LastKey := Key
+		this.LastKeyPressedTime := A_TickCount
 	}
 }
 
@@ -2287,7 +2332,6 @@ vk1D & 5::send,0
 	return
 MouseGestureCheck:
 	gestureFD.read()
-	MR := new MouseRoute()
 	CommandCandidate := ""
 	if (RetKeyState("LCtrl"))
 		Prefix .= "^"
@@ -2295,47 +2339,17 @@ MouseGestureCheck:
 		Prefix .= "!"
 	if (RetKeyState("LShift"))
 		Prefix .= "+"
-	For, Key, Value in gestureFD.dict{
-		if (InStr(Key, Prefix . MR.route) == 1)
-		{
-			CommandLabel := gestureFD.dict[Key]["label"]
-			if (CommandValue != "ERROR")
-			{
-				CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MR.route) + 1, StrLen(Key))
-				CandiValue := CandiName == "" ? "" : " : "
-				CandiValue .= CommandLabel
-				For, Pattern, Replacement in MR.Reg
-					CandiName := RegExReplace(CandiName, Pattern, Replacement)
-				CommandCandidate .= CandiName . CandiValue . "`n"
-			}
-		}
-	}
-	CommandCandidate := CommandCandidate == "" ? "None" : CommandCandidate
-	ToolTip,% CommandCandidate
+	MR := new MouseRoute(Prefix)
+	ToolTip, % GestureCandidate(MR, gestureFD)
 	while (RetKeyState(Button) and RetKeyState("LWin")){
 		sleep 100
 		if (MR.check()){
-			CommandCandidate := ""
-			For Key, Value in gestureFD.dict{
-				if (InStr(Key, Prefix . MR.route) == 1)
-				{
-					CommandLabel := gestureFD.dict[Key]["label"]
-					if (CommandValue != "ERROR")
-					{
-						CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MR.route) + 1, StrLen(Key))
-						CandiValue := CandiName == "" ? "" : " : "
-						CandiValue .= CommandLabel
-						For, Pattern, Replacement in MR.Reg
-							CandiName := RegExReplace(CandiName, Pattern, Replacement)
-						CommandCandidate .= CandiName . CandiValue . "`n"
-					}
-				}
-			}
-			CommandCandidate := CommandCandidate == "" ? "None" : CommandCandidate
-			ToolTip,%CommandCandidate%
+			ToolTip, % GestureCandidate(MR, gestureFD)
 		}
 	}
-	GestureName := Prefix . MR.route
+	route := MR.route
+MouseGestureExecute:
+	GestureName := route
 	GestureType := gestureFD.dict[GestureName]["type"]
 	GestureCommand := gestureFD.dict[GestureName]["command"]
 	ToolTip,
@@ -2384,6 +2398,44 @@ MouseGestureCheck:
 ^+!c::send,!+,
 ^+!d::send,!+.
 ^+!r::send,!+l
+#G::
+	KeyGestureBool := True
+	LPT := 0
+	KR := new KeyRoute("LB")
+	ToolTip, % GestureCandidate(KR, gestureFD)
+	return
+#If (KeyGestureBool)
+	Left::
+		Key := "L"
+		GoSub, KeyGestureCheck
+		return
+	Right::
+		Key := "R"
+		GoSub, KeyGestureCheck
+		return
+	UP::
+		Key := "U"
+		GoSub, KeyGestureCheck
+		return
+	Down::
+		Key := "D"
+		GoSub, KeyGestureCheck
+		return
+	KeyGestureCheck:
+		KR.check(Key)
+		ToolTip, % GestureCandidate(KR, gestureFD)
+		return
+	Enter::
+		KeyGestureBool := False
+		route := KR.route
+		ToolTip,
+		GoSub, MouseGestureExecute
+		return
+	Esc::
+		KeyGestureBool := False
+		ToolTip,
+		return
+#If
 
 
 #IfWinActive ahk_exe excel.exe
