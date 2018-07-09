@@ -906,6 +906,33 @@ class MouseRoute{
 		return MRS
 	}
 }
+class KeyRoute extends MouseRoute{
+	__New(Prefix){
+		base.__New(Prefix)
+		this.LastKey := ""
+		this.LastKeyPressedTime := 0
+		this.delay := configFD.dict["KeyGestureDelay"]
+		if (this.delay == "")
+			this.delay := 50
+	}
+	check(Key){
+		if ((A_TickCount - this.LastKeyPressedTime) < this.delay){
+			TempKey := "B"
+			if (Key == "U" or Key == "D")
+				TempKey .= Key . this.LastKey
+			else
+				TempKey .= this.LastKey . Key
+			if (this.Reg.HasKey(TempKey)){
+				this.route := SubStr(this.route, 1, StrLen(this.route) - 1) . TempKey
+				this.LastKey := ""
+				return
+			}
+		}
+		this.route .= Key
+		this.LastKey := Key
+		this.LastKeyPressedTime := A_TickCount
+	}
+}
 
 ;hotstring
 ;ホットストリング
