@@ -774,11 +774,12 @@ class FD{
 				Text := TData[2]
 			}else{
 				TData := RetAoT(body, "`n", 0)
+				pattern := "^\s*|\s*$"
 				if (TData[1] == body){
-					Data[name] := body
+					Data[name] := RegExReplace(body, pattern, "")
 					break
 				}
-				K := TData[0]
+				K := RegExReplace(TData[0], pattern, "")
 				Data[name] := K
 				Text := TData[1]
 			}
