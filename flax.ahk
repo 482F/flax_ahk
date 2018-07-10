@@ -2018,7 +2018,7 @@ MouseGetPos,X,Y
 		}
 		ID := launcherFD.dict[ItemName]
 		if ((ItemCommand := ID["command"]) == ""){
-			msgbox, 404
+			msgbox, 404 Command
 			return
 		}
 		for Key, Value in ItemParams{
@@ -2046,9 +2046,7 @@ MouseGetPos,X,Y
 				Run, %ItemCommand%
 			}
 		}
-		if (ItemType = ""){
-			msgbox,404
-		}
+		msgbox,404 Type
 		return
 	HiddenEdited:
 		Gui, FlaxLauncher:Submit,NoHide
