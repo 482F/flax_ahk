@@ -2042,8 +2042,10 @@ MouseGetPos,X,Y
 				Run, %ItemCommand%
 				WinWaitActive, ahk_exe explorer.exe
 				sendraw,% ItemName1
+				return
 			}else{
 				Run, %ItemCommand%
+				return
 			}
 		}
 		msgbox,404 Type
