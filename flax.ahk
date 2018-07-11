@@ -2312,47 +2312,15 @@ MouseGestureCheck:
 		Prefix .= "!"
 	if (RetKeyState("LShift"))
 		Prefix .= "+"
-	For, Key, Value in gestureFD.dict{
-		if (InStr(Key, Prefix . MR.route) == 1)
-		{
-			CommandLabel := gestureFD.dict[Key]["label"]
-			if (CommandValue != "ERROR")
-			{
-				CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MR.route) + 1, StrLen(Key))
-				CandiValue := CandiName == "" ? "" : " : "
-				CandiValue .= CommandLabel
-				For, Pattern, Replacement in MR.Reg
-					CandiName := RegExReplace(CandiName, Pattern, Replacement)
-				CommandCandidate .= CandiName . CandiValue . "`n"
-			}
-		}
-	}
-	CommandCandidate := CommandCandidate == "" ? "None" : CommandCandidate
-	ToolTip,% CommandCandidate
+	MR := new MouseRoute(Prefix)
+	ToolTip, % GestureCandidate(MR, gestureFD)
 	while (RetKeyState(Button) and RetKeyState("LWin")){
 		sleep 100
 		if (MR.check()){
-			CommandCandidate := ""
-			For Key, Value in gestureFD.dict{
-				if (InStr(Key, Prefix . MR.route) == 1)
-				{
-					CommandLabel := gestureFD.dict[Key]["label"]
-					if (CommandValue != "ERROR")
-					{
-						CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MR.route) + 1, StrLen(Key))
-						CandiValue := CandiName == "" ? "" : " : "
-						CandiValue .= CommandLabel
-						For, Pattern, Replacement in MR.Reg
-							CandiName := RegExReplace(CandiName, Pattern, Replacement)
-						CommandCandidate .= CandiName . CandiValue . "`n"
-					}
-				}
-			}
-			CommandCandidate := CommandCandidate == "" ? "None" : CommandCandidate
-			ToolTip,%CommandCandidate%
+			ToolTip, % GestureCandidate(MR, gestureFD)
 		}
 	}
-	GestureName := Prefix . MR.route
+	GestureName := MR.route
 	GestureType := gestureFD.dict[GestureName]["type"]
 	GestureCommand := gestureFD.dict[GestureName]["command"]
 	ToolTip,
