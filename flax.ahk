@@ -2347,7 +2347,9 @@ MouseGestureCheck:
 			ToolTip, % GestureCandidate(MR, gestureFD)
 		}
 	}
-	GestureName := MR.route
+	route := MR.route
+MouseGestureExecute:
+	GestureName := route
 	GestureType := gestureFD.dict[GestureName]["type"]
 	GestureCommand := gestureFD.dict[GestureName]["command"]
 	ToolTip,
