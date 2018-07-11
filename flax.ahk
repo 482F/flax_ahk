@@ -2398,6 +2398,44 @@ MouseGestureExecute:
 ^+!c::send,!+,
 ^+!d::send,!+.
 ^+!r::send,!+l
+#G::
+	KeyGestureBool := True
+	LPT := 0
+	KR := new KeyRoute("LB")
+	ToolTip, % GestureCandidate(KR, gestureFD)
+	return
+#If (KeyGestureBool)
+	Left::
+		Key := "L"
+		GoSub, KeyGestureCheck
+		return
+	Right::
+		Key := "R"
+		GoSub, KeyGestureCheck
+		return
+	UP::
+		Key := "U"
+		GoSub, KeyGestureCheck
+		return
+	Down::
+		Key := "D"
+		GoSub, KeyGestureCheck
+		return
+	KeyGestureCheck:
+		KR.check(Key)
+		ToolTip, % GestureCandidate(KR, gestureFD)
+		return
+	Enter::
+		KeyGestureBool := False
+		route := KR.route
+		ToolTip,
+		GoSub, MouseGestureExecute
+		return
+	Esc::
+		KeyGestureBool := False
+		ToolTip,
+		return
+#If
 
 
 #IfWinActive ahk_exe excel.exe
