@@ -906,12 +906,12 @@ class MouseRoute{
 	Gui, FlaxCalc:Show,Hide
 	Gui, FlaxCalc:+LastFound
 	WinGetPos,,,w,h
-	Gui, FlaxCalc:Add,Button,Default Hidden,OK
+	Gui, FlaxCalc:Add,Button,gFlaxCalcButtonOK Default Hidden,OK
 	w := MonitorSizeX - marg - w
 	h := MonitorSizeY - marg - h
 	Gui, FlaxCalc:Show,X%w% Y%h%
 	Return
-	ButtonOK:
+	FlaxCalcButtonOK:
 		Gui, FlaxCalc:Submit
 		Formula := EvalForm(Formula)
 		Send,%Formula%
