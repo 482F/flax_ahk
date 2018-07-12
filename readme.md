@@ -51,6 +51,16 @@
 			- 入力欄に文字列を入力して [OK]
 			- 1 行目の入力は無視されるため注意
 		- セルをクリックして開かれるパスの定義は config/path.fd に記述
+	- ホットキー編集
+		- config/config.fd の ChangeHotKey セクションで設定を変更
+		```
+			A=[
+				IfWinActive=ahk_exe B.exe
+				Key=C
+			]
+		```
+		- で IfWinActive, ahk_exe B.exe のホットキー A を C に変更できる。C を Off にするとホットキーを無効化できる。
+		- 設定 GUI 作成予定
 	- FIFO
 		- ホットストリング flaxfifo でモード切替
 		- Ctrl + c, x, v に関して FIFO モードになる
