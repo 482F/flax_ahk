@@ -53,12 +53,14 @@
 		- セルをクリックして開かれるパスの定義は config/path.fd に記述
 	- ホットキー編集
 		- config/config.fd の ChangeHotKey セクションで設定を変更
+
 ```
 	A=[
 		IfWinActive=ahk_exe B.exe
 		Key=C
 	]
 ```
+
 		- で IfWinActive, ahk_exe B.exe のホットキー A を C に変更できる。C を Off にするとホットキーを無効化できる。
 	- FIFO
 		- ホットストリング flaxfifo でモード切替
