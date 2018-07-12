@@ -922,11 +922,11 @@ class MouseRoute{
 		return MRS
 	}
 }
-<<<<<<< HEAD
 class TestObj{
 	__New(value){
 		this.value := value
-=======
+	}
+}
 class KeyRoute extends MouseRoute{
 	__New(Prefix){
 		base.__New(Prefix)
@@ -952,7 +952,6 @@ class KeyRoute extends MouseRoute{
 		this.route .= Key
 		this.LastKey := Key
 		this.LastKeyPressedTime := A_TickCount
->>>>>>> master
 	}
 }
 
