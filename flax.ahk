@@ -54,7 +54,8 @@ DefVars:
 	timetableFD := new FD("config/timetable.fd")
 	pathFD := new FD_for_EC("config/path.fd")
 	pathFD.dict := pathFD.dict["path"]
-	FileRead,ColorList,colorlist.txt
+	configFD := new FD("config/config.fd")
+	EvalConfig(configFD)
 	MP := Object()
 	global Pi := 3.14159265358979
 	msgbox,ready
@@ -728,6 +729,39 @@ RetRLDU(Radian){
 RetMPatan2(MP1, MP2){
 	return atan2(MP1["X"], MP1["Y"], MP2["X"], MP2["Y"])
 }
+GestureCandidate(MR, gFD){
+	route := MR.route
+	reg := MR.Reg
+	CommandCandidate := ""
+	For Key, Value in gFD.dict{
+		if (InStr(Key, route) == 1){
+			CommandLabel := gFD.dict[Key]["label"]
+			CandiName := SubStr(Key, StrLen(route) + 1, StrLen(Key))
+			CandiValue := CandiName == "" ? "" : " : "
+			CandiValue .= CommandLabel
+			For, Pattern, Replacement in reg
+				CandiName := RegExReplace(CandiName, Pattern, Replacement)
+			CommandCandidate .= CandiName . CandiValue . "`n"
+		}
+	}
+	CommandCandidate := CommandCandidate == "" ? "None" : CommandCandidate
+	return CommandCandidate
+}
+EvalConfig(cFD){
+	for Key, Value in cFD.dict["ChangeHotkey"]{
+		HotKey, IfWinActive
+		for SubCommand, Parameter in Value{
+			if (SubCommand == "Key")
+				continue
+			HotKey, %SubCommand%, %Parameter%
+		}
+		Value := Value["Key"]
+		if (Value != "Off")
+			HotKey, %Value%, %Key%
+		HotKey, %Key%, Off
+	}
+	return
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
@@ -774,11 +808,12 @@ class FD{
 				Text := TData[2]
 			}else{
 				TData := RetAoT(body, "`n", 0)
+				pattern := "^\s*|\s*$"
 				if (TData[1] == body){
-					Data[name] := body
+					Data[name] := RegExReplace(body, pattern, "")
 					break
 				}
-				K := TData[0]
+				K := RegExReplace(TData[0], pattern, "")
 				Data[name] := K
 				Text := TData[1]
 			}
@@ -843,9 +878,9 @@ class FD_for_EC extends FD{
 	}
 }
 class MouseRoute{
-	__New(){
+	__New(Prefix){
 		this.LineLength := 100
-		this.route := ""
+		this.route := Prefix
 		this.Reg := Object("BUR", Chr(0x2197), "BUL", Chr(0x2196), "BDR", Chr(0x2198), "BDL", Chr(0x2199), "U", "↑", "R", "→", "L", "←", "D", "↓")
 		this.NoS := 10
 		this.Index := 0
@@ -887,17 +922,39 @@ class MouseRoute{
 		return MRS
 	}
 }
+class KeyRoute extends MouseRoute{
+	__New(Prefix){
+		base.__New(Prefix)
+		this.LastKey := ""
+		this.LastKeyPressedTime := 0
+		this.delay := configFD.dict["KeyGestureDelay"]
+		if (this.delay == "")
+			this.delay := 50
+	}
+	check(Key){
+		if ((A_TickCount - this.LastKeyPressedTime) < this.delay){
+			TempKey := "B"
+			if (Key == "U" or Key == "D")
+				TempKey .= Key . this.LastKey
+			else
+				TempKey .= this.LastKey . Key
+			if (this.Reg.HasKey(TempKey)){
+				this.route := SubStr(this.route, 1, StrLen(this.route) - 1) . TempKey
+				this.LastKey := ""
+				return
+			}
+		}
+		this.route .= Key
+		this.LastKey := Key
+		this.LastKeyPressedTime := A_TickCount
+	}
+}
 
 ;hotstring
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	mr := new MouseRoute()
-	while True{
-		if (mr.check())
-			ToolTip, % "A" . mr.getMRSymbol()
-			sleep 100
-	}
+	EvalConfig(configFD)
 	return
 ::flaxcalc::
 	Sleep 100
@@ -910,12 +967,12 @@ class MouseRoute{
 	Gui, FlaxCalc:Show,Hide
 	Gui, FlaxCalc:+LastFound
 	WinGetPos,,,w,h
-	Gui, FlaxCalc:Add,Button,Default Hidden,OK
+	Gui, FlaxCalc:Add,Button,gFlaxCalcButtonOK Default Hidden,OK
 	w := MonitorSizeX - marg - w
 	h := MonitorSizeY - marg - h
 	Gui, FlaxCalc:Show,X%w% Y%h%
 	Return
-	ButtonOK:
+	FlaxCalcButtonOK:
 		Gui, FlaxCalc:Submit
 		Formula := EvalForm(Formula)
 		Send,%Formula%
@@ -1579,8 +1636,6 @@ class MouseRoute{
 			GuiControl, colorviewerV:,GV,% Hex2Dec(SubStr(ColorEdit,3,2))
 			GuiControl, colorviewerV:,BV,% Hex2Dec(SubStr(ColorEdit,5,2))
 			Gui, colorviewerC:Color,%ColorEdit%
-			if (RegExMatch(ColorList,"\n([^,\n]*)," . ColorEdit,NearColorName) != 0)
-				GuiControl, colorviewerV:,ColorName,%NearColorName%
 		}
 		return
 	ButtonColorOK:
@@ -1806,6 +1861,7 @@ MouseGetPos,X,Y
 		}
 		ClassPath := pathFD.dict["class"] . ClassName
 		Run, %ClassPath%
+		Gui, FlaxTimeTable:Destroy
 		return
 	FlaxTimeTableGuiEscape:
 	FlaxTimeTableGuiClose:
@@ -1891,7 +1947,7 @@ MouseGetPos,X,Y
 		else if (RAll = 1)
 			B_ComputerName := "default"
 		if (RLab)
-			Type := "Label"
+			Type := "label"
 		else if (RLoc)
 			Type := "LocalPath"
 		else if (App)
@@ -1899,7 +1955,7 @@ MouseGetPos,X,Y
 		else if (URL)
 			Type := "URL"
 		else if (Lau)
-			Type := "Launcher"
+			Type := "launcher"
 		EGesture := Prefix . EGesture
 		if (not gestureFD.fdict.HasKey(EGesture))
 			gestureFD.fdict[EGesture] := Object()
@@ -1953,15 +2009,13 @@ MouseGetPos,X,Y
 			Loop, 7{
 				C := A_Index - 1
 				Text := E%R%%C%
-				Loop, Parse, Text, `n
-				{
-					if (2 <= A_Index){
-						if (not timetableFD.dict.HasKey(R))
-							timetableFD.dict[R] := Object()
-						if (not timetableFD.dict[R].HasKey(C))
-							timetableFD.dict[R][C] := Object()
-						timetableFD.dict[R][C][A_Index - 2] := A_LoopField
-					}
+				Text := StrSplit(Text, "`n")
+				Loop, 4{
+					if (not timetableFD.dict.HasKey(R))
+						timetableFD.dict[R] := Object()
+					if (not timetableFD.dict[R].HasKey(C))
+						timetableFD.dict[R][C] := Object()
+					timetableFD.dict[R][C][A_Index - 1] := Text[A_Index + 1]
 				}
 			}
 		}
@@ -2024,7 +2078,10 @@ MouseGetPos,X,Y
 			LF := True
 		}
 		ID := launcherFD.dict[ItemName]
-		ItemCommand := ID["command"]
+		if ((ItemCommand := ID["command"]) == ""){
+			msgbox, 404 Command
+			return
+		}
 		for Key, Value in ItemParams{
 			if (A_Index == 1)
 				continue
@@ -2046,13 +2103,13 @@ MouseGetPos,X,Y
 				Run, %ItemCommand%
 				WinWaitActive, ahk_exe explorer.exe
 				sendraw,% ItemName1
+				return
 			}else{
 				Run, %ItemCommand%
+				return
 			}
 		}
-		if (ItemType = ""){
-			msgbox,404
-		}
+		msgbox,404 Type
 		return
 	HiddenEdited:
 		Gui, FlaxLauncher:Submit,NoHide
@@ -2068,7 +2125,10 @@ MouseGetPos,X,Y
 		NoI = 0
 		For Key, Value in launcherFD.dict{
 			StringGetPos, IP, Key, %ItemName%
-			if (IP == 0){
+			command := ""
+			if (IP == 0)
+				command := launcherFD.dict[Key]["command"]
+			if (command != ""){
 				candidate .= "|" . Key
 				NoI += 1
 			}
@@ -2257,17 +2317,17 @@ RegisterInput:
 	Enter::
 		MoveFlag := False
 		return
-#If (True)
-vk1Dsc07B & j::send,{down}
-vk1Dsc07B & k::send,{up}
-vk1Dsc07B & h::send,{left}
-vk1Dsc07B & l::send,{right}
-vk1Dsc07B & Space::send,{Enter}
-vk1Dsc07B & 1::send,6
-vk1Dsc07B & 2::send,7
-vk1Dsc07B & 3::send,8
-vk1Dsc07B & 4::send,9
-vk1Dsc07B & 5::send,0
+#If
+vk1D & j::send,{down}
+vk1D & k::send,{up}
+vk1D & h::send,{left}
+vk1D & l::send,{right}
+vk1D & Space::send,{Enter}
+vk1D & 1::send,6
+vk1D & 2::send,7
+vk1D & 3::send,8
+vk1D & 4::send,9
+vk1D & 5::send,0
 
 #^l::send,^#{Right}
 #^h::send,^#{Left}
@@ -2287,7 +2347,7 @@ vk1Dsc07B & 5::send,0
 	GoSub,MouseGestureCheck
 	return
 MouseGestureCheck:
-	MR := new MouseRoute()
+	gestureFD.read()
 	CommandCandidate := ""
 	if (RetKeyState("LCtrl"))
 		Prefix .= "^"
@@ -2295,47 +2355,17 @@ MouseGestureCheck:
 		Prefix .= "!"
 	if (RetKeyState("LShift"))
 		Prefix .= "+"
-	For, Key, Value in gestureFD.dict{
-		if (InStr(Key, Prefix . MR.route) == 1)
-		{
-			CommandLabel := gestureFD.dict[Key]["label"]
-			if (CommandValue != "ERROR")
-			{
-				CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MR.route) + 1, StrLen(Key))
-				CandiValue := CandiName == "" ? "" : " : "
-				CandiValue .= CommandLabel
-				For, Pattern, Replacement in MR.Reg
-					CandiName := RegExReplace(CandiName, Pattern, Replacement)
-				CommandCandidate .= CandiName . CandiValue . "`n"
-			}
-		}
-	}
-	CommandCandidate := CommandCandidate == "" ? "None" : CommandCandidate
-	ToolTip,% CommandCandidate
+	MR := new MouseRoute(Prefix)
+	ToolTip, % GestureCandidate(MR, gestureFD)
 	while (RetKeyState(Button) and RetKeyState("LWin")){
 		sleep 100
 		if (MR.check()){
-			CommandCandidate := ""
-			For Key, Value in gestureFD.dict{
-				if (InStr(Key, Prefix . MR.route) == 1)
-				{
-					CommandLabel := gestureFD.dict[Key]["label"]
-					if (CommandValue != "ERROR")
-					{
-						CandiName := SubStr(Key, StrLen(Prefix) + StrLen(MR.route) + 1, StrLen(Key))
-						CandiValue := CandiName == "" ? "" : " : "
-						CandiValue .= CommandLabel
-						For, Pattern, Replacement in MR.Reg
-							CandiName := RegExReplace(CandiName, Pattern, Replacement)
-						CommandCandidate .= CandiName . CandiValue . "`n"
-					}
-				}
-			}
-			CommandCandidate := CommandCandidate == "" ? "None" : CommandCandidate
-			ToolTip,%CommandCandidate%
+			ToolTip, % GestureCandidate(MR, gestureFD)
 		}
 	}
-	GestureName := Prefix . MR.route
+	route := MR.route
+MouseGestureExecute:
+	GestureName := route
 	GestureType := gestureFD.dict[GestureName]["type"]
 	GestureCommand := gestureFD.dict[GestureName]["command"]
 	ToolTip,
@@ -2384,6 +2414,44 @@ MouseGestureCheck:
 ^+!c::send,!+,
 ^+!d::send,!+.
 ^+!r::send,!+l
+#G::
+	KeyGestureBool := True
+	LPT := 0
+	KR := new KeyRoute("LB")
+	ToolTip, % GestureCandidate(KR, gestureFD)
+	return
+#If (KeyGestureBool)
+	Left::
+		Key := "L"
+		GoSub, KeyGestureCheck
+		return
+	Right::
+		Key := "R"
+		GoSub, KeyGestureCheck
+		return
+	UP::
+		Key := "U"
+		GoSub, KeyGestureCheck
+		return
+	Down::
+		Key := "D"
+		GoSub, KeyGestureCheck
+		return
+	KeyGestureCheck:
+		KR.check(Key)
+		ToolTip, % GestureCandidate(KR, gestureFD)
+		return
+	Enter::
+		KeyGestureBool := False
+		route := KR.route
+		ToolTip,
+		GoSub, MouseGestureExecute
+		return
+	Esc::
+		KeyGestureBool := False
+		ToolTip,
+		return
+#If
 
 
 #IfWinActive ahk_exe excel.exe
@@ -2739,6 +2807,7 @@ MouseGestureCheck:
 					EType := "URL"
 				launcherFD.fdict[EName][B_ComputerName]["type"] := EType
 				launcherFD.write()
+				Gui, FlaxRegisterLauncher:Destroy
 				return
 			FlaxRegisterLauncherGuiEscape:
 			FlaxRegisterLauncherGuiClose:
@@ -2809,4 +2878,4 @@ MouseGestureCheck:
 		IoFRP += IoFWP == IoFRP + 1 ? 0 : 1
 		return
 }
-#If (True)
+#If

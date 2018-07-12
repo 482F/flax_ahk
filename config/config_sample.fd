@@ -1,0 +1,16 @@
+KeyGestureDelay=60
+ChangeHotKey=[
+	^+!c=[
+		Key=Off
+	]
+	^+!d=[
+		Key=Off
+	]
+	^+!r=[
+		Key=Off
+	]
+	^E=[
+		Key=+^E
+		IfWinActive=ahk_exe LINE.exe
+	]
+]
