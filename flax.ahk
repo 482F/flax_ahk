@@ -763,6 +763,20 @@ EvalConfig(cFD){
 	}
 	return
 }
+GetMP3TagsFunc(FilePath){
+	PreCommand := "Python """ . A_ScriptDir . "\mp3_tags.py"" """ . FilePath . """"
+	Tags := CmdRun(PreCommand . " get title artist album")
+	Tags := StrSplit(Tags, "`n")
+	return Tags
+}
+EditMP3TagsFunc(FilePath, Title, Artist, Albam, NewName){
+	SplitPath, FilePath, FileName, FileDir
+	PreCommand := "Python """ . A_ScriptDir . "\mp3_tags.py"" """ . FilePath . """"
+	Command := PreCommand . " edit """ . Title . """ """ . Artist . """ """ . Albam . """"
+	CmdRun(Command)
+	FileMove, %FilePath%, %FileDir%\%NewName%
+	return
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
@@ -2853,9 +2867,7 @@ MouseGestureExecute:
 			Gui, FlaxEditMp3Tags:-Border
 			Gui, FlaxEditMp3Tags:Add, Text, , &NewName
 			SplitPath, FilePath, FileName, FileDir
-			PreCommand := "Python """ . A_ScriptDir . "\mp3_tags.py"" """ . FilePath . """"
-			Tags := CmdRun(PreCommand . " get title artist album")
-			Tags := StrSplit(Tags, "`n")
+			Tags := GetMP3TagsFunc(FilePath)
 			Gui, FlaxEditMp3Tags:Add, Edit, w800 vENewName, %FileName%
 			Gui, FlaxEditMp3Tags:Add, Text, , &Title
 			Gui, FlaxEditMp3Tags:Add, Edit, w800 vETitle, % Tags[1]
@@ -2869,10 +2881,8 @@ MouseGestureExecute:
 			return
 			EditMp3TagsOK:
 				Gui, FlaxEditMp3Tags:Submit
-				Command := PreCommand . " edit """ . ETitle . """ """ . EArtist . """ """ . EAlbam . """"
-				CmdRun(Command)
-				FileMove, %FilePath%, %FileDir%\%ENewName%
 				Gui, FlaxEditMp3Tags:Destroy
+				EditMP3TagsFunc(FilePath, ETitle, EArtist, EAlbam, ENewName)
 				ToolTip, Done
 				sleep 1000
 				ToolTip,
