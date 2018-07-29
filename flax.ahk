@@ -1997,7 +1997,6 @@ MouseGetPos,X,Y
 		gestureFD.fdict[EGesture][B_ComputerName]["type"] := Type
 		gestureFD.fdict[EGesture][B_ComputerName]["label"] := ELabel
 		gestureFD.write()
-		msgjoin("A")
 		Gui, FlaxEditGesture:Destroy
 		return
 	FlaxEditGestureGuiEscape:
