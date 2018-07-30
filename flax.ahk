@@ -2651,14 +2651,11 @@ MouseGestureExecute:
 		return
 #IfWinActive,ahk_exe explorer.exe
 	~^Tab::
-	sleep 400
-	send,!q
-	return
+		send, ^]
+		return
 	~^+Tab::
-	sleep 400
-	send,!q
-	send,+{Tab}
-	return
+		send, ^[
+		return
 	^+c::
 		Clipboard := ""
 		send,^c
