@@ -56,6 +56,7 @@ DefVars:
 	pathFD.dict := pathFD.dict["path"]
 	configFD := new FD("config/config.fd")
 	EvalConfig(configFD)
+	timerFD := new TimerFD("config/timer.fd")
 	MP := Object()
 	global Pi := 3.14159265358979
 	msgbox,ready
@@ -949,12 +950,43 @@ class KeyRoute extends MouseRoute{
 		this.LastKeyPressedTime := A_TickCount
 	}
 }
+class TimerFD extends FD_for_EC{
+	__New(FilePath){
+		base.__New(FilePath)
+		this.list_sorted_in_executing_order := Object()
+		this.Set()
+	}
+	Set(){
+		for Key, Value in this.dict{
+			if (Value["status"] != "enable")
+				continue
+			timer_type := Value["type"]
+			timer_name := Key
+			if (timer_type == "timer"){
+				timer_value := -Value["value"]
+				SetTimer, ExecuteTimer, % timer_value
+			}else if (timer_type == "alarm"){
+			}
+			this.list_sorted_in_executing_order[timer_value] := timer_name
+		}
+	}
+	execute_next(){
+		for Key, Value in this.list_sorted_in_executing_order{
+			this.list_sorted_in_executing_order.Remove(Key, Key)
+			break
+		}
+	}
+}
+ExecuteTimer:
+	timerFD.execute_next()
+	return
 
 ;hotstring
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	EvalConfig(configFD)
+	timerFD.execute_next()
+	msgobj(timerFD.list_sorted_in_executing_order)
 	return
 ::flaxcalc::
 	Sleep 100
