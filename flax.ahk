@@ -2244,13 +2244,14 @@ MouseGetPos,X,Y
 		LF := False
 		ItemParams := StrSplit(ItemName, " ")
 		ItemName := ItemParams[1]
-		LP := RegExMatch(ItemName, "_locale$")
+		LP := False
+		if (ItemParams[2] == "locale")
+			LP := True
 		if (RegExMatch(ItemName, "[a-zA-Z]:\\([^\\/:?*""<>|]+\\)*([^\\/:?*""<>|]+)?")){
 			Run, %ItemName%
 			return
 		}
-		if (LP != 0){
-			ItemName := SubStr(ItemName, 1, LP-1)
+		if (LP){
 			LF := True
 		}
 		ID := launcherFD.dict[ItemName]
