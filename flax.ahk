@@ -960,6 +960,12 @@ class TestObj{
 	__New(value){
 		this.value := value
 	}
+	__Get(name){
+		if (name == "v2")
+			return this.value * 2
+		else
+			Object.__Get(this, name)
+	}
 }
 class KeyRoute extends MouseRoute{
 	__New(Prefix){
@@ -1100,6 +1106,7 @@ ExecuteTimer:
 	sleep 300
 	k := new TestObj(3)
 	msgjoin(k.value)
+	msgjoin(k.v2)
 	return
 ::flaxcalc::
 	Sleep 100
