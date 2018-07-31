@@ -657,11 +657,11 @@ RapidButton(Button){
 	while (not RetKeyState("Esc"))
 		send, %Button%
 }
-RetCopy(param="Value"){
+RetCopy(param="Value", SecondsToWait=""){
 	Clip := ClipboardAll
 	Clipboard := ""
 	send,^c
-	ClipWait
+	ClipWait, %SecondsToWait%
 	if (param = "Text")
 		Clipboard := Clipboard
 	Var := Clipboard
@@ -2909,7 +2909,11 @@ MouseGestureExecute:
 			}
 			return
 	^r::
-		FilePath := RetCopy("Text")
+		FilePath := RetCopy("Text", 0.1)
+		if (not FilePath){
+			msgjoin("パスが取得できませんでした。")
+			return
+		}
 		Menu, ExpMenu, Add, Launcher に登録(&R), register_launcher
 		Menu, ExpMenu, Add, プログラムから開く(&P), open_with
 		Menu, ExpMenu, Add, MP3 のタグを編集(&M), editmp3tags
