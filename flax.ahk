@@ -56,6 +56,7 @@ DefVars:
 	pathFD.dict := pathFD.dict["path"]
 	configFD := new FD("config/config.fd")
 	EvalConfig(configFD)
+	timerFD := new TimerFD("config/timer.fd")
 	MP := Object()
 	global Pi := 3.14159265358979
 	msgbox,ready
@@ -762,6 +763,39 @@ EvalConfig(cFD){
 	}
 	return
 }
+GetMP3TagsFunc(FilePath){
+	PreCommand := "Python """ . A_ScriptDir . "\mp3_tags.py"" """ . FilePath . """"
+	Tags := CmdRun(PreCommand . " get title artist album")
+	Tags := StrSplit(Tags, "`n")
+	return Tags
+}
+EditMP3TagsFunc(FilePath, Title, Artist, Albam, NewName){
+	SplitPath, FilePath, FileName, FileDir
+	PreCommand := "Python """ . A_ScriptDir . "\mp3_tags.py"" """ . FilePath . """"
+	Command := PreCommand . " edit """ . Title . """ """ . Artist . """ """ . Albam . """"
+	CmdRun(Command)
+	FileMove, %FilePath%, %FileDir%\%NewName%
+	return
+}
+GetLastUpdate(FilePath){
+	FileGetTime, LU, %FilePath%, M
+	return LU
+}
+CheckLastUpdate(FilePath, LastUpdate){
+	FileGetTime, LU, %FilePath%, M
+	if (LU == LastUpdate)
+		return 0
+	return LU
+}
+MakeSymbolicLink(Source, Dest){
+	SplitPath, FilePath, FileName
+	param := ""
+	if (JudgeDir(Source))
+		param := "/d"
+	command := "mklink " . param . " """ . Dest . """ """ . Source . """"
+	msgjoin(CmdRun(command, 0, "admin"))
+	return
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
@@ -878,7 +912,7 @@ class FD_for_EC extends FD{
 	}
 }
 class MouseRoute{
-	__New(Prefix){
+	__New(Prefix=""){
 		this.LineLength := 100
 		this.route := Prefix
 		this.Reg := Object("BUR", Chr(0x2197), "BUL", Chr(0x2196), "BDR", Chr(0x2198), "BDL", Chr(0x2199), "U", "↑", "R", "→", "L", "←", "D", "↓")
@@ -954,6 +988,111 @@ class KeyRoute extends MouseRoute{
 		this.LastKeyPressedTime := A_TickCount
 	}
 }
+class TimerFD extends FD_for_EC{
+	__New(FilePath){
+		base.__New(FilePath)
+		this.list_sorted_in_executing_order := Object()
+		this.Set()
+	}
+	Set(){
+		for Key, Value in this.dict{
+			if (Value["status"] != "enable")
+				continue
+			timer_type := Value["type"]
+			timer_name := Key
+			if (timer_type == "timer"){
+				timer_value := -Value["value"]
+				SetTimer, ExecuteTimer, % timer_value
+			}else if (timer_type == "alarm"){
+			}
+			this.list_sorted_in_executing_order[timer_value] := timer_name
+		}
+	}
+	execute_next(){
+		for Key, Value in this.list_sorted_in_executing_order{
+			this.list_sorted_in_executing_order.Remove(Key, Key)
+			break
+		}
+	}
+}
+class AFile{
+	__New(FilePath, Encoding="CP65001"){
+		SplitPath, FilePath, FileName, Dir, Extension, NameNoExt, DriveLetter
+		this.FilePath := FilePath
+		this.FileName := FileName
+		this.Dir := Dir
+		this.Extension := Extension
+		this.NameNoExt := NameNoExt
+		this.DriveLetter := DriveLetter
+		this.Encoding := Encoding
+		this.Read()
+	}
+	EvalDestPath(DestPath){
+		SplitPath, DestPath, FileName, Dir
+		if (FileName == "")
+			FileName := this.FileName
+		NewPath := Dir . "\" . FileName
+		return NewPath
+	}
+	Read(){
+		LU := CheckLastUpdate(this.FilePath, this.LastUpdate)
+		if (LU){
+			this.LastUpdate := LU
+			Encoding := RegExReplace(this.Encoding, "^CP", "")
+			FilePath := this.FilePath
+			FileRead, Text, *P%Encoding% %FilePath%
+			this.Text := Text
+			return 1
+		}else{
+			return 0
+		}
+		return
+	}
+	TruePath(){
+		return Follow_a_Link(this.FilePath)
+	}
+	Write(){
+		file := FileOpen(this.FilePath, "w", this.Encoding)
+		file.Write(this.Text)
+		file.Close()
+		this.LastUpdate := GetLastUpdate(this.FilePath)
+		return
+	}
+	Rename(NewName){
+		DestPath := this.Dir . "\" . NewName
+		this.Move(DestPath)
+		return
+	}
+	MakeLink(DestPath, Type="Shortcut"){
+		NewPath := this.EvalDestPath(DestPath)
+		if (Type == "Shortcut"){
+			FileCreateShortcut, % this.FilePath, %DestPath%.lnk
+		}else if (Type == "Symbolic"){
+			MakeSymbolicLink(this.FilePath, NewPath)
+		}
+		return
+	}
+	Move(DestPath){
+		NewPath := this.EvalDestPath(DestPath)
+		FileMove, % this.FilePath, %NewPath%
+		this.FilePath := NewPath
+		return
+	}
+	Copy(DestPath, Flag="0"){
+		NewPath := this.EvalDestPath(DestPath)
+		FileCopy, % this.FilePath, %NewPath%, %Flag%
+		NewFile := new AFile(NewPath)
+		return NewFile
+	}
+	Delete(){
+		FileDelete, % this.FilePath
+		return
+	}
+
+}
+ExecuteTimer:
+	timerFD.execute_next()
+	return
 
 ;hotstring
 ;ホットストリング
@@ -1956,11 +2095,11 @@ MouseGetPos,X,Y
 			Type := "label"
 		else if (RLoc)
 			Type := "LocalPath"
-		else if (App)
+		else if (RApp)
 			Type := "Application"
-		else if (URL)
+		else if (RURL)
 			Type := "URL"
-		else if (Lau)
+		else if (RLau)
 			Type := "launcher"
 		EGesture := Prefix . EGesture
 		if (not gestureFD.fdict.HasKey(EGesture))
@@ -1971,6 +2110,7 @@ MouseGetPos,X,Y
 		gestureFD.fdict[EGesture][B_ComputerName]["type"] := Type
 		gestureFD.fdict[EGesture][B_ComputerName]["label"] := ELabel
 		gestureFD.write()
+		Gui, FlaxEditGesture:Destroy
 		return
 	FlaxEditGestureGuiEscape:
 		if (RECG){
@@ -2657,14 +2797,11 @@ MouseGestureExecute:
 		return
 #IfWinActive,ahk_exe explorer.exe
 	~^Tab::
-	sleep 400
-	send,!q
-	return
+		send, ^]
+		return
 	~^+Tab::
-	sleep 400
-	send,!q
-	send,+{Tab}
-	return
+		send, ^[
+		return
 	^+c::
 		Clipboard := ""
 		send,^c
@@ -2691,7 +2828,7 @@ MouseGestureExecute:
 		SplitPath, Clipboard, FileName
 		DestPath := CDPath . "\" . FileName
 		if (mode = "sym"){
-			DestPath .= "_sym"f
+			DestPath .= "_sym"
 			param := ""
 			if (JudgeDir(Clipboard)){
 				param := "/d"
@@ -2829,10 +2966,8 @@ MouseGestureExecute:
 			Gui, FlaxEditMp3Tags:-Border
 			Gui, FlaxEditMp3Tags:Add, Text, , &NewName
 			SplitPath, FilePath, FileName, FileDir
-			PreCommand := "Python """ . A_ScriptDir . "\mp3_tags.py"" """ . FilePath . """"
-			Tags := CmdRun(PreCommand . " get title artist album")
-			Tags := StrSplit(Tags, "`n")
-			Gui, FlaxEditMp3Tags:Add, Edit, w800 vENewName, %FileName%
+			Tags := GetMP3TagsFunc(FilePath)
+			Gui, FlaxEditMp3Tags:Add, Edit, w800 vENewName gNewNameChanged, %FileName%
 			Gui, FlaxEditMp3Tags:Add, Text, , &Title
 			Gui, FlaxEditMp3Tags:Add, Edit, w800 vETitle, % Tags[1]
 			Gui, FlaxEditMp3Tags:Add, Text, , &Artist
@@ -2843,12 +2978,15 @@ MouseGestureExecute:
 			Gui, FlaxEditMp3Tags:-Resize
 			Gui, FlaxEditMp3Tags:Show, Autosize, FlaxEditMp3Tags
 			return
+			NewNameChanged:
+				Gui, FlaxEditMp3Tags:Submit, NoHide
+				SplitPath, ENewName, , , , PureName
+				GuiControl, FlaxEditMp3Tags:Text, ETitle, %PureName%
+				return
 			EditMp3TagsOK:
 				Gui, FlaxEditMp3Tags:Submit
-				Command := PreCommand . " edit """ . ETitle . """ """ . EArtist . """ """ . EAlbam . """"
-				CmdRun(Command)
-				FileMove, %FilePath%, %FileDir%\%ENewName%
 				Gui, FlaxEditMp3Tags:Destroy
+				EditMP3TagsFunc(FilePath, ETitle, EArtist, EAlbam, ENewName)
 				ToolTip, Done
 				sleep 1000
 				ToolTip,
