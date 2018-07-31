@@ -961,10 +961,19 @@ class TestObj{
 		this.value := value
 	}
 	__Get(name){
-		if (name == "v2")
+		if (name == "v2"){
 			return this.value * 2
-		else
+		}else{
 			Object.__Get(this, name)
+		}
+	}
+	__Set(name, value){
+		if (name == "v2"){
+			this.value := value / 3
+			return
+		}else{
+			Object.__Set(this, name, value)
+		}
 	}
 }
 class KeyRoute extends MouseRoute{
@@ -1105,8 +1114,8 @@ ExecuteTimer:
 ::flaxtest::
 	sleep 300
 	k := new TestObj(3)
-	msgjoin(k.value)
-	msgjoin(k.v2)
+	k.v2 := 8
+	msgjoin(k.value, k.v2)
 	return
 ::flaxcalc::
 	Sleep 100
