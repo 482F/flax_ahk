@@ -956,6 +956,26 @@ class MouseRoute{
 		return MRS
 	}
 }
+class TestObj{
+	__New(value){
+		this.value := value
+	}
+	__Get(name){
+		if (name == "v2"){
+			return this.value * 2
+		}else{
+			Object.__Get(this, name)
+		}
+	}
+	__Set(name, value){
+		if (name == "v2"){
+			this.value := value / 3
+			return
+		}else{
+			Object.__Set(this, name, value)
+		}
+	}
+}
 class KeyRoute extends MouseRoute{
 	__New(Prefix){
 		base.__New(Prefix)
@@ -1093,10 +1113,9 @@ ExecuteTimer:
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	File := new AFile("D:\Test\Test.txt")
-	msgjoin("A")
-	File.MakeLink("D:\Test\Text_sym.txt")
-	msgjoin("B")
+	k := new TestObj(3)
+	k.v2 := 8
+	msgjoin(k.value, k.v2)
 	return
 ::flaxcalc::
 	Sleep 100
