@@ -1982,11 +1982,11 @@ MouseGetPos,X,Y
 			Type := "label"
 		else if (RLoc)
 			Type := "LocalPath"
-		else if (App)
+		else if (RApp)
 			Type := "Application"
-		else if (URL)
+		else if (RURL)
 			Type := "URL"
-		else if (Lau)
+		else if (RLau)
 			Type := "launcher"
 		EGesture := Prefix . EGesture
 		if (not gestureFD.fdict.HasKey(EGesture))
