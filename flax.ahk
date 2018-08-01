@@ -2868,7 +2868,7 @@ MouseGestureExecute:
 			Gui, FlaxEditMp3Tags:Add, Text, , &NewName
 			SplitPath, FilePath, FileName, FileDir
 			Tags := GetMP3TagsFunc(FilePath)
-			Gui, FlaxEditMp3Tags:Add, Edit, w800 vENewName, %FileName%
+			Gui, FlaxEditMp3Tags:Add, Edit, w800 vENewName gNewNameChanged, %FileName%
 			Gui, FlaxEditMp3Tags:Add, Text, , &Title
 			Gui, FlaxEditMp3Tags:Add, Edit, w800 vETitle, % Tags[1]
 			Gui, FlaxEditMp3Tags:Add, Text, , &Artist
@@ -2879,6 +2879,11 @@ MouseGestureExecute:
 			Gui, FlaxEditMp3Tags:-Resize
 			Gui, FlaxEditMp3Tags:Show, Autosize, FlaxEditMp3Tags
 			return
+			NewNameChanged:
+				Gui, FlaxEditMp3Tags:Submit, NoHide
+				SplitPath, ENewName, , , , PureName
+				GuiControl, FlaxEditMp3Tags:Text, ETitle, %PureName%
+				return
 			EditMp3TagsOK:
 				Gui, FlaxEditMp3Tags:Submit
 				Gui, FlaxEditMp3Tags:Destroy
