@@ -777,6 +777,25 @@ EditMP3TagsFunc(FilePath, Title, Artist, Albam, NewName){
 	FileMove, %FilePath%, %FileDir%\%NewName%
 	return
 }
+GetLastUpdate(FilePath){
+	FileGetTime, LU, %FilePath%, M
+	return LU
+}
+CheckLastUpdate(FilePath, LastUpdate){
+	FileGetTime, LU, %FilePath%, M
+	if (LU == LastUpdate)
+		return 0
+	return LU
+}
+MakeSymbolicLink(Source, Dest){
+	SplitPath, FilePath, FileName
+	param := ""
+	if (JudgeDir(Source))
+		param := "/d"
+	command := "mklink " . param . " """ . Dest . """ """ . Source . """"
+	msgjoin(CmdRun(command, 0, "admin"))
+	return
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
@@ -991,6 +1010,81 @@ class TimerFD extends FD_for_EC{
 		}
 	}
 }
+class AFile{
+	__New(FilePath, Encoding="CP65001"){
+		SplitPath, FilePath, FileName, Dir, Extension, NameNoExt, DriveLetter
+		this.FilePath := FilePath
+		this.FileName := FileName
+		this.Dir := Dir
+		this.Extension := Extension
+		this.NameNoExt := NameNoExt
+		this.DriveLetter := DriveLetter
+		this.Encoding := Encoding
+		this.Read()
+	}
+	EvalDestPath(DestPath){
+		SplitPath, DestPath, FileName, Dir
+		if (FileName == "")
+			FileName := this.FileName
+		NewPath := Dir . "\" . FileName
+		return NewPath
+	}
+	Read(){
+		LU := CheckLastUpdate(this.FilePath, this.LastUpdate)
+		if (LU){
+			this.LastUpdate := LU
+			Encoding := RegExReplace(this.Encoding, "^CP", "")
+			FilePath := this.FilePath
+			FileRead, Text, *P%Encoding% %FilePath%
+			this.Text := Text
+			return 1
+		}else{
+			return 0
+		}
+		return
+	}
+	TruePath(){
+		return Follow_a_Link(this.FilePath)
+	}
+	Write(){
+		file := FileOpen(this.FilePath, "w", this.Encoding)
+		file.Write(this.Text)
+		file.Close()
+		this.LastUpdate := GetLastUpdate(this.FilePath)
+		return
+	}
+	Rename(NewName){
+		DestPath := this.Dir . "\" . NewName
+		this.Move(DestPath)
+		return
+	}
+	MakeLink(DestPath, Type="Shortcut"){
+		NewPath := this.EvalDestPath(DestPath)
+		if (Type == "Shortcut"){
+			FileCreateShortcut, % this.FilePath, %DestPath%.lnk
+		}else if (Type == "Symbolic"){
+			MakeSymbolicLink(this.FilePath, NewPath)
+		}
+		return
+	}
+	Move(DestPath){
+		NewPath := this.EvalDestPath(DestPath)
+		FileMove, % this.FilePath, %NewPath%
+		this.FilePath := NewPath
+		return
+	}
+	Copy(DestPath, Flag="0"){
+		NewPath := this.EvalDestPath(DestPath)
+		FileCopy, % this.FilePath, %NewPath%, %Flag%
+		NewFile := new AFile(NewPath)
+		return NewFile
+	}
+	Delete(){
+		FileDelete, % this.FilePath
+		return
+	}
+
+}
 ExecuteTimer:
 	timerFD.execute_next()
 	return
@@ -999,8 +1093,10 @@ ExecuteTimer:
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	timerFD.execute_next()
-	msgobj(timerFD.list_sorted_in_executing_order)
+	File := new AFile("D:\Test\Test.txt")
+	msgjoin("A")
+	File.MakeLink("D:\Test\Text_sym.txt")
+	msgjoin("B")
 	return
 ::flaxcalc::
 	Sleep 100
@@ -2729,7 +2825,7 @@ MouseGestureExecute:
 		SplitPath, Clipboard, FileName
 		DestPath := CDPath . "\" . FileName
 		if (mode = "sym"){
-			DestPath .= "_sym"f
+			DestPath .= "_sym"
 			param := ""
 			if (JudgeDir(Clipboard)){
 				param := "/d"
