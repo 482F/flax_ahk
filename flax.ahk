@@ -1982,11 +1982,11 @@ MouseGetPos,X,Y
 			Type := "label"
 		else if (RLoc)
 			Type := "LocalPath"
-		else if (App)
+		else if (RApp)
 			Type := "Application"
-		else if (URL)
+		else if (RURL)
 			Type := "URL"
-		else if (Lau)
+		else if (RLau)
 			Type := "launcher"
 		EGesture := Prefix . EGesture
 		if (not gestureFD.fdict.HasKey(EGesture))
@@ -1997,6 +1997,7 @@ MouseGetPos,X,Y
 		gestureFD.fdict[EGesture][B_ComputerName]["type"] := Type
 		gestureFD.fdict[EGesture][B_ComputerName]["label"] := ELabel
 		gestureFD.write()
+		msgjoin("A")
 		Gui, FlaxEditGesture:Destroy
 		return
 	FlaxEditGestureGuiEscape:
