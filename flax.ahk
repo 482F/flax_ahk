@@ -2245,6 +2245,7 @@ MouseGetPos,X,Y
 		ItemParams := StrSplit(ItemName, " ")
 		ItemName := ItemParams[1]
 		LP := False
+		PathParam := False
 		if (ItemParams[2] == "locale")
 			LP := True
 		else if (ItemParams[2] == "path")
