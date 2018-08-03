@@ -796,6 +796,14 @@ MakeSymbolicLink(Source, Dest){
 	msgjoin(CmdRun(command, 0, "admin"))
 	return
 }
+GetProcessName(){
+	WinGet,AWPN,ProcessName,A
+	return AWPN
+}
+GetProcessPath(){
+	WinGet,AWPP,ProcessPath,A
+	return AWPP
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
@@ -1218,9 +1226,8 @@ ExecuteTimer:
 	return
 ::flaxgetprocessname::
 	sleep 100
-	WinGet,AWPN,ProcessName,A
-	clipboard = %AWPN%
-	ToolTip,% AWPN
+	clipboard := GetProcessName()
+	ToolTip,% Clipboard
 	sleep 1000
 	ToolTip,
 	return
@@ -2186,6 +2193,13 @@ MouseGetPos,X,Y
 	FlaxEditTimeTableGuiClose:
 		Gui, FlaxEditTimeTable:Destroy
 		return
+	return
+::flaxgetprocesspath::
+	sleep 100
+	clipboard := GetProcessPath()
+	ToolTip,% Clipboard
+	sleep 1000
+	ToolTip,
 	return
 
 
