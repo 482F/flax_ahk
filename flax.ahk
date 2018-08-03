@@ -2247,6 +2247,8 @@ MouseGetPos,X,Y
 		LP := False
 		if (ItemParams[2] == "locale")
 			LP := True
+		else if (ItemParams[2] == "path")
+			PathParam := True
 		if (RegExMatch(ItemName, "[a-zA-Z]:\\([^\\/:?*""<>|]+\\)*([^\\/:?*""<>|]+)?")){
 			Run, %ItemName%
 			return
@@ -2255,6 +2257,13 @@ MouseGetPos,X,Y
 			LF := True
 		}
 		ID := launcherFD.dict[ItemName]
+		if (PathParam){
+			Clipboard := ID["command"]
+			ToolTip, %Clipboard%
+			Sleep 1000
+			ToolTip,
+			return
+		}
 		if ((ItemCommand := ID["command"]) == ""){
 			msgbox, 404 Command
 			return
