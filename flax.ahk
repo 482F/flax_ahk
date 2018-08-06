@@ -37,7 +37,6 @@
 AutoTrim,off
 SetWorkingDir,%A_ScripdDir%
 SetTitleMatchMode,2
-SendMode,InputThenPlay
 ;初期変数
 DefVars:
 {
@@ -1484,7 +1483,7 @@ ExecuteTimer:
 		return,Crypt
 	}
 ::flaxsendclip::
-	send,% clipboard
+	send, %clipboard%
 	return
 ::flaxrestartexplorer::
 	Process,Close,explorer.exe
