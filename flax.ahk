@@ -800,12 +800,12 @@ GetProcessPath(){
 	return AWPP
 }
 AGUIClose(GuiHwnd){
-	msgjoin(GuiHwnd)
+	AGui.HwndDict[GuiHwnd].close()
 	return
 }
 AGUIEscape(GuiHwnd){
-	msgjoin(GuiHwnd)
-	return
+	AGui.HwndDict[GuiHwnd].escape()
+	return true
 }
 class FD{
 	__New(FilePath){
@@ -1116,21 +1116,24 @@ class AFile{
 	}
 
 }
-class AGUI{
+class AGui{
+	static HwndDict := Object()
 	__New(name){
-		Gui, New, , %name%
-		this.name := ""
-		%name%GuiClose:
-		%name%GuiEscape:
-			if (this.name == "")
-				this.name := name
-			else
-				Gui, %name%:Destroy
+		Gui, New, +HwndThisGuiHwnd, %name%
+		Gui, %name%:+LabelAGui
+		this.name := name
+		AGui.HwndDict[ThisGuiHwnd] := this
 	}
 	do(command, param=""){
 		name := this.name
 		Gui, %name%:%command%, %param%
 		return
+	}
+	close(){
+		Gui, %name%:Destroy
+	}
+	escape(){
+		Gui, %name%:Destroy
 	}
 }
 ExecuteTimer:
@@ -1143,14 +1146,8 @@ ExecuteTimer:
 	sleep 300
 	k := new AGUI("Test")
 	k.do("add", "button")
-	k.do("show")
+	k.do("show", "autosize")
 	return
-	l := "Test"
-	GuiEscape(GuiHwnd){
-		msgjoin("A")
-		Gui, Test:Destroy
-		return
-	}
 ::flaxcalc::
 	Sleep 100
 	;Gui,Destroy
