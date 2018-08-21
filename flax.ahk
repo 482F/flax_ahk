@@ -2253,9 +2253,9 @@ MouseGetPos,X,Y
 	w := MonitorSizeX - marg - w
 	h := MonitorSizeY - marg - h
 	Gui, FlaxLauncher:Show,X%w% Y%h% Hide,FlaxProgramLauncher
-	Gui, FlaxLauncher:Add,Edit,vHiddenEdit gHiddenEdited
+	Gui, FlaxLauncher:Add,Edit,xm ym w300 vHiddenEdit gHiddenEdited
 	GuiControl, FlaxLauncher:Focus,HiddenEdit
-	Gui, FlaxLauncher:Show
+	Gui, FlaxLauncher:Show, autosize
 	WinWaitNotActive,FlaxProgramLauncher
 	Gui, FlaxLauncher:Destroy
 	Return
