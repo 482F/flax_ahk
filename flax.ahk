@@ -65,10 +65,6 @@ GoSub,DefVars
 
 return
 ;Gui の特殊ラベル
-GuiClose:
-GuiEscape:
-	Gui,Destroy
-	return
 GuiDropFiles:
 	ifWinExist,VirtualFolder
 		GoSub,VirtualFolderDropFiles
