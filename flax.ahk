@@ -1118,22 +1118,27 @@ class AFile{
 }
 class AGui{
 	static HwndDict := Object()
-	__New(name){
-		Gui, New, +HwndThisGuiHwnd, %name%
-		Gui, %name%:+LabelAGui
-		this.name := name
-		AGui.HwndDict[ThisGuiHwnd] := this
+	__New(){
+		Gui, New, +HwndHwnd
+		this.Hwnd := Hwnd
+		Gui, %Hwnd%:+LabelAGui
+		AGui.HwndDict[Hwnd] := this
 	}
 	do(command, param=""){
-		name := this.name
-		Gui, %name%:%command%, %param%
+		Hwnd := this.Hwnd
+		Gui, %Hwnd%:%command%, %param%
 		return
 	}
 	close(){
-		Gui, %name%:Destroy
+		this.destroy()
 	}
 	escape(){
-		Gui, %name%:Destroy
+		this.destroy()
+	}
+	destroy(){
+		Hwnd := this.Hwnd
+		Gui, %Hwnd%:destroy
+		AGui.HwndDict.Delete(Hwnd)
 	}
 }
 ExecuteTimer:
@@ -1144,7 +1149,7 @@ ExecuteTimer:
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	k := new AGUI("Test")
+	k := new AGUI()
 	k.do("add", "button")
 	k.do("show", "autosize")
 	return
