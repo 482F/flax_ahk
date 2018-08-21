@@ -1112,6 +1112,23 @@ class AFile{
 	}
 
 }
+class AGUI{
+	__New(name){
+		Gui, New, , %name%
+		this.name := ""
+		%name%GuiClose:
+		%name%GuiEscape:
+			if (this.name == "")
+				this.name := name
+			else
+				Gui, %name%:Destroy
+	}
+	do(command, param=""){
+		name := this.name
+		Gui, %name%:%command%, %param%
+		return
+	}
+}
 ExecuteTimer:
 	timerFD.execute_next()
 	return
@@ -1120,10 +1137,16 @@ ExecuteTimer:
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	k := new TestObj(3)
-	k.v2 := 8
-	msgjoin(k.value, k.v2)
+	k := new AGUI("Test")
+	k.do("add", "button")
+	k.do("show")
 	return
+	l := "Test"
+	GuiEscape(GuiHwnd){
+		msgjoin("A")
+		Gui, Test:Destroy
+		return
+	}
 ::flaxcalc::
 	Sleep 100
 	;Gui,Destroy
