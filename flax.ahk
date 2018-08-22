@@ -799,6 +799,14 @@ GetProcessPath(){
 	WinGet,AWPP,ProcessPath,A
 	return AWPP
 }
+AGUIClose(GuiHwnd){
+	msgjoin(GuiHwnd)
+	return
+}
+AGUIEscape(GuiHwnd){
+	msgjoin(GuiHwnd)
+	return
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
