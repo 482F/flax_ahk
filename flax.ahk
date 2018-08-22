@@ -1118,27 +1118,85 @@ class AFile{
 }
 class AGui{
 	static HwndDict := Object()
-	__New(){
-		Gui, New, +HwndHwnd
+	__New(options:="", title:=""){
+		Gui, New, +HwndHwnd %options%, %title%
 		this.Hwnd := Hwnd
 		Gui, %Hwnd%:+LabelAGui
 		AGui.HwndDict[Hwnd] := this
 	}
-	do(command, param=""){
+	do(command, params*){
 		Hwnd := this.Hwnd
-		Gui, %Hwnd%:%command%, %param%
+		Gui, %Hwnd%:%command%, % params[1], % params[2], % params[3]
+		return
+	}
+	show(options:="", title:=""){
+		this.do("show", options, title)
+		return
+	}
+	submit(NoHide:=False){
+		k := ""
+		if (NoHide)
+			k := "NoHide"
+		this.do("submit", k)
+		return
+	}
+	cancel(){
+		this.do("Cancel")
+		return
+	}
+	font(options:="", FontName:=""){
+		this.do("Font", options, FontName)
+		return
+	}
+	color(WindowColor:="", ControlColor:=""){
+		this.do("Color", WindowColor, ControlColor)
+		return
+	}
+	margin(x:="", y:=""){
+		this.do("Margin", x, y)
+		return
+	}
+	add_option(option){
+		this.do("+" . option)
+		return
+	}
+	remove_option(option){
+		this.do("-" . option)
+		return
+	}
+	menu(MenuName:=""){
+		this.do("Menu", MenuName)
+		return
+	}
+	hide(){
+		this.do("Hide")
+		return
+	}
+	minimize(){
+		this.do("Minimize")
+		return
+	}
+	maximize(){
+		this.do("Maximize")
+		return
+	}
+	restore(){
+		this.do("Restore")
 		return
 	}
 	close(){
 		this.destroy()
+		return
 	}
 	escape(){
 		this.destroy()
+		return
 	}
 	destroy(){
 		Hwnd := this.Hwnd
 		Gui, %Hwnd%:destroy
 		AGui.HwndDict.Delete(Hwnd)
+		return
 	}
 }
 ExecuteTimer:
@@ -1151,7 +1209,7 @@ ExecuteTimer:
 	sleep 300
 	k := new AGUI()
 	k.do("add", "button")
-	k.do("show", "autosize")
+	k.show()
 	return
 ::flaxcalc::
 	Sleep 100
