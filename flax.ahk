@@ -1221,7 +1221,7 @@ class AGuiControl{
 	}
 	do(sub_command, param){
 		name := this.name
-		sub_command := this.target_gui.Hwnd . ":" . sub_command
+		sub_command := this.gui.Hwnd . ":" . sub_command
 		GuiControl, %sub_command%, %name%, %param%
 	}
 }
