@@ -1191,6 +1191,10 @@ class AGui{
 		this.do("Flash", k)
 		return
 	}
+	add(ControlType, Options:="", Text:=""){
+		this.do("Add", ControlType, Options, Text)
+		return
+	}
 	close(){
 		this.destroy()
 		return
