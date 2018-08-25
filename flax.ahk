@@ -1237,6 +1237,31 @@ class AGuiControl{
 		name := this.name
 		sub_command := this.gui.Hwnd . ":" . sub_command
 		GuiControl, %sub_command%, %name%, %param%
+		return
+	}
+	move(param){
+		this.do("move", param)
+	}
+	movedraw(param){
+		this.do("movedraw", param)
+	}
+	focus(){
+		this.do("focus")
+	}
+	enable(){
+		this.do("enable")
+	}
+	disable(){
+		this.do("disable")
+	}
+	hide(){
+		this.do("hide")
+	}
+	show(){
+		this.do("show")
+	}
+	choose(n){
+		this.do("choose", n)
 	}
 }
 class AGuiText extends AGuiControl{
@@ -1253,9 +1278,11 @@ ExecuteTimer:
 ::flaxtest::
 	sleep 300
 	k := new AGui()
-	k_button := new AGuiControl(k, "button")
-	k_button.do(move, "w100, h100")
-	k.show()
+	k_listbox := new AGuiControl(k, "ListBox", "k_ListBox")
+	k_listbox.value := "A|B|C|D"
+	k_listbox.choose("2")
+	msgjoin(k_listbox.value)
+	k.show("autosize")
 	return
 ::flaxcalc::
 	Sleep 100
