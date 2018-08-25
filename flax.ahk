@@ -1276,7 +1276,7 @@ class AGuiControl{
 		this.do("-" . option)
 	}
 }
-class AGuiText extends AGuiControl{
+class AGuiControlText extends AGuiControl{
 	__New(target_gui){
 		base.__New(target_gui, "Text")
 	}
