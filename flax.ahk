@@ -1209,6 +1209,8 @@ class AGui{
 	}
 	destroy(){
 		Hwnd := this.Hwnd
+		if not (AGui.HwndDict.HasKey(Hwnd))
+			return
 		Gui, %Hwnd%:destroy
 		AGui.HwndDict.Delete(Hwnd)
 		return
