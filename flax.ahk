@@ -1219,6 +1219,13 @@ class AGuiControl{
 		this.gui := target_gui
 		this.name := name
 	}
+	__Set(name, value){
+		if (name = "value"){
+			this.do("", value)
+		}else{
+			Object.__Set(this, name, value)
+		}
+	}
 	do(sub_command, param){
 		name := this.name
 		sub_command := this.gui.Hwnd . ":" . sub_command
