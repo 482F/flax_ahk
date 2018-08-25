@@ -1238,7 +1238,9 @@ class AGuiControl{
 	}
 	__Get(name){
 		if (name = "value"){
-			return % this.name
+			name := this.name
+			value := %name%
+			return %value%
 		}else{
 			return Object.__Get(this, name)
 		}
