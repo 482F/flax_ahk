@@ -1215,11 +1215,11 @@ class AGui{
 	}
 }
 class AGuiControl{
-	__New(target_gui, type, name){
+	__New(target_gui, type, name, param=""){
 		global
 		name := "AGuiControlVar_" . name
 		%name% := ""
-		target_gui.add(type, "v" . name)
+		target_gui.add(type, "v" . name . " " . param)
 		this.gui := target_gui
 		this.name := name
 	}
