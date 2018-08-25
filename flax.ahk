@@ -1226,6 +1226,13 @@ class AGuiControl{
 			Object.__Set(this, name, value)
 		}
 	}
+	__Get(name){
+		if (name = "value"){
+			return % this.name
+		}else{
+			return Object.__Get(this, name)
+		}
+	}
 	do(sub_command, param){
 		name := this.name
 		sub_command := this.gui.Hwnd . ":" . sub_command
