@@ -1223,6 +1223,11 @@ class AGuiControl{
 		GuiControl, %sub_command%, %name%, %param%
 	}
 }
+class AGuiText extends AGuiControl{
+	__New(target_gui){
+		base.__New(target_gui, "Text")
+	}
+}
 ExecuteTimer:
 	timerFD.execute_next()
 	return
@@ -1231,8 +1236,9 @@ ExecuteTimer:
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	k := new AGUI()
-	k.do("add", "button")
+	k := new AGui()
+	k_button := new AGuiControl(k, "button")
+	k_button.do(move, "w100, h100")
 	k.show()
 	return
 ::flaxcalc::
