@@ -2426,15 +2426,8 @@ MouseGetPos,X,Y
 	WinGetPos,,,w,h
 	w := MonitorSizeX - marg - w
 	h := MonitorSizeY - marg - h
-<<<<<<< HEAD
-	Gui, FlaxLauncher:Show,X%w% Y%h% Hide,FlaxProgramLauncher
-	Gui, FlaxLauncher:Add,Edit,xm ym w300 vHiddenEdit gHiddenEdited
-	GuiControl, FlaxLauncher:Focus,HiddenEdit
-	Gui, FlaxLauncher:Show, autosize
-=======
 	FlaxLauncher.Show("x" . w . " y" . h . " Hide", "FlaxProgramLauncher")
 	FlaxLauncher.Show("Autosize")
->>>>>>> 45_make_AGui_class
 	WinWaitNotActive,FlaxProgramLauncher
 	FlaxLauncher.Destroy()
 	Return
