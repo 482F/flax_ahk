@@ -1184,6 +1184,13 @@ class AGui{
 		this.do("Restore")
 		return
 	}
+	flash(Off:=False){
+		k := ""
+		if (Off)
+			k := "Off"
+		this.do("Flash", k)
+		return
+	}
 	close(){
 		this.destroy()
 		return
