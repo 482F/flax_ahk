@@ -1222,6 +1222,8 @@ class AGuiControl{
 	__Set(name, value){
 		if (name = "value"){
 			this.do("", value)
+		}else if (name = "method"){
+			this.add_option("g" . value)
 		}else{
 			Object.__Set(this, name, value)
 		}
@@ -1233,7 +1235,7 @@ class AGuiControl{
 			return Object.__Get(this, name)
 		}
 	}
-	do(sub_command, param){
+	do(sub_command, param=""){
 		name := this.name
 		sub_command := this.gui.Hwnd . ":" . sub_command
 		GuiControl, %sub_command%, %name%, %param%
@@ -1293,8 +1295,12 @@ ExecuteTimer:
 	k_listbox := new AGuiControl(k, "ListBox", "k_ListBox")
 	k_listbox.value := "A|B|C|D"
 	k_listbox.choose("2")
-	msgjoin(k_listbox.value)
+	k_button := new AGuiControl(k, "Button", "k_button")
+	k_button.method := "flaxguitestmethod"
 	k.show("autosize")
+	return
+flaxguitestmethod:
+	msgjoin("A")
 	return
 ::flaxcalc::
 	Sleep 100
