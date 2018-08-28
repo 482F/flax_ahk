@@ -1263,6 +1263,18 @@ class AGuiControl{
 	choose(n){
 		this.do("choose", n)
 	}
+	choosestring(string){
+		this.do("choosestring", string)
+	}
+	font(param){
+		this.do("font", param)
+	}
+	add_option(option){
+		this.do("+" . option)
+	}
+	remove_option(option){
+		this.do("-" . option)
+	}
 }
 class AGuiText extends AGuiControl{
 	__New(target_gui){
