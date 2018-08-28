@@ -1251,6 +1251,9 @@ class AGuiControl{
 		GuiControl, %sub_command%, %name%, %param%
 		return
 	}
+	text(string){
+		this.do("text", string)
+	}
 	move(param){
 		this.do("move", param)
 	}
