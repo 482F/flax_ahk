@@ -1211,8 +1211,10 @@ class AGui{
 	}
 }
 class AGuiControl{
-	__New(target_gui, type){
-		random, name
+	__New(target_gui, type, name){
+		global
+		name := "AGuiControlVar_" . name
+		%name% := ""
 		target_gui.add(type, "v" . name)
 		this.gui := target_gui
 		this.name := name
