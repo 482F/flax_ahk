@@ -1228,8 +1228,10 @@ class AGuiControl{
 	__Set(name, value){
 		if (name = "value"){
 			this.do("", value)
+			return
 		}else if (name = "method"){
 			this.add_option("g" . value)
+			return
 		}else{
 			Object.__Set(this, name, value)
 		}
