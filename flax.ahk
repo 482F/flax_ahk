@@ -1210,6 +1210,19 @@ class AGui{
 		return
 	}
 }
+class AGuiControl{
+	__New(target_gui, type){
+		random, name
+		target_gui.add(type, "v" . name)
+		this.gui := target_gui
+		this.name := name
+	}
+	do(sub_command, param){
+		name := this.name
+		sub_command := this.target_gui.Hwnd . ":" . sub_command
+		GuiControl, %sub_command%, %name%, %param%
+	}
+}
 ExecuteTimer:
 	timerFD.execute_next()
 	return
