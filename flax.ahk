@@ -65,10 +65,6 @@ GoSub,DefVars
 
 return
 ;Gui の特殊ラベル
-GuiClose:
-GuiEscape:
-	Gui,Destroy
-	return
 GuiDropFiles:
 	ifWinExist,VirtualFolder
 		GoSub,VirtualFolderDropFiles
@@ -803,6 +799,14 @@ GetProcessPath(){
 	WinGet,AWPP,ProcessPath,A
 	return AWPP
 }
+AGUIClose(GuiHwnd){
+	AGui.HwndDict[GuiHwnd].close()
+	return
+}
+AGUIEscape(GuiHwnd){
+	AGui.HwndDict[GuiHwnd].escape()
+	return true
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
@@ -1112,6 +1116,186 @@ class AFile{
 	}
 
 }
+class AGui{
+	static HwndDict := Object()
+	__New(options:="", title:=""){
+		Gui, New, +HwndHwnd %options%, %title%
+		this.Hwnd := Hwnd
+		Gui, %Hwnd%:+LabelAGui
+		AGui.HwndDict[Hwnd] := this
+	}
+	do(command, params*){
+		Hwnd := this.Hwnd
+		Gui, %Hwnd%:%command%, % params[1], % params[2], % params[3]
+		return
+	}
+	add_agc(type, name, param){
+		this[name] := new AGuiControl(this, type, name, param)
+		return
+	}
+	show(options:="", title:=""){
+		this.do("show", options, title)
+		return
+	}
+	submit(NoHide:=False){
+		k := ""
+		if (NoHide)
+			k := "NoHide"
+		this.do("submit", k)
+		return
+	}
+	cancel(){
+		this.do("Cancel")
+		return
+	}
+	font(options:="", FontName:=""){
+		this.do("Font", options, FontName)
+		return
+	}
+	color(WindowColor:="", ControlColor:=""){
+		this.do("Color", WindowColor, ControlColor)
+		return
+	}
+	margin(x:="", y:=""){
+		this.do("Margin", x, y)
+		return
+	}
+	add_option(option){
+		this.do("+" . option)
+		return
+	}
+	remove_option(option){
+		this.do("-" . option)
+		return
+	}
+	menu(MenuName:=""){
+		this.do("Menu", MenuName)
+		return
+	}
+	hide(){
+		this.do("Hide")
+		return
+	}
+	minimize(){
+		this.do("Minimize")
+		return
+	}
+	maximize(){
+		this.do("Maximize")
+		return
+	}
+	restore(){
+		this.do("Restore")
+		return
+	}
+	flash(Off:=False){
+		k := ""
+		if (Off)
+			k := "Off"
+		this.do("Flash", k)
+		return
+	}
+	add(ControlType, Options:="", Text:=""){
+		this.do("Add", ControlType, Options, Text)
+		return
+	}
+	close(){
+		this.destroy()
+		return
+	}
+	escape(){
+		this.destroy()
+		return
+	}
+	destroy(){
+		Hwnd := this.Hwnd
+		if not (AGui.HwndDict.HasKey(Hwnd))
+			return
+		Gui, %Hwnd%:destroy
+		AGui.HwndDict.Delete(Hwnd)
+		return
+	}
+}
+class AGuiControl{
+	__New(target_gui, type, name, param=""){
+		global
+		name := "AGuiControlVar_" . name
+		%name% := ""
+		target_gui.add(type, "v" . name . " " . param)
+		this.gui := target_gui
+		this.name := name
+	}
+	__Set(name, value){
+		if (name = "value"){
+			this.do("", value)
+			return
+		}else if (name = "method"){
+			this.add_option("g" . value)
+			return
+		}else{
+			Object.__Set(this, name, value)
+		}
+	}
+	__Get(name){
+		if (name = "value"){
+			name := this.name
+			value := %name%
+			return %value%
+		}else{
+			return Object.__Get(this, name)
+		}
+	}
+	do(sub_command, param=""){
+		name := this.name
+		sub_command := this.gui.Hwnd . ":" . sub_command
+		GuiControl, %sub_command%, %name%, %param%
+		return
+	}
+	text(string){
+		this.do("text", string)
+	}
+	move(param){
+		this.do("move", param)
+	}
+	movedraw(param){
+		this.do("movedraw", param)
+	}
+	focus(){
+		this.do("focus")
+	}
+	enable(){
+		this.do("enable")
+	}
+	disable(){
+		this.do("disable")
+	}
+	hide(){
+		this.do("hide")
+	}
+	show(){
+		this.do("show")
+	}
+	choose(n){
+		this.do("choose", n)
+	}
+	choosestring(string){
+		this.do("choosestring", string)
+	}
+	font(param){
+		this.do("font", param)
+	}
+	add_option(option){
+		this.do("+" . option)
+	}
+	remove_option(option){
+		this.do("-" . option)
+	}
+}
+class AGuiControlText extends AGuiControl{
+	__New(target_gui){
+		base.__New(target_gui, "Text")
+	}
+}
 ExecuteTimer:
 	timerFD.execute_next()
 	return
@@ -1120,9 +1304,16 @@ ExecuteTimer:
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	k := new TestObj(3)
-	k.v2 := 8
-	msgjoin(k.value, k.v2)
+	k := new AGui()
+	k_listbox := new AGuiControl(k, "ListBox", "k_ListBox")
+	k_listbox.value := "A|B|C|D"
+	k_listbox.choose("2")
+	k_button := new AGuiControl(k, "Button", "k_button")
+	k_button.method := "flaxguitestmethod"
+	k.show("autosize")
+	return
+flaxguitestmethod:
+	msgjoin("A")
 	return
 ::flaxcalc::
 	Sleep 100
@@ -2205,10 +2396,11 @@ MouseGetPos,X,Y
 ;hotkey
 ;ホットキー
 +!^W::
-	Gui, New, , FlaxLauncher FlaxLauncher:
+	FlaxLauncher := new AGui(, "FlaxLauncher")
 	launcherFD.read()
 	Sleep 100
-	NoDI = 5
+	NoDI := 5
+	NoI := NoDI
 	candidate := ""
 	SysGet,MonitorSizeX,0
 	SysGet,MonitorSizeY,1
@@ -2220,43 +2412,55 @@ MouseGetPos,X,Y
 		if (NoDI < A_Index)
 			break
 	}
-	Gui, FlaxLauncher:Add,ComboBox,vItemName W300 R5 Simple HwndLauncherComboHwnd, %candidate%
-	Gui, FlaxLauncher:+AlwaysOnTop -Border
-	Gui, FlaxLauncher:Show,Hide
-	Gui, FlaxLauncher:+LastFound
+	FlaxLauncher.add_agc("ComboBox", "ItemName", "W300 R5 Simple")
+	FlaxLauncher.ItemName.value := candidate
+	FlaxLauncher.add_option("AlwaysOnTop")
+	FlaxLauncher.remove_option("Border")
+	FlaxLauncher.add_option("LastFound")
+	FlaxLauncher.add_agc("Edit", "HiddenEdit", "xm ym w300")
+	FlaxLauncher.HiddenEdit.method := "HiddenEdited"
+	FlaxLauncher.HiddenEdit.focus()
+	FlaxLauncher.add_agc("Button", "OK", "Hidden Default")
+	FlaxLauncher.OK.method := "LauncherOK"
+	FlaxLauncher.Show("Hide")
 	WinGetPos,,,w,h
-	Gui, FlaxLauncher:Add,Button,Default Hidden gLauncherOK,OK
 	w := MonitorSizeX - marg - w
 	h := MonitorSizeY - marg - h
+<<<<<<< HEAD
 	Gui, FlaxLauncher:Show,X%w% Y%h% Hide,FlaxProgramLauncher
 	Gui, FlaxLauncher:Add,Edit,xm ym w300 vHiddenEdit gHiddenEdited
 	GuiControl, FlaxLauncher:Focus,HiddenEdit
 	Gui, FlaxLauncher:Show, autosize
+=======
+	FlaxLauncher.Show("x" . w . " y" . h . " Hide", "FlaxProgramLauncher")
+	FlaxLauncher.Show("Autosize")
+>>>>>>> 45_make_AGui_class
 	WinWaitNotActive,FlaxProgramLauncher
-	Gui, FlaxLauncher:Destroy
+	FlaxLauncher.Destroy()
 	Return
 	LauncherOK:
-		GuiControl, FlaxLauncher:-AltSubmit,ItemName
-		Gui, FlaxLauncher:Submit
-		Gui, FlaxLauncher:Destroy
+		FlaxLauncher.ItemName.remove_option("AltSubmit")
+		FlaxLauncher.Submit()
+		FlaxLauncher.Destroy()
 	LauncherUse:
 		LF := False
-		ItemParams := StrSplit(ItemName, " ")
-		ItemName := ItemParams[1]
+		ItemName_val := FlaxLauncher.ItemName.value
+		ItemParams := StrSplit(ItemName_val, " ")
+		ItemName_val := ItemParams[1]
 		LP := False
 		PathParam := False
 		if (ItemParams[2] == "locale")
 			LP := True
 		else if (ItemParams[2] == "path")
 			PathParam := True
-		if (RegExMatch(ItemName, "[a-zA-Z]:\\([^\\/:?*""<>|]+\\)*([^\\/:?*""<>|]+)?")){
-			Run, %ItemName%
+		if (RegExMatch(ItemName_val, "[a-zA-Z]:\\([^\\/:?*""<>|]+\\)*([^\\/:?*""<>|]+)?")){
+			Run, %ItemName_val%
 			return
 		}
 		if (LP){
 			LF := True
 		}
-		ID := launcherFD.dict[ItemName]
+		ID := launcherFD.dict[ItemName_val]
 		if (PathParam){
 			Clipboard := ID["command"]
 			ToolTip, %Clipboard%
@@ -2284,11 +2488,11 @@ MouseGetPos,X,Y
 		}
 		if (ItemType = "URL" or ItemType = "LocalPath" or ItemType = "Application"){
 			if (LF and ItemType != "URL"){
-				LP := RegExMatch(ItemCommand, "\\([^\\]*)$", ItemName)
+				LP := RegExMatch(ItemCommand, "\\([^\\]*)$", ItemName_val)
 				ItemCommand := SubStr(ItemCommand, 1, LP-1)
 				Run, %ItemCommand%
 				WinWaitActive, ahk_exe explorer.exe
-				sendraw,% ItemName1
+				sendraw,% ItemName_val1
 				return
 			}else{
 				Run, %ItemCommand%
@@ -2298,19 +2502,21 @@ MouseGetPos,X,Y
 		msgbox,404 Type
 		return
 	HiddenEdited:
-		Gui, FlaxLauncher:Submit,NoHide
-		GuiControl, FlaxLauncher:Text,ItemName,%HiddenEdit%
-		GuiControl, FlaxLauncher:+AltSubmit,ItemName
-		Gui, FlaxLauncher:Submit,NoHide
-		IoS := ItemName
-		GuiControl, FlaxLauncher:-AltSubmit,ItemName
+		FlaxLauncher.Submit("NoHide")
+		FlaxLauncher.ItemName.Text(FlaxLauncher.HiddenEdit.value)
+		FlaxLauncher.ItemName.add_option("AltSubmit")
+		FlaxLauncher.Submit("NoHide")
+		IoS := FlaxLauncher.ItemName.value
+		FlaxLauncher.ItemName.remove_option("AltSubmit")
 		if IoS is integer
 			return
-		Gui, FlaxLauncher:Submit,NoHide
+		FlaxLauncher.Submit("NoHide")
+		GuiControl, FlaxLauncher:-AltSubmit, ItemName
+		Gui, FlaxLauncher:Submit, NoHide
 		candidate := ""
 		NoI = 0
 		For Key, Value in launcherFD.dict{
-			StringGetPos, IP, Key, %ItemName%
+			StringGetPos, IP, Key, % FlaxLauncher.ItemName.value
 			command := ""
 			if (IP == 0)
 				command := launcherFD.dict[Key]["command"]
@@ -2319,52 +2525,46 @@ MouseGetPos,X,Y
 				NoI += 1
 			}
 		}
-		GuiControl, FlaxLauncher:,ItemName,%candidate%
-		GuiControl, FlaxLauncher:Text,ItemName,%HiddenEdit%
-		return
-	FlaxLauncherGuiEscape:
-	FlaxLauncherGuiClose:
-		Gui, FlaxLauncher:Destroy
+		FlaxLauncher.ItemName.value := candidate
+		FlaxLauncher.ItemName.Text(FlaxLauncher.HiddenEdit.value)
 		return
 #IfWinActive,FlaxProgramLauncher
 	Tab::
 	Down::
-		GuiControl, FlaxLauncher:+AltSubmit,ItemName
-		Gui, FlaxLauncher:Submit,NoHide
-		GuiControl, FlaxLauncher:-AltSubmit,ItemName
-		if (ItemName == NoI)
+		FlaxLauncher.ItemName.add_option("AltSubmit")
+		FlaxLauncher.Submit("NoHide")
+		FlaxLauncher.ItemName.remove_option("AltSubmit")
+		if (FlaxLauncher.ItemName.value == NoI)
 			return
-		if ItemName is not integer
-		{
-			GuiControl, FlaxLauncher:Choose,ItemName,|1
-			Gui, FlaxLauncher:Submit,NoHide
-			GuiControl, FlaxLauncher:Text,HiddenEdit,%ItemName%
+		if (RegExMatch(Flaxlauncher.ItemName.value, "^\d+$") != 1){
+			FlaxLauncher.ItemName.Choose("|1")
+			FlaxLauncher.Submit("NoHide")
+			FlaxLauncher.HiddenEdit.Text(FlaxLauncher.ItemName.value)
 			send,{End}
 			return
 		}
-		GuiControl, FlaxLauncher:Choose,ItemName,% "|"ItemName + 1
-		Gui, FlaxLauncher:Submit,NoHide
-		GuiControl, FlaxLauncher:Text,HiddenEdit,%ItemName%
+		FlaxLauncher.ItemName.Choose("|" . FlaxLauncher.ItemName.value + 1)
+		FlaxLauncher.Submit("NoHide")
+		FlaxLauncher.HiddenEdit.Text(FlaxLauncher.ItemName.value)
 		send,{End}
 		Return
 	+Tab::
 	Up::
-		GuiControl, FlaxLauncher:+AltSubmit,ItemName
-		Gui, FlaxLauncher:Submit,NoHide
-		GuiControl, FlaxLauncher:-AltSubmit,ItemName
-		if (ItemName == 1)
+		FlaxLauncher.ItemName.add_option("AltSubmit")
+		FlaxLauncher.Submit("NoHide")
+		FlaxLauncher.ItemName.remove_option("AltSubmit")
+		if (FlaxLauncher.ItemName.value == 1)
 			return
-		if ItemName is not integer
-		{
-			GuiControl, FlaxLauncher:Choose,ItemName,|1
-			Gui, FlaxLauncher:Submit,NoHide
-			GuiControl, FlaxLauncher:Text,HiddenEdit,%ItemName%
+		if (RegExMatch(FlaxLauncher.ItemName.value, "^\d+$") != 1){
+			FlaxLauncher.ItemName.choose("|1")
+			FlaxLauncher.Submit("NoHide")
+			FlaxLauncher.HiddenEdit.Text(FlaxLauncher.ItemName.value)
 			send,{End}
 			return
 		}
-		GuiControl, FlaxLauncher:Choose,ItemName,% "|"ItemName - 1
-		Gui, FlaxLauncher:Submit,NoHide
-		GuiControl, FlaxLauncher:Text,HiddenEdit,%ItemName%
+		FlaxLauncher.ItemName.Choose("|" . FlaxLauncher.ItemName.value - 1)
+		FlaxLauncher.Submit("NoHide")
+		FlaxLauncher.HiddenEdit.Text(FlaxLauncher.ItemName.value)
 		send,{End}
 		Return
 #IfWinActive
