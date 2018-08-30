@@ -1129,8 +1129,8 @@ class AGui{
 		Gui, %Hwnd%:%command%, % params[1], % params[2], % params[3]
 		return
 	}
-	add_agc(type, name, param){
-		this[name] := new AGuiControl(this, type, name, param)
+	add_agc(type, name, param="", text=""){
+		this[name] := new AGuiControl(this, type, name, param, text)
 		return
 	}
 	show(options:="", title:=""){
