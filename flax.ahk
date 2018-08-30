@@ -1473,10 +1473,15 @@ flaxguitestmethod:
 	return
 ::flaxmakecodegui::
 	sleep 100
-	Gui, New, , FlaxCode_Maker
-	Gui, FlaxCode_Make:Font,,Meiryo UI
-	Gui, FlaxCode_Make:Margin,10,10
-	Gui, FlaxCode_Make:Add,Text,,&Clear Text
+	FlaxCode_Maker := new AGui(, "FlaxCode_Maker")
+	FlaxCode_Maker.Font("Meiryo UI")
+	FlaxCode_Maker.Margin(10, 10)
+	FlaxCode_Maker.add_agc("Text", "", , "&Clear Text")
+	FlaxCode_Maker.add_agc("Edit", "CText", "W500 Multi Password*")
+	FlaxCode_Maker.add_agc("Text", "", , "&Seed")
+	FlaxCode_Maker.add_agc("Edit", "Seed", "W500 Password*")
+	FlaxCode_Maker.Show()
+	msgjoin("A")
 	Gui, FlaxCode_Make:Add,Edit,W500 Multi Password* vCText
 	Gui, FlaxCode_Make:Add,Text,,&Seed
 	Gui, FlaxCode_Make:Add,Edit,W500 Password* vSeed
