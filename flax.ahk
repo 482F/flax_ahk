@@ -1304,13 +1304,7 @@ ExecuteTimer:
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	k := new AGui()
-	k_listbox := new AGuiControl(k, "ListBox", "k_ListBox")
-	k_listbox.value := "A|B|C|D"
-	k_listbox.choose("2")
-	k_button := new AGuiControl(k, "Button", "k_button")
-	k_button.method := "flaxguitestmethod"
-	k.show("autosize")
+    GoSub, ::flaxedittimetable
 	return
 flaxguitestmethod:
 	msgjoin("A")
@@ -2195,7 +2189,7 @@ MouseGetPos,X,Y
 	y := marg
     term := configFD.dict["CurrentClassTerm"]
     GoSub, TimeTableAddText
-    DropDownText := "|"
+    DropDownText := ""
     for Key, Value in configFD.dict["ClassTermList"]{
         DropDownText .= Value . "|"
         if (Value == term){
@@ -2236,7 +2230,7 @@ MouseGetPos,X,Y
         }
         return
     TimeTableChanged:
-        Gui, Submit, NoHide
+        Gui, FlaxTimeTable:Submit, NoHide
         sterm := term
         term := TimeTableDDLV
         GoSub, TimeTableChangeText
@@ -2410,24 +2404,54 @@ MouseGetPos,X,Y
 			Gui, FlaxEditTimeTable:Add, Edit, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center vE%R%%C% -VScroll, %Text%
 		}
 	}
+    DropDownText := ""
+    for Key, Value in configFD.dict["ClassTermList"]{
+        DropDownText .= Value . "|"
+        if (Value == term){
+            DropDownText .= "|"
+        }
+    }
+    Gui, FlaxEditTimeTable:Add, DropDownList, Sort VETimeTableDDLV GETimeTableChanged, %DropDownText%
 	Gui, FlaxEditTimeTable:Add, Button, Default gEditTimeTableOK, OK
 	Gui, FlaxEditTimeTable:Show, , FlaxEditTimeTable
 	return
+    ETimeTableChangeText:
+        Loop, 6{
+            R := A_Index - 1
+            Loop, 7{
+                C := A_Index - 1
+                Text := ""
+                Loop, 4{
+                    L := A_Index - 1
+                    Text .= "`n" . timetableFD.dict[term][R][C][L]
+                }
+                GuiControl, , E%R%%C%, %Text%
+            }
+        }
+        return
+    ETimeTableChanged:
+        Gui, FlaxEditTimeTable:Submit, Nohide
+        sterm := term
+        term := ETimeTableDDLV
+        GoSub, ETimeTableChangeText
+        term := sterm
+        return
 	EditTimeTableOK:
 		Gui, FlaxEditTimeTable:Submit
+        term := ETimeTableDDLV
 		Loop, 6{
 			R := A_Index - 1
 			Loop, 7{
 				C := A_Index - 1
 				Text := E%R%%C%
 				Text := StrSplit(Text, "`n")
+                if (not timetableFD.dict.HasKey(term))
+                    timetableFD.dict[term] := Object()
+                if (not timetableFD.dict[term].HasKey(R))
+                    timetableFD.dict[term][R] := Object()
+                if (not timetableFD.dict[term][R].HasKey(C))
+                    timetableFD.dict[term][R][C] := Object()
 				Loop, 4{
-                    if (not timetableFD.dict.HasKey(term))
-                        timetableFD.dict[term] := Object()
-					if (not timetableFD.dict[term].HasKey(R))
-						timetableFD.dict[term][R] := Object()
-					if (not timetableFD.dict[term][R].HasKey(C))
-						timetableFD.dict[term][R][C] := Object()
 					timetableFD.dict[term][R][C][A_Index - 1] := Text[A_Index + 1]
 				}
 			}
