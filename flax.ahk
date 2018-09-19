@@ -2237,7 +2237,8 @@ MouseGetPos,X,Y
         term := sterm
         return
 	OpenClassFolder:
-		Loop, Parse, A_GuiControl, `n
+        GuiControlGet, ClassName, , %A_GuiControl%
+		Loop, Parse, ClassName, `n
 		{
 			if (A_Index == 2)
 			{
@@ -2792,6 +2793,37 @@ vk1D & 2::send,7
 vk1D & 3::send,8
 vk1D & 4::send,9
 vk1D & 5::send,0
+vk1D & LButton::
+    RapidButton := "LButton"
+    GoSub, RapidMouse
+    return
+vk1D & RButton::
+    RapidButton := "RButton"
+    GoSub, RapidMouse
+    return
+vk1D & MButton::
+    RapidButton := "MButton"
+    GoSub, RapidMouse
+    return
+RapidMouse:
+    if (RetKeyState("Ctrl")){
+        KeepRapid := True
+    }
+    if (RetKeyState("Shift")){
+        send, {%RapidButton% Down}
+        sleep 100
+        while (not RetKeyState("Esc") and not RetKeyState(RapidButton)){
+            sleep 10
+        }
+        send, {%RapidButton% Up}
+    }else{
+        while ((RetKeyState(RapidButton) and RetKeyState("vk1D")) or (KeepRapid and not RetKeyState("Esc") and not RetKeyState(RapidButton))){
+            sleep 10
+            send, {%RapidButton%}
+        }
+    }
+    KeepRapid := False
+    return
 
 #^l::send,^#{Right}
 #^h::send,^#{Left}
