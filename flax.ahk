@@ -3058,20 +3058,25 @@ MouseGestureExecute:
 		}
 		Clip := ClipboardAll
 		Clipboard := Clipboard
-		SplitPath, Clipboard, FileName
-		DestPath := CDPath . "\" . FileName
-		if (mode = "sym"){
-			DestPath .= "_sym"
-			param := ""
-			if (JudgeDir(Clipboard)){
-				param := "/d"
-			}
-			command := "mklink " . param . " """ . DestPath . """ """ Clipboard . """"
-			msgjoin(CmdRun(command, 0, "admin"))
-		}else if (mode = "shr"){
-			DestPath .= ".lnk"
-			FileCreateShortcut, %Clipboard%, %DestPath%
-		}
+        Loop, Parse, Clipboard, `n
+        {
+            LoopField := RegExReplace(A_LoopField, "\r|\n", "")
+            SplitPath, LoopField, FileName
+            DestPath := CDPath . "\" . FileName
+            if (mode = "sym"){
+                DestPath .= "_sym"
+                param := ""
+                if (JudgeDir(LoopField)){
+                    param := "/d"
+                }
+                command := "mklink " . param . " """ . DestPath . """ """ LoopField . """"
+                msgjoin(command)
+                msgjoin(CmdRun(command, 0, "admin"))
+            }else if (mode = "shr"){
+                DestPath .= ".lnk"
+                FileCreateShortcut, %LoopField%, %DestPath%
+            }
+        }
 		Clipboard := Clip
 		return
 	^t::
