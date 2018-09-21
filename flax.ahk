@@ -2183,6 +2183,7 @@ MouseGetPos,X,Y
 	return
 ::flaxtimetable::
 	timetableFD.read()
+    configFD.read()
 	sleep 300
 	TTCellWidth = 100
 	TTCellHeight = 100
@@ -2192,22 +2193,55 @@ MouseGetPos,X,Y
 	Gui, FlaxTimeTable:+AlwaysOnTop -Border
 	x := marg
 	y := marg
-	Loop, 6{
-		R := A_Index - 1
-		Loop, 7{
-			C := A_Index - 1
-			x := marg + C * TTCellWidth
-			y := marg + R * TTCellHeight
-			Text := ""
-			Loop, 4{
-				L := A_Index - 1
-				Text .= "`n" timetableFD.dict[R][C][L]
-			}
-			Gui, FlaxTimeTable:Add, Text, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center gOpenClassFolder, %Text%
-		}
-	}
+    term := configFD.dict["CurrentClassTerm"]
+    GoSub, TimeTableAddText
+    DropDownText := "|"
+    for Key, Value in configFD.dict["ClassTermList"]{
+        DropDownText .= Value . "|"
+        if (Value == term){
+            DropDownText .= "|"
+        }
+    }
+    Gui, FlaxTimeTable:Add, DropDownList, Sort VTimeTableDDLV GTimeTableChanged, %DropDownText%
 	Gui, FlaxTimeTable:Show, , FlaxTimeTable
 	return
+    TimeTableAddText:
+        Loop, 6{
+            R := A_Index - 1
+            Loop, 7{
+                C := A_Index - 1
+                x := marg + C * TTCellWidth
+                y := marg + R * TTCellHeight
+                Text := ""
+                Loop, 4{
+                    L := A_Index - 1
+                    Text .= "`n" timetableFD.dict[term][R][C][L]
+                }
+                Gui, FlaxTimeTable:Add, Text, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center gOpenClassFolder vTimeTableCell%R%%C%, %Text%
+            }
+        }
+        return
+    TimeTableChangeText:
+        Loop, 6{
+            R := A_Index - 1
+            Loop, 7{
+                C := A_Index - 1
+                Text := ""
+                Loop, 4{
+                    L := A_Index - 1
+                    Text .= "`n" . timetableFD.dict[term][R][C][L]
+                }
+                GuiControl, , TimeTableCell%R%%C%, %Text%
+            }
+        }
+        return
+    TimeTableChanged:
+        Gui, Submit, NoHide
+        sterm := term
+        term := TimeTableDDLV
+        GoSub, TimeTableChangeText
+        term := sterm
+        return
 	OpenClassFolder:
 		Loop, Parse, A_GuiControl, `n
 		{
@@ -2217,7 +2251,7 @@ MouseGetPos,X,Y
 				break
 			}
 		}
-		ClassPath := pathFD.dict["class"] . ClassName
+		ClassPath := pathFD.dict["class"] . term . "\" . ClassName
         IfNotExist, %ClassPath%
         {
             Gui, FlaxTimeTable:+OwnDialogs
@@ -2352,6 +2386,8 @@ MouseGetPos,X,Y
 	return
 ::flaxedittimetable::
 	timetableFD.read()
+    pathFD.read()
+    term := configFD.dict["CurrentClassTerm"]
 	sleep 300
 	TTCellWidth = 100
 	TTCellHeight = 100
@@ -2369,7 +2405,7 @@ MouseGetPos,X,Y
 			Text := ""
 			Loop, 4{
 				L := A_Index - 1
-				Text .= "`n" timetableFD.dict[R][C][L]
+				Text .= "`n" timetableFD.dict[term][R][C][L]
 			}
 			Gui, FlaxEditTimeTable:Add, Edit, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center vE%R%%C% -VScroll, %Text%
 		}
@@ -2386,11 +2422,13 @@ MouseGetPos,X,Y
 				Text := E%R%%C%
 				Text := StrSplit(Text, "`n")
 				Loop, 4{
-					if (not timetableFD.dict.HasKey(R))
-						timetableFD.dict[R] := Object()
-					if (not timetableFD.dict[R].HasKey(C))
-						timetableFD.dict[R][C] := Object()
-					timetableFD.dict[R][C][A_Index - 1] := Text[A_Index + 1]
+                    if (not timetableFD.dict.HasKey(term))
+                        timetableFD.dict[term] := Object()
+					if (not timetableFD.dict[term].HasKey(R))
+						timetableFD.dict[term][R] := Object()
+					if (not timetableFD.dict[term][R].HasKey(C))
+						timetableFD.dict[term][R][C] := Object()
+					timetableFD.dict[term][R][C][A_Index - 1] := Text[A_Index + 1]
 				}
 			}
 		}
