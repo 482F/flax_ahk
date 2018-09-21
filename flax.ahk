@@ -2237,7 +2237,8 @@ MouseGetPos,X,Y
         term := sterm
         return
 	OpenClassFolder:
-		Loop, Parse, A_GuiControl, `n
+        GuiControlGet, ClassName, , %A_GuiControl%
+		Loop, Parse, ClassName, `n
 		{
 			if (A_Index == 2)
 			{
