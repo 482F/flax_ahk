@@ -71,7 +71,16 @@ ChangeHotKey=[
 ]
 ```
 
-- で IfWinActive, ahk_exe B.exe のホットキー A を C に変更できる。C を Off にするとホットキーを無効化できる。
+- で IfWinActive, ahk_exe B.exe のホットキー A を C に変更できる。C を Off にするとホットキーを無効化できる
+- Ctrl は ^, Alt は !, Shift は +, Windows は # に対応しているので、例えばランチャー起動 (Ctrl + Alt + Shift + W) を Ctrl + L キーに割り当てたいなら、
+```
++!^W=[
+    Key=^L
+]
+```
+- となる。ただし、変更前の値はソースコード準拠となるため、上の例の場合 !^+W=[ ではエラーとなる
+- IfWinActive の設定関係は複雑なので、作った方もよくわかってないです。変えたいときは問い合わせてみてください
+
 ## FIFO
 - ホットストリング flaxfifo でモード切替
 - Ctrl + c, x, v に関して FIFO モードになる
