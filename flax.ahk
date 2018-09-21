@@ -2190,9 +2190,9 @@ MouseGetPos,X,Y
     term := configFD.dict["CurrentClassTerm"]
     GoSub, TimeTableAddText
     DropDownText := ""
-    for Key, Value in configFD.dict["ClassTermList"]{
-        DropDownText .= Value . "|"
-        if (Value == term){
+    for Key, Value in timetableFD.dict{
+        DropDownText .= Key . "|"
+        if (Key == term){
             DropDownText .= "|"
         }
     }
@@ -2404,10 +2404,10 @@ MouseGetPos,X,Y
 			Gui, FlaxEditTimeTable:Add, Edit, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center vE%R%%C% -VScroll, %Text%
 		}
 	}
-    DropDownText := ""
-    for Key, Value in configFD.dict["ClassTermList"]{
-        DropDownText .= Value . "|"
-        if (Value == term){
+    DropDownText := "new|"
+    for Key, Value in timetableFD.dict{
+        DropDownText .= Key . "|"
+        if (Key == term){
             DropDownText .= "|"
         }
     }
@@ -2431,6 +2431,10 @@ MouseGetPos,X,Y
         return
     ETimeTableChanged:
         Gui, FlaxEditTimeTable:Submit, Nohide
+        if (ETimeTableDDLV == "new"){
+            InputBox, new_name, , 新規プロファイル名を入力
+            GuiControl, , ETimeTableDDLV, %new_name%||
+        }
         sterm := term
         term := ETimeTableDDLV
         GoSub, ETimeTableChangeText
@@ -2456,6 +2460,9 @@ MouseGetPos,X,Y
 				}
 			}
 		}
+        configFD.read()
+        configFD.dict["CurrentClassTerm"] := term
+        configFD.write()
 		timetableFD.write()
 	FlaxEditTimeTableGuiEscape:
 	FlaxEditTimeTableGuiClose:
