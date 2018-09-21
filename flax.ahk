@@ -2218,8 +2218,19 @@ MouseGetPos,X,Y
 			}
 		}
 		ClassPath := pathFD.dict["class"] . ClassName
-		Run, %ClassPath%
-		Gui, FlaxTimeTable:Destroy
+        IfNotExist, %ClassPath%
+        {
+            msgbox, 4, , 授業フォルダが存在しません。作成しますか？           
+            ifMsgBox, Yes
+            {
+                FileCreateDir, %ClassPath%
+            }
+        }
+        IfExist, %ClassPath%
+        {
+            Run, %ClassPath%
+        }
+        Gui, FlaxTimeTable:Destroy
 		return
 	FlaxTimeTableGuiEscape:
 	FlaxTimeTableGuiClose:
