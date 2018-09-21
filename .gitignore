@@ -4,4 +4,5 @@
 /config/register.fd
 /config/timetable.fd
 /config/config.fd
+/config/timer.fd
 /CreateNew/*
