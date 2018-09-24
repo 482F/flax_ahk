@@ -1474,47 +1474,40 @@ flaxguitestmethod:
 	FlaxCode_Maker.add_agc("Edit", "CText", "W500 Multi Password*")
 	FlaxCode_Maker.add_agc("Text", "", , "&Seed")
 	FlaxCode_Maker.add_agc("Edit", "Seed", "W500 Password*")
-	FlaxCode_Maker.Show()
-	msgjoin("A")
-	Gui, FlaxCode_Make:Add,Edit,W500 Multi Password* vCText
-	Gui, FlaxCode_Make:Add,Text,,&Seed
-	Gui, FlaxCode_Make:Add,Edit,W500 Password* vSeed
-	Gui, FlaxCode_Make:Add,Checkbox,Checked1 vUC,&Uppercase
-	Gui, FlaxCode_Make:Add,Checkbox,Checked1 vLC,&Lowercase
-	Gui, FlaxCode_Make:Add,Checkbox,Checked1 vNC,&Number
-	Gui, FlaxCode_Make:Add,Checkbox,Checked0 vJC,&Japanese
-	Gui, FlaxCode_Make:Add,Checkbox,Checked0 vAC, &All
-	Gui, FlaxCode_Make:Add,Text,,&Others
-	Gui, FlaxCode_Make:Add,Edit,W250 vOthers
-	Gui, FlaxCode_Make:Add,Button,Default gMakeCodeGuiOK,OK
-	Gui, FlaxCode_Make:-Resize
-	Gui, FlaxCode_Make:Show,Autosize,flaxCode_Maker
+    FlaxCode_Maker.add_agc("Checkbox", "UC", "Checked1", "&Uppercase")
+    FlaxCode_Maker.add_agc("Checkbox", "LC", "Checked1", "&Lowercase")
+    FlaxCode_Maker.add_agc("Checkbox", "NC", "Checked1", "&Number")
+    FlaxCode_Maker.add_agc("Checkbox", "JC", "Checked0", "&Japanese")
+    FlaxCode_Maker.add_agc("Checkbox", "AC", "Checked0", "&All")
+    FlaxCode_Maker.add_agc("Text", "TOthers", , "&Others")
+    FlaxCode_Maker.add_agc("Edit", "Others", "W250")
+    FlaxCode_Maker.add_agc("Button", "OK", "Default", "OK")
+    FlaxCode_Maker.OK.method := "MakecodeGuiOK"
+    FlaxCode_Maker.remove_option("Resize")
+    FlaxCode_Maker.Show("AutoSize", "FlaxCode_Maker")
 	return
-	FlaxCode_MakeGuiClose:
-	FlaxCode_MakeGuiEscape:
-		Gui, FlaxCode_Make:Destroy
-		return
 	MakeCodeGuiOK:
-		Gui, FlaxCode_Make:Submit
-		Gui, FlaxCode_Make:Destroy
+        FlaxCode_Maker.Submit()
+        FlaxCode_Maker.Destroy()
 		Usable =
 		UpperCase = ABCDEFGHIJKLMNOPQRSTUVWXYZ
 		LowerCase = abcdefghijklmnopqrstuvwxyz
 		NumberChar = 0123456789
 		FileRead,JapaneseChar,JapaneseChars.txt
+        CText := FlaxCode_Maker.CText.value
 		Loop,Parse,CText
 		{
 			IfInString,UpperCase,%A_LoopField%
 			{
-				UC := 1
+				FlaxCode_Maker.UC.value := 1
 			}
 			IfInString,LowerCase,%A_LoopField%
 			{
-				LC := 1
+				FlaxCode_Maker.LC.value := 1
 			}
 			IfInString,NumberChar,%A_LoopField%
 			{
-				NC := 1
+				FlaxCode_Maker.NC.value := 1
 			}
 			;K := UpperCase . LowerCase . NumberChar . Others . JapaneseChar
 			;IfNotInString,K,%A_LoopField%
@@ -1522,39 +1515,39 @@ flaxguitestmethod:
 			;	Usable := Usable . A_LoopField
 			;}
 		}
-		if (UC = 1)
+		if (FlaxCode_Maker.UC.value = 1)
 		{
 			Usable := Usable . UpperCase
 		}
-		if (LC = 1)
+		if (FlaxCode_Maker.LC.value = 1)
 		{
 			Usable := Usable . LowerCase
 		}
-		if (NC = 1)
+		if (FlaxCode_Maker.NC.value = 1)
 		{
 			Usable := Usable . NumberChar
 		}
-		if (JC = 1)
+		if (FlaxCode_Maker.JC.value = 1)
 		{
 			Usable := Usable . JapaneseChar
 		}
-		if (AC = 1)
+		if (FlaxCode_Maker.AC.value = 1)
 		{
 			Usable := Usable . """`#!$`%&()=~|-^[@]:/.,{``}*+_?><,\;"
 		}
-		Usable := Usable . Others
+		Usable := Usable . FlaxCode_Maker.Others.value
 		Usable := RegExReplace(Usable,".","$0`n")
 		sort,Usable,C U
 		Usable := RegExReplace(Usable,"`n","")
-		if (AC = 1)
+		if (FlaxCode_Maker.AC.value = 1)
 		{
 			Usable := Usable . "`　` `n`t"
 		}
-		if (Seed = "")
+		if (FlaxCode_Maker.Seed.value = "")
 		{
-			Seed := CText
+			FlaxCode_Maker.Seed.value := CText
 		}
-		Crypt := MakeCodeFunc(Usable, CText, Seed)
+		Crypt := MakeCodeFunc(Usable, CText, FlaxCode_Maker.Seed.value)
 		SendRaw,%Crypt%
 		return
 ::flaxmakecode::
