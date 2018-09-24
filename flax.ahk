@@ -2577,7 +2577,10 @@ MouseGetPos,X,Y
 				Run, %ItemCommand%
 				return
 			}
-		}
+		}else if (ItemType == "Label"){
+            GoSub, %ItemCommand%
+            return
+        }
 		msgbox,404 Type
 		return
 	HiddenEdited:
