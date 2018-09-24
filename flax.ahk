@@ -1689,11 +1689,11 @@ flaxguitestmethod:
 	{
 		if (A_Cursor = "Unknown")
 			break
-		MouseMove,460,594
-		MouseMove,461,594
+		MouseMove,460,610
+		MouseMove,465,610
 		sleep 300
 	}
-	MouseClick,L,461,594
+	MouseClick,L,460,610
 	sleep 500
 	send, {Tab 15}
 	sleep 500
