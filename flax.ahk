@@ -2234,7 +2234,7 @@ MouseGetPos,X,Y
             DropDownText .= "|"
         }
     }
-    TimeTable.add_agc("DropDownList", "TimeTableDDLV", "Sort", DropDownText)
+    TimeTable.add_agc("DropDownList", "TimeTableDDLV", "Sort xp-40 y+10", DropDownText)
     TimeTable.TimeTableDDLV.method := "TimeTableChanged"
     TimeTable.Show("", "FlaxTimeTable")
 	return
@@ -2470,11 +2470,11 @@ MouseGetPos,X,Y
             DropDownText .= "|"
         }
     }
-    EditTimeTable.add_agc("DropDownList", "ETimeTableDDLV", "Sort", DropDownText)
+    EditTimeTable.add_agc("DropDownList", "ETimeTableDDLV", "Sort xp-40 y+10", DropDownText)
     EditTimeTable.ETimeTableDDLV.method := "ETimeTableChanged"
-    EditTimeTable.add_agc("Button", "EditTimeTableOK", "Default", "OK")
+    EditTimeTable.add_agc("Button", "EditTimeTableOK", "Default y+10", "OK")
     EditTimeTable.EditTimeTableOK.method := "EditTimeTableOK"
-    EditTimeTable.add_agc("Button", "EditTimeTableDelete", , "Delete")
+    EditTimeTable.add_agc("Button", "EditTimeTableDelete","y+10" , "Delete")
     EditTimeTable.EditTimeTableDelete.method := "EditTimeTableDelete"
     EditTimeTable.Show("", "FlaxEditTimeTable")
 	return
