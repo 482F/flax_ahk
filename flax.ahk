@@ -487,7 +487,9 @@ Hex2Dec(Value, NoD=0){
 }
 Dec2Hex(Value, NoD=0){
 	K := Object(0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, "A", 11, "B", 12, "C", 13, "D", 14, "E", 15, "F")
-	if (Value != 0)
+    if (Value == "")
+        return
+	else if (Value != 0)
 		return FillStr(Dec2Hex(Value // 16, NoC) . K[mod(Value, 16)], NoD, 0)
 	return
 }
@@ -1129,8 +1131,8 @@ class AGui{
 		Gui, %Hwnd%:%command%, % params[1], % params[2], % params[3]
 		return
 	}
-	add_agc(type, name, param){
-		this[name] := new AGuiControl(this, type, name, param)
+	add_agc(type, name, param="", text=""){
+		this[name] := new AGuiControl(this, type, name, param, text)
 		return
 	}
 	show(options:="", title:=""){
@@ -1217,11 +1219,13 @@ class AGui{
 	}
 }
 class AGuiControl{
-	__New(target_gui, type, name, param=""){
+	__New(target_gui, type, name="", param="", text=""){
 		global
 		name := "AGuiControlVar_" . name
 		%name% := ""
-		target_gui.add(type, "v" . name . " " . param)
+		if (name == "AGuiControlVar_")
+			name := ""
+		target_gui.add(type, "v" . name . " " . param, text)
 		this.gui := target_gui
 		this.name := name
 	}
@@ -1465,49 +1469,47 @@ flaxguitestmethod:
 	return
 ::flaxmakecodegui::
 	sleep 100
-	Gui, New, , FlaxCode_Maker
-	Gui, FlaxCode_Make:Font,,Meiryo UI
-	Gui, FlaxCode_Make:Margin,10,10
-	Gui, FlaxCode_Make:Add,Text,,&Clear Text
-	Gui, FlaxCode_Make:Add,Edit,W500 Multi Password* vCText
-	Gui, FlaxCode_Make:Add,Text,,&Seed
-	Gui, FlaxCode_Make:Add,Edit,W500 Password* vSeed
-	Gui, FlaxCode_Make:Add,Checkbox,Checked1 vUC,&Uppercase
-	Gui, FlaxCode_Make:Add,Checkbox,Checked1 vLC,&Lowercase
-	Gui, FlaxCode_Make:Add,Checkbox,Checked1 vNC,&Number
-	Gui, FlaxCode_Make:Add,Checkbox,Checked0 vJC,&Japanese
-	Gui, FlaxCode_Make:Add,Checkbox,Checked0 vAC, &All
-	Gui, FlaxCode_Make:Add,Text,,&Others
-	Gui, FlaxCode_Make:Add,Edit,W250 vOthers
-	Gui, FlaxCode_Make:Add,Button,Default gMakeCodeGuiOK,OK
-	Gui, FlaxCode_Make:-Resize
-	Gui, FlaxCode_Make:Show,Autosize,flaxCode_Maker
+	FlaxCode_Maker := new AGui(, "FlaxCode_Maker")
+	FlaxCode_Maker.Font("Meiryo UI")
+	FlaxCode_Maker.Margin(10, 10)
+	FlaxCode_Maker.add_agc("Text", "", , "&Clear Text")
+	FlaxCode_Maker.add_agc("Edit", "CText", "W500 Multi Password*")
+	FlaxCode_Maker.add_agc("Text", "", , "&Seed")
+	FlaxCode_Maker.add_agc("Edit", "Seed", "W500 Password*")
+    FlaxCode_Maker.add_agc("Checkbox", "UC", "Checked1", "&Uppercase")
+    FlaxCode_Maker.add_agc("Checkbox", "LC", "Checked1", "&Lowercase")
+    FlaxCode_Maker.add_agc("Checkbox", "NC", "Checked1", "&Number")
+    FlaxCode_Maker.add_agc("Checkbox", "JC", "Checked0", "&Japanese")
+    FlaxCode_Maker.add_agc("Checkbox", "AC", "Checked0", "&All")
+    FlaxCode_Maker.add_agc("Text", "TOthers", , "&Others")
+    FlaxCode_Maker.add_agc("Edit", "Others", "W250")
+    FlaxCode_Maker.add_agc("Button", "OK", "Default", "OK")
+    FlaxCode_Maker.OK.method := "MakecodeGuiOK"
+    FlaxCode_Maker.remove_option("Resize")
+    FlaxCode_Maker.Show("AutoSize", "FlaxCode_Maker")
 	return
-	FlaxCode_MakeGuiClose:
-	FlaxCode_MakeGuiEscape:
-		Gui, FlaxCode_Make:Destroy
-		return
 	MakeCodeGuiOK:
-		Gui, FlaxCode_Make:Submit
-		Gui, FlaxCode_Make:Destroy
+        FlaxCode_Maker.Submit()
+        FlaxCode_Maker.Destroy()
 		Usable =
 		UpperCase = ABCDEFGHIJKLMNOPQRSTUVWXYZ
 		LowerCase = abcdefghijklmnopqrstuvwxyz
 		NumberChar = 0123456789
 		FileRead,JapaneseChar,JapaneseChars.txt
+        CText := FlaxCode_Maker.CText.value
 		Loop,Parse,CText
 		{
 			IfInString,UpperCase,%A_LoopField%
 			{
-				UC := 1
+				FlaxCode_Maker.UC.value := 1
 			}
 			IfInString,LowerCase,%A_LoopField%
 			{
-				LC := 1
+				FlaxCode_Maker.LC.value := 1
 			}
 			IfInString,NumberChar,%A_LoopField%
 			{
-				NC := 1
+				FlaxCode_Maker.NC.value := 1
 			}
 			;K := UpperCase . LowerCase . NumberChar . Others . JapaneseChar
 			;IfNotInString,K,%A_LoopField%
@@ -1515,39 +1517,39 @@ flaxguitestmethod:
 			;	Usable := Usable . A_LoopField
 			;}
 		}
-		if (UC = 1)
+		if (FlaxCode_Maker.UC.value = 1)
 		{
 			Usable := Usable . UpperCase
 		}
-		if (LC = 1)
+		if (FlaxCode_Maker.LC.value = 1)
 		{
 			Usable := Usable . LowerCase
 		}
-		if (NC = 1)
+		if (FlaxCode_Maker.NC.value = 1)
 		{
 			Usable := Usable . NumberChar
 		}
-		if (JC = 1)
+		if (FlaxCode_Maker.JC.value = 1)
 		{
 			Usable := Usable . JapaneseChar
 		}
-		if (AC = 1)
+		if (FlaxCode_Maker.AC.value = 1)
 		{
 			Usable := Usable . """`#!$`%&()=~|-^[@]:/.,{``}*+_?><,\;"
 		}
-		Usable := Usable . Others
+		Usable := Usable . FlaxCode_Maker.Others.value
 		Usable := RegExReplace(Usable,".","$0`n")
 		sort,Usable,C U
 		Usable := RegExReplace(Usable,"`n","")
-		if (AC = 1)
+		if (FlaxCode_Maker.AC.value = 1)
 		{
 			Usable := Usable . "`　` `n`t"
 		}
-		if (Seed = "")
+		if (FlaxCode_Maker.Seed.value = "")
 		{
-			Seed := CText
+			FlaxCode_Maker.Seed.value := CText
 		}
-		Crypt := MakeCodeFunc(Usable, CText, Seed)
+		Crypt := MakeCodeFunc(Usable, CText, FlaxCode_Maker.Seed.value)
 		SendRaw,%Crypt%
 		return
 ::flaxmakecode::
@@ -1953,46 +1955,58 @@ flaxguitestmethod:
 #IfWinActive
 ::flaxcolorviewer::
 	sleep 300
-	Gui,New,,colorviewerC
-	Gui,New,,colorviewerV
-	gui,margin,0,0
-	Gui, colorviewerV: -Border
-	Gui, colorviewerC:-Border
-	Gui, colorviewerV:Add,Slider,vRV gColorSliderMoved Vertical Invert Range0-255 Center Y0 X180 W40 H300 AltSubmit -BackGround
-	Gui, colorviewerV:Add,Slider,vGV gColorSliderMoved Vertical Invert Range0-255 Center Y0 X220 W40 H300 AltSubmit -BackGround
-	Gui, colorviewerV:Add,Slider,vBV gColorSliderMoved Vertical Invert Range0-255 Center Y0 X260 W40 H300 AltSubmit -BackGround
-	Gui, colorviewerV:Add,Edit,vColorEdit gColorEdited X0 Y281 H18 W89
-	Gui, colorviewerV:Add,Edit,vColorName X91 Y281 H18 W89
-	Gui, colorviewerV:Add,Button,Default hidden1,ColorOK
-	Gui, colorviewerC:+AlwaysOnTop
-	Gui, colorviewerC:Color,%Clopboard%
-	Gui, colorviewerC:Show,Y100 X102 H277 W177
-	Gui, colorviewerV:Show,Y100 X100 H300 W300
+    ColorViewerC := new AGui(, "ColorViewerC")
+    ColorViewerV := new AGui(, "ColorViewerV")
+    ColorViewerC.margin(0, 0)
+    ColorViewerV.margin(0, 0)
+    ColorViewerC.remove_option("Border")
+    ColorViewerV.remove_option("Border")
+    ColorViewerV.add_agc("Slider", "RV", "Vertical Invert Range0-255 Center Y0 X180 W40 H300 AltSubmit -BackGround")
+    ColorViewerV.add_agc("Slider", "GV", "Vertical Invert Range0-255 Center Y0 X220 W40 H300 AltSubmit -BackGround")
+    ColorViewerV.add_agc("Slider", "BV", "Vertical Invert Range0-255 Center Y0 X260 W40 H300 AltSubmit -BackGround")
+    ColorViewerV.RV.method := "ColorSliderMoved"
+    ColorViewerV.GV.method := "ColorSliderMoved"
+    ColorViewerV.BV.method := "ColorSliderMoved"
+    ColorViewerV.add_agc("Edit", "ColorEdit", "X0 Y281 H18 W89")
+    ColorViewerV.ColorEdit.method := "ColorEdited"
+    ColorViewerV.add_agc("Edit", "ColorName", "X91 Y281 H18 W89")
+    ColorViewerV.add_agc("Button", "ColorOK", "Default hidden1")
+    ColorViewerV.ColorOK.method := "ButtonColorOK"
+    ColorViewerC.add_option("AlwaysOnTop")
+    ColorViewerC.Color(Clipboard)
+    ColorViewerC.Close := Func("ColorViewerClose_Escape")
+    ColorViewerV.Close := Func("ColorViewerClose_Escape")
+    ColorViewerC.Escape := Func("ColorViewerClose_Escape")
+    ColorViewerV.Escape := Func("ColorViewerClose_Escape")
+    ColorViewerC.Show("Y100 X102 H277 W177")
+    ColorViewerV.Show("Y100 X100 H300 W300")
 	return
-	colorviewerCGuiEscape:
-	colorviewerVGuiEscape:
-	colorviewerCGuiClose:
-	colorviewerVGuiClose:
-		Gui, colorviewerC:Destroy
-		Gui, colorviewerV:Destroy
-		return
+    ColorViewerClose_Escape(){
+        global
+        ColorViewerC.Destroy()
+        ColorViewerV.Destroy()
+        return
+    }
 	ColorSliderMoved:
-		gui, colorviewerV:submit,NoHide
-		CV := Dec2Hex(RV * 16 ** 4 + GV * 16 ** 2 + BV, 6)
-		GuiControl,colorviewerV:, ColorEdit,%CV%
+        ColorviewerV.Submit("NoHide")
+		CV := Dec2Hex(ColorViewerV.RV.value * 16 ** 4 + ColorViewerV.GV.value * 16 ** 2 + ColorViewerV.BV.value, 6)
+        ColorViewerV.ColorEdit.Text(CV)
 	ColorEdited:
-		gui, colorviewerV:submit,nohide
-		if (RegExMatch(ColorEdit, "[\da-fA-F]{6}") = 1)
+        ColorViewerV.Submit("NoHide")
+		if (RegExMatch(ColorViewerV.ColorEdit.value, "[\da-fA-F]{6}") = 1)
 		{
-			GuiControl, colorviewerV:,RV,% Hex2Dec(SubStr(ColorEdit,1,2))
-			GuiControl, colorviewerV:,GV,% Hex2Dec(SubStr(ColorEdit,3,2))
-			GuiControl, colorviewerV:,BV,% Hex2Dec(SubStr(ColorEdit,5,2))
-			Gui, colorviewerC:Color,%ColorEdit%
+            ColorViewerV.RV.value := Hex2Dec(SubStr(ColorViewerV.ColorEdit.value, 1, 2))
+            ColorViewerV.GV.value := Hex2Dec(SubStr(ColorViewerV.ColorEdit.value, 3, 2))
+            ColorViewerV.BV.value := Hex2Dec(SubStr(ColorViewerV.ColorEdit.value, 5, 2))
+            ColorViewerC.Color(ColorViewerV.ColorEdit.value)
 		}
 		return
 	ButtonColorOK:
-		Gui, colorviewerV:Submit
-		Clipboard := ColorEdit
+        ColorViewerV.Submit()
+        ColorViewerC.Submit()
+		Clipboard := ColorViewerV.ColorEdit.value
+        ColorViewerV.Destroy()
+        ColorViewerC.Destroy()
 		return
 ::flaxpickcolor::
 MouseGetPos,X,Y
