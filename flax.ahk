@@ -2228,7 +2228,8 @@ MouseGetPos,X,Y
     GoSub, TimeTableAddText
     DropDownText := ""
     for Key, Value in timetableFD.dict{
-        DropDownText .= Key . "|"
+        if (Key != "template")
+            DropDownText .= Key . "|"
         if (Key == term){
             DropDownText .= "|"
         }
@@ -2476,10 +2477,10 @@ MouseGetPos,X,Y
     EditTimeTable.Show("", "FlaxEditTimeTable")
 	return
     ETimeTableChangeText:
-        Loop, 6{
-            R := A_Index - 1
-            Loop, 7{
-                C := A_Index - 1
+        Loop, 7{
+            C := A_Index - 1
+            Loop, 6{
+                R := A_Index - 1
                 Text := ""
                 Loop, 4{
                     L := A_Index - 1
@@ -2491,22 +2492,30 @@ MouseGetPos,X,Y
         return
     ETimeTableChanged:
         EditTimeTable.Submit("NoHide")
+        DDLV_value := EditTimeTable.ETimeTableDDLV.value
         if (EditTimeTable.ETimeTableDDLV.value == "new"){
-            InputBox, new_name, , 新規プロファイル名を入力
+            if (not timetableFD.dict.HasKey("template")){
+                msgbox, テンプレートが見つかりませんでした。`n先にテンプレートを作成してください。
+                new_name := "template"
+            }else{
+                InputBox, new_name, , 新規プロファイル名を入力
+            }
             EditTimeTable.ETimeTableDDLV.value := new_name . "||"
+            DDLV_value := "template"
         }
         sterm := term
-        term := EditTimeTable.ETimeTableDDLV.value
+        term := DDLV_value
         GoSub, ETimeTableChangeText
         term := sterm
         return
 	EditTimeTableOK:
         EditTimeTable.Submit()
+        sterm := term
         term := EditTimeTable.ETimeTableDDLV.value
-		Loop, 6{
-			R := A_Index - 1
-			Loop, 7{
-				C := A_Index - 1
+		Loop, 7{
+			C := A_Index - 1
+			Loop, 6{
+				R := A_Index - 1
 				Text := EditTimeTable["E" . R . C].value
 				Text := StrSplit(Text, "`n")
                 if (not timetableFD.dict.HasKey(term))
@@ -2521,6 +2530,8 @@ MouseGetPos,X,Y
 			}
 		}
         configFD.read()
+        if (term == "template")
+            term := sterm
         configFD.dict["CurrentClassTerm"] := term
         configFD.write()
 		timetableFD.write()
