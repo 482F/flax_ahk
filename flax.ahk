@@ -2313,6 +2313,7 @@ MouseGetPos,X,Y
             msgbox, 4, , 授業フォルダが存在しません。作成しますか？           
             ifMsgBox, Yes
             {
+                TimeTable.Destroy()
                 FileCreateDir, %ClassPath%
             }
             else
@@ -2320,11 +2321,11 @@ MouseGetPos,X,Y
                 return
             }
         }
+        TimeTable.Destroy()
         IfExist, %ClassPath%
         {
             Run, %ClassPath%
         }
-        TimeTable.Destroy()
 		return
 ::flaxhanoy::
 	sleep 400
