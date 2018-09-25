@@ -2474,6 +2474,8 @@ MouseGetPos,X,Y
     EditTimeTable.ETimeTableDDLV.method := "ETimeTableChanged"
     EditTimeTable.add_agc("Button", "EditTimeTableOK", "Default", "OK")
     EditTimeTable.EditTimeTableOK.method := "EditTimeTableOK"
+    EditTimeTable.add_agc("Button", "EditTimeTableDelete", , "Delete")
+    EditTimeTable.EditTimeTableDelete.method := "EditTimeTableDelete"
     EditTimeTable.Show("", "FlaxEditTimeTable")
 	return
     ETimeTableChangeText:
@@ -2535,6 +2537,16 @@ MouseGetPos,X,Y
         configFD.dict["CurrentClassTerm"] := term
         configFD.write()
 		timetableFD.write()
+        return
+    EditTimeTableDelete:
+        EditTimeTable.Submit("NoHide")
+        term := EditTimeTable.ETimeTableDDLV.value
+        msgbox, 4, , プロファイル "%term%" を削除します。よろしいですか？
+        ifMsgBox, Yes
+        {
+            timetableFD.dict.Delete(term)
+            EditTimeTable.Destroy()
+        }
         return
 ::flaxgetprocesspath::
 	sleep 100
