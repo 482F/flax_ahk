@@ -2259,10 +2259,10 @@ MouseGetPos,X,Y
         timetableFD.write()
         return
     TimeTableAddText:
-        Loop, 6{
-            R := A_Index - 1
-            Loop, 7{
-                C := A_Index - 1
+        Loop, 7{
+            C := A_Index - 1
+            Loop, 6{
+                R := A_Index - 1
                 x := marg + C * TTCellWidth
                 y := marg + R * TTCellHeight
                 Text := ""
@@ -2447,10 +2447,10 @@ MouseGetPos,X,Y
     EditTimeTable.Margin("50", "50")
 	x := marg
 	y := marg
-	Loop, 6{
-		R := A_Index - 1
-		Loop, 7{
-			C := A_Index - 1
+	Loop, 7{
+		C := A_Index - 1
+		Loop, 6{
+			R := A_Index - 1
 			x := marg + C * TTCellWidth
 			y := marg + R * TTCellHeight
 			Text := ""
