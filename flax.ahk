@@ -2195,10 +2195,11 @@ MouseGetPos,X,Y
 	sleep 300
 	TTCellWidth = 100
 	TTCellHeight = 100
-	Gui, New, , FlaxTimeTable
-	Gui, FlaxTimeTable:Font, MeiryoUI
-	Gui, FlaxTimeTable:Margin, 50, 50
-	Gui, FlaxTimeTable:+AlwaysOnTop -Border
+    TimeTable := new AGui(, "TimeTable")
+    TimeTable.Font("Meiryo UI")
+    TimeTable.Margin("50", "50")
+    TimeTable.add_option("AlwaysOnTop")
+    TimeTable.remove_option("Border")
 	x := marg
 	y := marg
     term := configFD.dict["CurrentClassTerm"]
@@ -2210,8 +2211,9 @@ MouseGetPos,X,Y
             DropDownText .= "|"
         }
     }
-    Gui, FlaxTimeTable:Add, DropDownList, Sort VTimeTableDDLV GTimeTableChanged, %DropDownText%
-	Gui, FlaxTimeTable:Show, , FlaxTimeTable
+    TimeTable.add_agc("DropDownList", "TimeTableDDLV", "Sort", DropDownText)
+    TimeTable.TimeTableDDLV.method := "TimeTableChanged"
+    TimeTable.Show("", "FlaxTimeTable")
 	return
     TimeTableAddText:
         Loop, 6{
@@ -2225,7 +2227,8 @@ MouseGetPos,X,Y
                     L := A_Index - 1
                     Text .= "`n" timetableFD.dict[term][R][C][L]
                 }
-                Gui, FlaxTimeTable:Add, Text, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center gOpenClassFolder vTimeTableCell%R%%C%, %Text%
+                TimeTable.add_agc("Text", "TimeTableCell" . R . C, "w" . TTCellWidth . " h" . TTCellHeight . " x" . x . " y" . y . " Border Center", Text)
+                TimeTable["TimeTableCell" . R . C].method := "OpenClassFolder"
             }
         }
         return
@@ -2239,14 +2242,14 @@ MouseGetPos,X,Y
                     L := A_Index - 1
                     Text .= "`n" . timetableFD.dict[term][R][C][L]
                 }
-                GuiControl, , TimeTableCell%R%%C%, %Text%
+                TimeTable["TimeTableCell" . R . C].value := Text
             }
         }
         return
     TimeTableChanged:
-        Gui, FlaxTimeTable:Submit, NoHide
+        TimeTable.Submit("NoHide")
         sterm := term
-        term := TimeTableDDLV
+        term := TimeTable.TimeTableDDLV.value
         GoSub, TimeTableChangeText
         term := sterm
         return
@@ -2263,7 +2266,7 @@ MouseGetPos,X,Y
 		ClassPath := pathFD.dict["class"] . term . "\" . ClassName
         IfNotExist, %ClassPath%
         {
-            Gui, FlaxTimeTable:+OwnDialogs
+            TimeTable.add_option("OwnDialogs")
             msgbox, 4, , 授業フォルダが存在しません。作成しますか？           
             ifMsgBox, Yes
             {
@@ -2278,11 +2281,7 @@ MouseGetPos,X,Y
         {
             Run, %ClassPath%
         }
-        Gui, FlaxTimeTable:Destroy
-		return
-	FlaxTimeTableGuiEscape:
-	FlaxTimeTableGuiClose:
-		Gui, FlaxTimeTable:Destroy
+        TimeTable.Destroy()
 		return
 ::flaxhanoy::
 	sleep 400
