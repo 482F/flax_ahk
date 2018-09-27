@@ -3168,7 +3168,7 @@ MouseGestureExecute:
 		GoSub, MakeLink
 		return
 	MakeLink:
-		CDPath := GetCurrentDirectory()
+		CDPath := RegExReplace(GetCurrentDirectory(), "\\$", "")
 		if (CDPath = "Error"){
 			msgbox, パスが不正
 			return
@@ -3180,22 +3180,39 @@ MouseGestureExecute:
             LoopField := RegExReplace(A_LoopField, "\r|\n", "")
             SplitPath, LoopField, FileName
             DestPath := CDPath . "\" . FileName
-            if (mode = "sym"){
-                DestPath .= "_sym"
-                param := ""
-                if (JudgeDir(LoopField)){
-                    param := "/d"
+            target_path_is_dir := False
+            param := ""
+            if (JudgeDir(LoopField)){
+                target_path_is_dir := True
+                param := "/d"
+            }
+            if (C_S_x){
+                swp := LoopField
+                LoopField := DestPath
+                DestPath := swp
+                if (target_path_is_dir){
+                    FileMoveDir, %DestPath%, %LoopField%
+                }else{
+                    FileMove, %DestPath%, %LoopField%
                 }
-                command := "mklink " . param . " """ . DestPath . """ """ LoopField . """"
-                msgjoin(command)
+            }
+            if (mode = "sym"){
+                command := "mklink " . param . " """ . DestPath . "_sym"" """ LoopField . """"
                 msgjoin(CmdRun(command, 0, "admin"))
             }else if (mode = "shr"){
-                DestPath .= ".lnk"
-                FileCreateShortcut, %LoopField%, %DestPath%
+                FileCreateShortcut, %LoopField%, %DestPath%.lnk
             }
         }
-		Clipboard := Clip
+        if (not C_S_x){
+            Clipboard := Clip
+        }else{
+            C_S_x := False
+        }
 		return
+    ^+x::
+        send, ^x
+        C_S_x := True
+        return
 	^t::
 		run,::{20D04FE0-3AEA-1069-A2D8-08002B30309D}
 		return
