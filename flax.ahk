@@ -1306,13 +1306,7 @@ ExecuteTimer:
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	k := new AGui()
-	k_listbox := new AGuiControl(k, "ListBox", "k_ListBox")
-	k_listbox.value := "A|B|C|D"
-	k_listbox.choose("2")
-	k_button := new AGuiControl(k, "Button", "k_button")
-	k_button.method := "flaxguitestmethod"
-	k.show("autosize")
+    GoSub, ::flaxedittimetable
 	return
 flaxguitestmethod:
 	msgjoin("A")
@@ -1702,11 +1696,11 @@ flaxguitestmethod:
 	{
 		if (A_Cursor = "Unknown")
 			break
-		MouseMove,460,594
-		MouseMove,461,594
+		MouseMove,460,610
+		MouseMove,465,610
 		sleep 300
 	}
-	MouseClick,L,461,594
+	MouseClick,L,460,610
 	sleep 500
 	send, {Tab 15}
 	sleep 500
@@ -2190,6 +2184,7 @@ MouseGetPos,X,Y
 	return
 ::flaxtimetable::
 	timetableFD.read()
+    configFD.read()
 	sleep 300
 	TTCellWidth = 100
 	TTCellHeight = 100
@@ -2199,24 +2194,58 @@ MouseGetPos,X,Y
 	Gui, FlaxTimeTable:+AlwaysOnTop -Border
 	x := marg
 	y := marg
-	Loop, 6{
-		R := A_Index - 1
-		Loop, 7{
-			C := A_Index - 1
-			x := marg + C * TTCellWidth
-			y := marg + R * TTCellHeight
-			Text := ""
-			Loop, 4{
-				L := A_Index - 1
-				Text .= "`n" timetableFD.dict[R][C][L]
-			}
-			Gui, FlaxTimeTable:Add, Text, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center gOpenClassFolder, %Text%
-		}
-	}
+    term := configFD.dict["CurrentClassTerm"]
+    GoSub, TimeTableAddText
+    DropDownText := ""
+    for Key, Value in timetableFD.dict{
+        DropDownText .= Key . "|"
+        if (Key == term){
+            DropDownText .= "|"
+        }
+    }
+    Gui, FlaxTimeTable:Add, DropDownList, Sort VTimeTableDDLV GTimeTableChanged, %DropDownText%
 	Gui, FlaxTimeTable:Show, , FlaxTimeTable
 	return
+    TimeTableAddText:
+        Loop, 6{
+            R := A_Index - 1
+            Loop, 7{
+                C := A_Index - 1
+                x := marg + C * TTCellWidth
+                y := marg + R * TTCellHeight
+                Text := ""
+                Loop, 4{
+                    L := A_Index - 1
+                    Text .= "`n" timetableFD.dict[term][R][C][L]
+                }
+                Gui, FlaxTimeTable:Add, Text, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center gOpenClassFolder vTimeTableCell%R%%C%, %Text%
+            }
+        }
+        return
+    TimeTableChangeText:
+        Loop, 6{
+            R := A_Index - 1
+            Loop, 7{
+                C := A_Index - 1
+                Text := ""
+                Loop, 4{
+                    L := A_Index - 1
+                    Text .= "`n" . timetableFD.dict[term][R][C][L]
+                }
+                GuiControl, , TimeTableCell%R%%C%, %Text%
+            }
+        }
+        return
+    TimeTableChanged:
+        Gui, FlaxTimeTable:Submit, NoHide
+        sterm := term
+        term := TimeTableDDLV
+        GoSub, TimeTableChangeText
+        term := sterm
+        return
 	OpenClassFolder:
-		Loop, Parse, A_GuiControl, `n
+        GuiControlGet, ClassName, , %A_GuiControl%
+		Loop, Parse, ClassName, `n
 		{
 			if (A_Index == 2)
 			{
@@ -2224,9 +2253,25 @@ MouseGetPos,X,Y
 				break
 			}
 		}
-		ClassPath := pathFD.dict["class"] . ClassName
-		Run, %ClassPath%
-		Gui, FlaxTimeTable:Destroy
+		ClassPath := pathFD.dict["class"] . term . "\" . ClassName
+        IfNotExist, %ClassPath%
+        {
+            Gui, FlaxTimeTable:+OwnDialogs
+            msgbox, 4, , 授業フォルダが存在しません。作成しますか？           
+            ifMsgBox, Yes
+            {
+                FileCreateDir, %ClassPath%
+            }
+            else
+            {
+                return
+            }
+        }
+        IfExist, %ClassPath%
+        {
+            Run, %ClassPath%
+        }
+        Gui, FlaxTimeTable:Destroy
 		return
 	FlaxTimeTableGuiEscape:
 	FlaxTimeTableGuiClose:
@@ -2343,6 +2388,8 @@ MouseGetPos,X,Y
 	return
 ::flaxedittimetable::
 	timetableFD.read()
+    pathFD.read()
+    term := configFD.dict["CurrentClassTerm"]
 	sleep 300
 	TTCellWidth = 100
 	TTCellHeight = 100
@@ -2360,31 +2407,70 @@ MouseGetPos,X,Y
 			Text := ""
 			Loop, 4{
 				L := A_Index - 1
-				Text .= "`n" timetableFD.dict[R][C][L]
+				Text .= "`n" timetableFD.dict[term][R][C][L]
 			}
 			Gui, FlaxEditTimeTable:Add, Edit, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center vE%R%%C% -VScroll, %Text%
 		}
 	}
+    DropDownText := "new|"
+    for Key, Value in timetableFD.dict{
+        DropDownText .= Key . "|"
+        if (Key == term){
+            DropDownText .= "|"
+        }
+    }
+    Gui, FlaxEditTimeTable:Add, DropDownList, Sort VETimeTableDDLV GETimeTableChanged, %DropDownText%
 	Gui, FlaxEditTimeTable:Add, Button, Default gEditTimeTableOK, OK
 	Gui, FlaxEditTimeTable:Show, , FlaxEditTimeTable
 	return
+    ETimeTableChangeText:
+        Loop, 6{
+            R := A_Index - 1
+            Loop, 7{
+                C := A_Index - 1
+                Text := ""
+                Loop, 4{
+                    L := A_Index - 1
+                    Text .= "`n" . timetableFD.dict[term][R][C][L]
+                }
+                GuiControl, , E%R%%C%, %Text%
+            }
+        }
+        return
+    ETimeTableChanged:
+        Gui, FlaxEditTimeTable:Submit, Nohide
+        if (ETimeTableDDLV == "new"){
+            InputBox, new_name, , 新規プロファイル名を入力
+            GuiControl, , ETimeTableDDLV, %new_name%||
+        }
+        sterm := term
+        term := ETimeTableDDLV
+        GoSub, ETimeTableChangeText
+        term := sterm
+        return
 	EditTimeTableOK:
 		Gui, FlaxEditTimeTable:Submit
+        term := ETimeTableDDLV
 		Loop, 6{
 			R := A_Index - 1
 			Loop, 7{
 				C := A_Index - 1
 				Text := E%R%%C%
 				Text := StrSplit(Text, "`n")
+                if (not timetableFD.dict.HasKey(term))
+                    timetableFD.dict[term] := Object()
+                if (not timetableFD.dict[term].HasKey(R))
+                    timetableFD.dict[term][R] := Object()
+                if (not timetableFD.dict[term][R].HasKey(C))
+                    timetableFD.dict[term][R][C] := Object()
 				Loop, 4{
-					if (not timetableFD.dict.HasKey(R))
-						timetableFD.dict[R] := Object()
-					if (not timetableFD.dict[R].HasKey(C))
-						timetableFD.dict[R][C] := Object()
-					timetableFD.dict[R][C][A_Index - 1] := Text[A_Index + 1]
+					timetableFD.dict[term][R][C][A_Index - 1] := Text[A_Index + 1]
 				}
 			}
 		}
+        configFD.read()
+        configFD.dict["CurrentClassTerm"] := term
+        configFD.write()
 		timetableFD.write()
 	FlaxEditTimeTableGuiEscape:
 	FlaxEditTimeTableGuiClose:
@@ -2398,7 +2484,9 @@ MouseGetPos,X,Y
 	sleep 1000
 	ToolTip,
 	return
-
+::flaxregisterlauncher::
+    GoSub, register_launcher
+    return
 
 ;hotkey
 ;ホットキー
@@ -2498,7 +2586,10 @@ MouseGetPos,X,Y
 				Run, %ItemCommand%
 				return
 			}
-		}
+		}else if (ItemType == "Label"){
+            GoSub, %ItemCommand%
+            return
+        }
 		msgbox,404 Type
 		return
 	HiddenEdited:
@@ -2714,6 +2805,37 @@ vk1D & 2::send,7
 vk1D & 3::send,8
 vk1D & 4::send,9
 vk1D & 5::send,0
+vk1D & LButton::
+    RapidButton := "LButton"
+    GoSub, RapidMouse
+    return
+vk1D & RButton::
+    RapidButton := "RButton"
+    GoSub, RapidMouse
+    return
+vk1D & MButton::
+    RapidButton := "MButton"
+    GoSub, RapidMouse
+    return
+RapidMouse:
+    if (RetKeyState("Ctrl")){
+        KeepRapid := True
+    }
+    if (RetKeyState("Shift")){
+        send, {%RapidButton% Down}
+        sleep 100
+        while (not RetKeyState("Esc") and not RetKeyState(RapidButton)){
+            sleep 10
+        }
+        send, {%RapidButton% Up}
+    }else{
+        while ((RetKeyState(RapidButton) and RetKeyState("vk1D")) or (KeepRapid and not RetKeyState("Esc") and not RetKeyState(RapidButton))){
+            sleep 10
+            send, {%RapidButton%}
+        }
+    }
+    KeepRapid := False
+    return
 
 #^l::send,^#{Right}
 #^h::send,^#{Left}
@@ -3058,29 +3180,51 @@ MouseGestureExecute:
 		GoSub, MakeLink
 		return
 	MakeLink:
-		CDPath := GetCurrentDirectory()
+		CDPath := RegExReplace(GetCurrentDirectory(), "\\$", "")
 		if (CDPath = "Error"){
 			msgbox, パスが不正
 			return
 		}
 		Clip := ClipboardAll
 		Clipboard := Clipboard
-		SplitPath, Clipboard, FileName
-		DestPath := CDPath . "\" . FileName
-		if (mode = "sym"){
-			DestPath .= "_sym"
-			param := ""
-			if (JudgeDir(Clipboard)){
-				param := "/d"
-			}
-			command := "mklink " . param . " """ . DestPath . """ """ Clipboard . """"
-			msgjoin(CmdRun(command, 0, "admin"))
-		}else if (mode = "shr"){
-			DestPath .= ".lnk"
-			FileCreateShortcut, %Clipboard%, %DestPath%
-		}
-		Clipboard := Clip
+        Loop, Parse, Clipboard, `n
+        {
+            LoopField := RegExReplace(A_LoopField, "\r|\n", "")
+            SplitPath, LoopField, FileName
+            DestPath := CDPath . "\" . FileName
+            target_path_is_dir := False
+            param := ""
+            if (JudgeDir(LoopField)){
+                target_path_is_dir := True
+                param := "/d"
+            }
+            if (C_S_x){
+                swp := LoopField
+                LoopField := DestPath
+                DestPath := swp
+                if (target_path_is_dir){
+                    FileMoveDir, %DestPath%, %LoopField%
+                }else{
+                    FileMove, %DestPath%, %LoopField%
+                }
+            }
+            if (mode = "sym"){
+                command := "mklink " . param . " """ . DestPath . "_sym"" """ LoopField . """"
+                msgjoin(CmdRun(command, 0, "admin"))
+            }else if (mode = "shr"){
+                FileCreateShortcut, %LoopField%, %DestPath%.lnk
+            }
+        }
+        if (not C_S_x){
+            Clipboard := Clip
+        }else{
+            C_S_x := False
+        }
 		return
+    ^+x::
+        send, ^x
+        C_S_x := True
+        return
 	^t::
 		run,::{20D04FE0-3AEA-1069-A2D8-08002B30309D}
 		return
@@ -3167,6 +3311,7 @@ MouseGestureExecute:
 			Gui, FlaxRegisterLauncher:Add,Radio, vRApp %RCApp%, &Application
 			Gui, FlaxRegisterLauncher:Add,Radio, vRLoc %RCLoc%, &LocalPath
 			Gui, FlaxRegisterLauncher:Add,Radio, vRURL, &URL
+			Gui, FlaxRegisterLauncher:Add,Radio, vRLab, &Label
 			Gui, FlaxRegisterLauncher:Add,Text,,Computer
 			Gui, FlaxRegisterLauncher:Add,Radio, vRThi Checked, &ThisComputer
 			Gui, FlaxRegisterLauncher:Add,Radio, vRAll, &AllComputer
@@ -3192,6 +3337,8 @@ MouseGestureExecute:
 					EType := "LocalPath"
 				else if (RURL = 1)
 					EType := "URL"
+                else if (RLab = 1)
+                    EType := "Label"
 				launcherFD.fdict[EName][B_ComputerName]["type"] := EType
 				launcherFD.write()
 				Gui, FlaxRegisterLauncher:Destroy
