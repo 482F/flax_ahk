@@ -15,7 +15,7 @@
 		- Command
 			- パスや URL。
 		- Type
-			- 登録対象がフォルダならば LocalPath、ファイルやアプリケーションならば Application。URL も登録できるがブラウザ上で GUI は表示されないので、Command に URL を張り付ける必要がある。
+			- 登録対象がフォルダならば LocalPath、ファイルやアプリケーションならば Application。URL, Label も登録できるがブラウザ上で GUI は表示されないので、Command に URL, Label を張り付ける必要がある。
 		- Computer
 			- 登録しているコンピュータにのみ登録する際には ThisComputer、すべてのコンピュータに同一のコマンドを登録するならば AllComputer。同じ設定ファイルでコンピュータ毎に挙動を変更できる。
 ## マウスジェスチャー
