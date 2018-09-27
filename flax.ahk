@@ -3302,6 +3302,7 @@ MouseGestureExecute:
 			Gui, FlaxRegisterLauncher:Add,Radio, vRApp %RCApp%, &Application
 			Gui, FlaxRegisterLauncher:Add,Radio, vRLoc %RCLoc%, &LocalPath
 			Gui, FlaxRegisterLauncher:Add,Radio, vRURL, &URL
+			Gui, FlaxRegisterLauncher:Add,Radio, vRLab, &Label
 			Gui, FlaxRegisterLauncher:Add,Text,,Computer
 			Gui, FlaxRegisterLauncher:Add,Radio, vRThi Checked, &ThisComputer
 			Gui, FlaxRegisterLauncher:Add,Radio, vRAll, &AllComputer
@@ -3327,6 +3328,8 @@ MouseGestureExecute:
 					EType := "LocalPath"
 				else if (RURL = 1)
 					EType := "URL"
+                else if (RLab = 1)
+                    EType := "Label"
 				launcherFD.fdict[EName][B_ComputerName]["type"] := EType
 				launcherFD.write()
 				Gui, FlaxRegisterLauncher:Destroy
