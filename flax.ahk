@@ -2477,7 +2477,9 @@ MouseGetPos,X,Y
 	sleep 1000
 	ToolTip,
 	return
-
+::flaxregisterlauncher::
+    GoSub, register_launcher
+    return
 
 ;hotkey
 ;ホットキー
