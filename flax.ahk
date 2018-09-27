@@ -3168,7 +3168,7 @@ MouseGestureExecute:
 		GoSub, MakeLink
 		return
 	MakeLink:
-		CDPath := GetCurrentDirectory()
+		CDPath := RegExReplace(GetCurrentDirectory(), "\\$", "")
 		if (CDPath = "Error"){
 			msgbox, パスが不正
 			return
