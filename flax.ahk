@@ -37,7 +37,6 @@
 AutoTrim,off
 SetWorkingDir,%A_ScripdDir%
 SetTitleMatchMode,2
-SendMode,InputThenPlay
 ;初期変数
 DefVars:
 {
@@ -66,10 +65,6 @@ GoSub,DefVars
 
 return
 ;Gui の特殊ラベル
-GuiClose:
-GuiEscape:
-	Gui,Destroy
-	return
 GuiDropFiles:
 	ifWinExist,VirtualFolder
 		GoSub,VirtualFolderDropFiles
@@ -492,7 +487,9 @@ Hex2Dec(Value, NoD=0){
 }
 Dec2Hex(Value, NoD=0){
 	K := Object(0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, "A", 11, "B", 12, "C", 13, "D", 14, "E", 15, "F")
-	if (Value != 0)
+    if (Value == "")
+        return
+	else if (Value != 0)
 		return FillStr(Dec2Hex(Value // 16, NoC) . K[mod(Value, 16)], NoD, 0)
 	return
 }
@@ -804,6 +801,26 @@ GetProcessPath(){
 	WinGet,AWPP,ProcessPath,A
 	return AWPP
 }
+AGUIClose(GuiHwnd){
+	AGui.HwndDict[GuiHwnd].close()
+	return
+}
+AGUIEscape(GuiHwnd){
+	AGui.HwndDict[GuiHwnd].escape()
+	return true
+}
+AGuiSize(GuiHwnd){
+    AGui.HwndDict[GuiHwnd].size()
+    return
+}
+AGuiDropFiles(GuiHwnd){
+    AGui.HwndDict[GuiHwnd].dropfiles()
+    return
+}
+AGuiContextMenu(GuiHwnd){
+    AGui.HwndDict[GuiHwnd].contextmenu()
+    return
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
@@ -1113,6 +1130,197 @@ class AFile{
 	}
 
 }
+class AGui{
+	static HwndDict := Object()
+	__New(options:="", title:=""){
+		Gui, New, +HwndHwnd %options%, %title%
+		this.Hwnd := Hwnd
+		Gui, %Hwnd%:+LabelAGui
+		AGui.HwndDict[Hwnd] := this
+	}
+	do(command, params*){
+		Hwnd := this.Hwnd
+		Gui, %Hwnd%:%command%, % params[1], % params[2], % params[3]
+		return
+	}
+	add_agc(type, name, param="", text=""){
+		this[name] := new AGuiControl(this, type, name, param, text)
+		return
+	}
+	show(options:="", title:=""){
+		this.do("show", options, title)
+		return
+	}
+	submit(NoHide:=False){
+		k := ""
+		if (NoHide)
+			k := "NoHide"
+		this.do("submit", k)
+		return
+	}
+	cancel(){
+		this.do("Cancel")
+		return
+	}
+	font(options:="", FontName:=""){
+		this.do("Font", options, FontName)
+		return
+	}
+	color(WindowColor:="", ControlColor:=""){
+		this.do("Color", WindowColor, ControlColor)
+		return
+	}
+	margin(x:="", y:=""){
+		this.do("Margin", x, y)
+		return
+	}
+	add_option(option){
+		this.do("+" . option)
+		return
+	}
+	remove_option(option){
+		this.do("-" . option)
+		return
+	}
+	menu(MenuName:=""){
+		this.do("Menu", MenuName)
+		return
+	}
+	hide(){
+		this.do("Hide")
+		return
+	}
+	minimize(){
+		this.do("Minimize")
+		return
+	}
+	maximize(){
+		this.do("Maximize")
+		return
+	}
+	restore(){
+		this.do("Restore")
+		return
+	}
+	flash(Off:=False){
+		k := ""
+		if (Off)
+			k := "Off"
+		this.do("Flash", k)
+		return
+	}
+	add(ControlType, Options:="", Text:=""){
+		this.do("Add", ControlType, Options, Text)
+		return
+	}
+	close(){
+		this.destroy()
+		return
+	}
+	escape(){
+		this.destroy()
+		return
+	}
+    size(){
+        return
+    }
+    dropfiles(){
+        return
+    }
+    contextmenu(){
+        return
+    }
+	destroy(){
+		Hwnd := this.Hwnd
+		if not (AGui.HwndDict.HasKey(Hwnd))
+			return
+		Gui, %Hwnd%:destroy
+		AGui.HwndDict.Delete(Hwnd)
+		return
+	}
+}
+class AGuiControl{
+	__New(target_gui, type, name="", param="", text=""){
+		global
+		name := "AGuiControlVar_" . name
+		%name% := ""
+		if (name == "AGuiControlVar_")
+			name := ""
+		target_gui.add(type, "v" . name . " " . param, text)
+		this.gui := target_gui
+		this.name := name
+	}
+	__Set(name, value){
+		if (name = "value"){
+			this.do("", value)
+			return
+		}else if (name = "method"){
+			this.add_option("g" . value)
+			return
+		}else{
+			Object.__Set(this, name, value)
+		}
+	}
+	__Get(name){
+		if (name = "value"){
+			name := this.name
+			value := %name%
+			return %value%
+		}else{
+			return Object.__Get(this, name)
+		}
+	}
+	do(sub_command, param=""){
+		name := this.name
+		sub_command := this.gui.Hwnd . ":" . sub_command
+		GuiControl, %sub_command%, %name%, %param%
+		return
+	}
+	text(string){
+		this.do("text", string)
+	}
+	move(param){
+		this.do("move", param)
+	}
+	movedraw(param){
+		this.do("movedraw", param)
+	}
+	focus(){
+		this.do("focus")
+	}
+	enable(){
+		this.do("enable")
+	}
+	disable(){
+		this.do("disable")
+	}
+	hide(){
+		this.do("hide")
+	}
+	show(){
+		this.do("show")
+	}
+	choose(n){
+		this.do("choose", n)
+	}
+	choosestring(string){
+		this.do("choosestring", string)
+	}
+	font(param){
+		this.do("font", param)
+	}
+	add_option(option){
+		this.do("+" . option)
+	}
+	remove_option(option){
+		this.do("-" . option)
+	}
+}
+class AGuiControlText extends AGuiControl{
+	__New(target_gui){
+		base.__New(target_gui, "Text")
+	}
+}
 ExecuteTimer:
 	timerFD.execute_next()
 	return
@@ -1121,9 +1329,10 @@ ExecuteTimer:
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-	k := new TestObj(3)
-	k.v2 := 8
-	msgjoin(k.value, k.v2)
+    GoSub, ::flaxedittimetable
+	return
+flaxguitestmethod:
+	msgjoin("A")
 	return
 ::flaxcalc::
 	Sleep 100
@@ -1281,49 +1490,47 @@ ExecuteTimer:
 	return
 ::flaxmakecodegui::
 	sleep 100
-	Gui, New, , FlaxCode_Maker
-	Gui, FlaxCode_Make:Font,,Meiryo UI
-	Gui, FlaxCode_Make:Margin,10,10
-	Gui, FlaxCode_Make:Add,Text,,&Clear Text
-	Gui, FlaxCode_Make:Add,Edit,W500 Multi Password* vCText
-	Gui, FlaxCode_Make:Add,Text,,&Seed
-	Gui, FlaxCode_Make:Add,Edit,W500 Password* vSeed
-	Gui, FlaxCode_Make:Add,Checkbox,Checked1 vUC,&Uppercase
-	Gui, FlaxCode_Make:Add,Checkbox,Checked1 vLC,&Lowercase
-	Gui, FlaxCode_Make:Add,Checkbox,Checked1 vNC,&Number
-	Gui, FlaxCode_Make:Add,Checkbox,Checked0 vJC,&Japanese
-	Gui, FlaxCode_Make:Add,Checkbox,Checked0 vAC, &All
-	Gui, FlaxCode_Make:Add,Text,,&Others
-	Gui, FlaxCode_Make:Add,Edit,W250 vOthers
-	Gui, FlaxCode_Make:Add,Button,Default gMakeCodeGuiOK,OK
-	Gui, FlaxCode_Make:-Resize
-	Gui, FlaxCode_Make:Show,Autosize,flaxCode_Maker
+	FlaxCode_Maker := new AGui(, "FlaxCode_Maker")
+	FlaxCode_Maker.Font("Meiryo UI")
+	FlaxCode_Maker.Margin(10, 10)
+	FlaxCode_Maker.add_agc("Text", "", , "&Clear Text")
+	FlaxCode_Maker.add_agc("Edit", "CText", "W500 Multi Password*")
+	FlaxCode_Maker.add_agc("Text", "", , "&Seed")
+	FlaxCode_Maker.add_agc("Edit", "Seed", "W500 Password*")
+    FlaxCode_Maker.add_agc("Checkbox", "UC", "Checked1", "&Uppercase")
+    FlaxCode_Maker.add_agc("Checkbox", "LC", "Checked1", "&Lowercase")
+    FlaxCode_Maker.add_agc("Checkbox", "NC", "Checked1", "&Number")
+    FlaxCode_Maker.add_agc("Checkbox", "JC", "Checked0", "&Japanese")
+    FlaxCode_Maker.add_agc("Checkbox", "AC", "Checked0", "&All")
+    FlaxCode_Maker.add_agc("Text", "TOthers", , "&Others")
+    FlaxCode_Maker.add_agc("Edit", "Others", "W250")
+    FlaxCode_Maker.add_agc("Button", "OK", "Default", "OK")
+    FlaxCode_Maker.OK.method := "MakecodeGuiOK"
+    FlaxCode_Maker.remove_option("Resize")
+    FlaxCode_Maker.Show("AutoSize", "FlaxCode_Maker")
 	return
-	FlaxCode_MakeGuiClose:
-	FlaxCode_MakeGuiEscape:
-		Gui, FlaxCode_Make:Destroy
-		return
 	MakeCodeGuiOK:
-		Gui, FlaxCode_Make:Submit
-		Gui, FlaxCode_Make:Destroy
+        FlaxCode_Maker.Submit()
+        FlaxCode_Maker.Destroy()
 		Usable =
 		UpperCase = ABCDEFGHIJKLMNOPQRSTUVWXYZ
 		LowerCase = abcdefghijklmnopqrstuvwxyz
 		NumberChar = 0123456789
 		FileRead,JapaneseChar,JapaneseChars.txt
+        CText := FlaxCode_Maker.CText.value
 		Loop,Parse,CText
 		{
 			IfInString,UpperCase,%A_LoopField%
 			{
-				UC := 1
+				FlaxCode_Maker.UC.value := 1
 			}
 			IfInString,LowerCase,%A_LoopField%
 			{
-				LC := 1
+				FlaxCode_Maker.LC.value := 1
 			}
 			IfInString,NumberChar,%A_LoopField%
 			{
-				NC := 1
+				FlaxCode_Maker.NC.value := 1
 			}
 			;K := UpperCase . LowerCase . NumberChar . Others . JapaneseChar
 			;IfNotInString,K,%A_LoopField%
@@ -1331,39 +1538,39 @@ ExecuteTimer:
 			;	Usable := Usable . A_LoopField
 			;}
 		}
-		if (UC = 1)
+		if (FlaxCode_Maker.UC.value = 1)
 		{
 			Usable := Usable . UpperCase
 		}
-		if (LC = 1)
+		if (FlaxCode_Maker.LC.value = 1)
 		{
 			Usable := Usable . LowerCase
 		}
-		if (NC = 1)
+		if (FlaxCode_Maker.NC.value = 1)
 		{
 			Usable := Usable . NumberChar
 		}
-		if (JC = 1)
+		if (FlaxCode_Maker.JC.value = 1)
 		{
 			Usable := Usable . JapaneseChar
 		}
-		if (AC = 1)
+		if (FlaxCode_Maker.AC.value = 1)
 		{
 			Usable := Usable . """`#!$`%&()=~|-^[@]:/.,{``}*+_?><,\;"
 		}
-		Usable := Usable . Others
+		Usable := Usable . FlaxCode_Maker.Others.value
 		Usable := RegExReplace(Usable,".","$0`n")
 		sort,Usable,C U
 		Usable := RegExReplace(Usable,"`n","")
-		if (AC = 1)
+		if (FlaxCode_Maker.AC.value = 1)
 		{
 			Usable := Usable . "`　` `n`t"
 		}
-		if (Seed = "")
+		if (FlaxCode_Maker.Seed.value = "")
 		{
-			Seed := CText
+			FlaxCode_Maker.Seed.value := CText
 		}
-		Crypt := MakeCodeFunc(Usable, CText, Seed)
+		Crypt := MakeCodeFunc(Usable, CText, FlaxCode_Maker.Seed.value)
 		SendRaw,%Crypt%
 		return
 ::flaxmakecode::
@@ -1484,7 +1691,7 @@ ExecuteTimer:
 		return,Crypt
 	}
 ::flaxsendclip::
-	send,% clipboard
+	send, %clipboard%
 	return
 ::flaxrestartexplorer::
 	Process,Close,explorer.exe
@@ -1505,11 +1712,11 @@ ExecuteTimer:
 	{
 		if (A_Cursor = "Unknown")
 			break
-		MouseMove,460,594
-		MouseMove,461,594
+		MouseMove,460,610
+		MouseMove,465,610
 		sleep 300
 	}
-	MouseClick,L,461,594
+	MouseClick,L,460,610
 	sleep 500
 	send, {Tab 15}
 	sleep 500
@@ -1769,46 +1976,58 @@ ExecuteTimer:
 #IfWinActive
 ::flaxcolorviewer::
 	sleep 300
-	Gui,New,,colorviewerC
-	Gui,New,,colorviewerV
-	gui,margin,0,0
-	Gui, colorviewerV: -Border
-	Gui, colorviewerC:-Border
-	Gui, colorviewerV:Add,Slider,vRV gColorSliderMoved Vertical Invert Range0-255 Center Y0 X180 W40 H300 AltSubmit -BackGround
-	Gui, colorviewerV:Add,Slider,vGV gColorSliderMoved Vertical Invert Range0-255 Center Y0 X220 W40 H300 AltSubmit -BackGround
-	Gui, colorviewerV:Add,Slider,vBV gColorSliderMoved Vertical Invert Range0-255 Center Y0 X260 W40 H300 AltSubmit -BackGround
-	Gui, colorviewerV:Add,Edit,vColorEdit gColorEdited X0 Y281 H18 W89
-	Gui, colorviewerV:Add,Edit,vColorName X91 Y281 H18 W89
-	Gui, colorviewerV:Add,Button,Default hidden1,ColorOK
-	Gui, colorviewerC:+AlwaysOnTop
-	Gui, colorviewerC:Color,%Clopboard%
-	Gui, colorviewerC:Show,Y100 X102 H277 W177
-	Gui, colorviewerV:Show,Y100 X100 H300 W300
+    ColorViewerC := new AGui(, "ColorViewerC")
+    ColorViewerV := new AGui(, "ColorViewerV")
+    ColorViewerC.margin(0, 0)
+    ColorViewerV.margin(0, 0)
+    ColorViewerC.remove_option("Border")
+    ColorViewerV.remove_option("Border")
+    ColorViewerV.add_agc("Slider", "RV", "Vertical Invert Range0-255 Center Y0 X180 W40 H300 AltSubmit -BackGround")
+    ColorViewerV.add_agc("Slider", "GV", "Vertical Invert Range0-255 Center Y0 X220 W40 H300 AltSubmit -BackGround")
+    ColorViewerV.add_agc("Slider", "BV", "Vertical Invert Range0-255 Center Y0 X260 W40 H300 AltSubmit -BackGround")
+    ColorViewerV.RV.method := "ColorSliderMoved"
+    ColorViewerV.GV.method := "ColorSliderMoved"
+    ColorViewerV.BV.method := "ColorSliderMoved"
+    ColorViewerV.add_agc("Edit", "ColorEdit", "X0 Y281 H18 W89")
+    ColorViewerV.ColorEdit.method := "ColorEdited"
+    ColorViewerV.add_agc("Edit", "ColorName", "X91 Y281 H18 W89")
+    ColorViewerV.add_agc("Button", "ColorOK", "Default hidden1")
+    ColorViewerV.ColorOK.method := "ButtonColorOK"
+    ColorViewerC.add_option("AlwaysOnTop")
+    ColorViewerC.Color(Clipboard)
+    ColorViewerC.Close := Func("ColorViewerClose_Escape")
+    ColorViewerV.Close := Func("ColorViewerClose_Escape")
+    ColorViewerC.Escape := Func("ColorViewerClose_Escape")
+    ColorViewerV.Escape := Func("ColorViewerClose_Escape")
+    ColorViewerC.Show("Y100 X102 H277 W177")
+    ColorViewerV.Show("Y100 X100 H300 W300")
 	return
-	colorviewerCGuiEscape:
-	colorviewerVGuiEscape:
-	colorviewerCGuiClose:
-	colorviewerVGuiClose:
-		Gui, colorviewerC:Destroy
-		Gui, colorviewerV:Destroy
-		return
+    ColorViewerClose_Escape(){
+        global
+        ColorViewerC.Destroy()
+        ColorViewerV.Destroy()
+        return
+    }
 	ColorSliderMoved:
-		gui, colorviewerV:submit,NoHide
-		CV := Dec2Hex(RV * 16 ** 4 + GV * 16 ** 2 + BV, 6)
-		GuiControl,colorviewerV:, ColorEdit,%CV%
+        ColorviewerV.Submit("NoHide")
+		CV := Dec2Hex(ColorViewerV.RV.value * 16 ** 4 + ColorViewerV.GV.value * 16 ** 2 + ColorViewerV.BV.value, 6)
+        ColorViewerV.ColorEdit.Text(CV)
 	ColorEdited:
-		gui, colorviewerV:submit,nohide
-		if (RegExMatch(ColorEdit, "[\da-fA-F]{6}") = 1)
+        ColorViewerV.Submit("NoHide")
+		if (RegExMatch(ColorViewerV.ColorEdit.value, "[\da-fA-F]{6}") = 1)
 		{
-			GuiControl, colorviewerV:,RV,% Hex2Dec(SubStr(ColorEdit,1,2))
-			GuiControl, colorviewerV:,GV,% Hex2Dec(SubStr(ColorEdit,3,2))
-			GuiControl, colorviewerV:,BV,% Hex2Dec(SubStr(ColorEdit,5,2))
-			Gui, colorviewerC:Color,%ColorEdit%
+            ColorViewerV.RV.value := Hex2Dec(SubStr(ColorViewerV.ColorEdit.value, 1, 2))
+            ColorViewerV.GV.value := Hex2Dec(SubStr(ColorViewerV.ColorEdit.value, 3, 2))
+            ColorViewerV.BV.value := Hex2Dec(SubStr(ColorViewerV.ColorEdit.value, 5, 2))
+            ColorViewerC.Color(ColorViewerV.ColorEdit.value)
 		}
 		return
 	ButtonColorOK:
-		Gui, colorviewerV:Submit
-		Clipboard := ColorEdit
+        ColorViewerV.Submit()
+        ColorViewerC.Submit()
+		Clipboard := ColorViewerV.ColorEdit.value
+        ColorViewerV.Destroy()
+        ColorViewerC.Destroy()
 		return
 ::flaxpickcolor::
 MouseGetPos,X,Y
@@ -1993,33 +2212,94 @@ MouseGetPos,X,Y
 	return
 ::flaxtimetable::
 	timetableFD.read()
+    configFD.read()
 	sleep 300
 	TTCellWidth = 100
 	TTCellHeight = 100
-	Gui, New, , FlaxTimeTable
-	Gui, FlaxTimeTable:Font, MeiryoUI
-	Gui, FlaxTimeTable:Margin, 50, 50
-	Gui, FlaxTimeTable:+AlwaysOnTop -Border
+    TimeTable := new AGui(, "TimeTable")
+    TimeTable.contextmenu := Func("timetable_context_menu")
+    TimeTable.Font("Meiryo UI")
+    TimeTable.Margin("50", "50")
+    TimeTable.add_option("AlwaysOnTop")
+    TimeTable.remove_option("Border")
 	x := marg
 	y := marg
-	Loop, 6{
-		R := A_Index - 1
-		Loop, 7{
-			C := A_Index - 1
-			x := marg + C * TTCellWidth
-			y := marg + R * TTCellHeight
-			Text := ""
-			Loop, 4{
-				L := A_Index - 1
-				Text .= "`n" timetableFD.dict[R][C][L]
-			}
-			Gui, FlaxTimeTable:Add, Text, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center gOpenClassFolder, %Text%
-		}
-	}
-	Gui, FlaxTimeTable:Show, , FlaxTimeTable
+    term := configFD.dict["CurrentClassTerm"]
+    GoSub, TimeTableAddText
+    DropDownText := ""
+    for Key, Value in timetableFD.dict{
+        if (Key != "template")
+            DropDownText .= Key . "|"
+        if (Key == term){
+            DropDownText .= "|"
+        }
+    }
+    TimeTable.add_agc("DropDownList", "TimeTableDDLV", "Sort", DropDownText)
+    TimeTable.TimeTableDDLV.method := "TimeTableChanged"
+    TimeTable.Show("", "FlaxTimeTable")
 	return
+    timetable_context_menu(){
+        global
+        MouseGetPos, mx, my
+        clicked_r := SubStr(A_GuiControl, 29, 1)
+        clicked_c := SubStr(A_GuiControl, 30, 1)
+        Menu, TTMenu, Add, URL を開く, timetable_open_URL
+        Menu, TTMenu, Add, URL を編集する, timetable_edit_URL
+		Menu, TTMenu, Show, %mx%, %my%
+		Menu, TTMenu, DeleteAll
+        return
+    }
+    timetable_open_URL:
+        run, % timetableFD.dict[term][clicked_r][clicked_c]["URL"]
+        TimeTable.Destroy()
+        return
+    timetable_edit_URL:
+        TimeTable.add_option("OwnDialogs")
+        InputBox, URL, TimeTable, 登録する URL を入力, , , , , , , % timetableFD.dict[term][clicked_r][clicked_c]["URL"]
+        timetableFD.dict[term][clicked_r][clicked_c]["URL"] := URL
+        timetableFD.write()
+        return
+    TimeTableAddText:
+        Loop, 7{
+            C := A_Index - 1
+            Loop, 6{
+                R := A_Index - 1
+                x := marg + C * TTCellWidth
+                y := marg + R * TTCellHeight
+                Text := ""
+                Loop, 4{
+                    L := A_Index - 1
+                    Text .= "`n" timetableFD.dict[term][R][C][L]
+                }
+                TimeTable.add_agc("Text", "TimeTableCell" . R . C, "w" . TTCellWidth . " h" . TTCellHeight . " x" . x . " y" . y . " Border Center", Text)
+                TimeTable["TimeTableCell" . R . C].method := "OpenClassFolder"
+            }
+        }
+        return
+    TimeTableChangeText:
+        Loop, 6{
+            R := A_Index - 1
+            Loop, 7{
+                C := A_Index - 1
+                Text := ""
+                Loop, 4{
+                    L := A_Index - 1
+                    Text .= "`n" . timetableFD.dict[term][R][C][L]
+                }
+                TimeTable["TimeTableCell" . R . C].value := Text
+            }
+        }
+        return
+    TimeTableChanged:
+        TimeTable.Submit("NoHide")
+        sterm := term
+        term := TimeTable.TimeTableDDLV.value
+        GoSub, TimeTableChangeText
+        term := sterm
+        return
 	OpenClassFolder:
-		Loop, Parse, A_GuiControl, `n
+        GuiControlGet, ClassName, , %A_GuiControl%
+		Loop, Parse, ClassName, `n
 		{
 			if (A_Index == 2)
 			{
@@ -2027,13 +2307,26 @@ MouseGetPos,X,Y
 				break
 			}
 		}
-		ClassPath := pathFD.dict["class"] . ClassName
-		Run, %ClassPath%
-		Gui, FlaxTimeTable:Destroy
-		return
-	FlaxTimeTableGuiEscape:
-	FlaxTimeTableGuiClose:
-		Gui, FlaxTimeTable:Destroy
+		ClassPath := pathFD.dict["class"] . term . "\" . ClassName
+        IfNotExist, %ClassPath%
+        {
+            TimeTable.add_option("OwnDialogs")
+            msgbox, 4, , 授業フォルダが存在しません。作成しますか？           
+            ifMsgBox, Yes
+            {
+                TimeTable.Destroy()
+                FileCreateDir, %ClassPath%
+            }
+            else
+            {
+                return
+            }
+        }
+        TimeTable.Destroy()
+        IfExist, %ClassPath%
+        {
+            Run, %ClassPath%
+        }
 		return
 ::flaxhanoy::
 	sleep 400
@@ -2146,54 +2439,103 @@ MouseGetPos,X,Y
 	return
 ::flaxedittimetable::
 	timetableFD.read()
+    pathFD.read()
+    term := configFD.dict["CurrentClassTerm"]
 	sleep 300
 	TTCellWidth = 100
 	TTCellHeight = 100
-	Gui, New, , FlaxEditTimeTable
-	Gui, FlaxEditTimeTable:Font, MeiryoUI
-	Gui, FlaxEditTimeTable:Margin, 50, 50
+    EditTimeTable := new AGui(, "EditTimeTable")
+    EditTimeTable.Font("Meiryo UI")
+    EditTimeTable.Margin("50", "50")
 	x := marg
 	y := marg
-	Loop, 6{
-		R := A_Index - 1
-		Loop, 7{
-			C := A_Index - 1
+	Loop, 7{
+		C := A_Index - 1
+		Loop, 6{
+			R := A_Index - 1
 			x := marg + C * TTCellWidth
 			y := marg + R * TTCellHeight
 			Text := ""
 			Loop, 4{
 				L := A_Index - 1
-				Text .= "`n" timetableFD.dict[R][C][L]
+				Text .= "`n" timetableFD.dict[term][R][C][L]
 			}
-			Gui, FlaxEditTimeTable:Add, Edit, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center vE%R%%C% -VScroll, %Text%
+            EditTimeTable.add_agc("Edit", "E" . R . C, "w" . TTCellWidth . " h" . TTCellHeight . " x" . x . " y" . y . " Border Center -VScroll", Text)
 		}
 	}
-	Gui, FlaxEditTimeTable:Add, Button, Default gEditTimeTableOK, OK
-	Gui, FlaxEditTimeTable:Show, , FlaxEditTimeTable
+    DropDownText := "new|"
+    for Key, Value in timetableFD.dict{
+        DropDownText .= Key . "|"
+        if (Key == term){
+            DropDownText .= "|"
+        }
+    }
+    EditTimeTable.add_agc("DropDownList", "ETimeTableDDLV", "Sort", DropDownText)
+    EditTimeTable.ETimeTableDDLV.method := "ETimeTableChanged"
+    EditTimeTable.add_agc("Button", "EditTimeTableOK", "Default", "OK")
+    EditTimeTable.EditTimeTableOK.method := "EditTimeTableOK"
+    EditTimeTable.Show("", "FlaxEditTimeTable")
 	return
+    ETimeTableChangeText:
+        Loop, 7{
+            C := A_Index - 1
+            Loop, 6{
+                R := A_Index - 1
+                Text := ""
+                Loop, 4{
+                    L := A_Index - 1
+                    Text .= "`n" . timetableFD.dict[term][R][C][L]
+                }
+                EditTimeTable["E" . R . C].value := Text
+            }
+        }
+        return
+    ETimeTableChanged:
+        EditTimeTable.Submit("NoHide")
+        DDLV_value := EditTimeTable.ETimeTableDDLV.value
+        if (EditTimeTable.ETimeTableDDLV.value == "new"){
+            if (not timetableFD.dict.HasKey("template")){
+                msgbox, テンプレートが見つかりませんでした。`n先にテンプレートを作成してください。
+                new_name := "template"
+            }else{
+                InputBox, new_name, , 新規プロファイル名を入力
+            }
+            EditTimeTable.ETimeTableDDLV.value := new_name . "||"
+            DDLV_value := "template"
+        }
+        sterm := term
+        term := DDLV_value
+        GoSub, ETimeTableChangeText
+        term := sterm
+        return
 	EditTimeTableOK:
-		Gui, FlaxEditTimeTable:Submit
-		Loop, 6{
-			R := A_Index - 1
-			Loop, 7{
-				C := A_Index - 1
-				Text := E%R%%C%
+        EditTimeTable.Submit()
+        sterm := term
+        term := EditTimeTable.ETimeTableDDLV.value
+		Loop, 7{
+			C := A_Index - 1
+			Loop, 6{
+				R := A_Index - 1
+				Text := EditTimeTable["E" . R . C].value
 				Text := StrSplit(Text, "`n")
+                if (not timetableFD.dict.HasKey(term))
+                    timetableFD.dict[term] := Object()
+                if (not timetableFD.dict[term].HasKey(R))
+                    timetableFD.dict[term][R] := Object()
+                if (not timetableFD.dict[term][R].HasKey(C))
+                    timetableFD.dict[term][R][C] := Object()
 				Loop, 4{
-					if (not timetableFD.dict.HasKey(R))
-						timetableFD.dict[R] := Object()
-					if (not timetableFD.dict[R].HasKey(C))
-						timetableFD.dict[R][C] := Object()
-					timetableFD.dict[R][C][A_Index - 1] := Text[A_Index + 1]
+					timetableFD.dict[term][R][C][A_Index - 1] := Text[A_Index + 1]
 				}
 			}
 		}
+        configFD.read()
+        if (term == "template")
+            term := sterm
+        configFD.dict["CurrentClassTerm"] := term
+        configFD.write()
 		timetableFD.write()
-	FlaxEditTimeTableGuiEscape:
-	FlaxEditTimeTableGuiClose:
-		Gui, FlaxEditTimeTable:Destroy
-		return
-	return
+        return
 ::flaxgetprocesspath::
 	sleep 100
 	clipboard := GetProcessPath()
@@ -2201,15 +2543,18 @@ MouseGetPos,X,Y
 	sleep 1000
 	ToolTip,
 	return
-
+::flaxregisterlauncher::
+    GoSub, register_launcher
+    return
 
 ;hotkey
 ;ホットキー
 +!^W::
-	Gui, New, , FlaxLauncher FlaxLauncher:
+	FlaxLauncher := new AGui(, "FlaxLauncher")
 	launcherFD.read()
 	Sleep 100
-	NoDI = 5
+	NoDI := 5
+	NoI := NoDI
 	candidate := ""
 	SysGet,MonitorSizeX,0
 	SysGet,MonitorSizeY,1
@@ -2221,42 +2566,48 @@ MouseGetPos,X,Y
 		if (NoDI < A_Index)
 			break
 	}
-	Gui, FlaxLauncher:Add,ComboBox,vItemName W300 R5 Simple HwndLauncherComboHwnd, %candidate%
-	Gui, FlaxLauncher:+AlwaysOnTop -Border
-	Gui, FlaxLauncher:Show,Hide
-	Gui, FlaxLauncher:+LastFound
+	FlaxLauncher.add_agc("ComboBox", "ItemName", "W300 R5 Simple")
+	FlaxLauncher.ItemName.value := candidate
+	FlaxLauncher.add_option("AlwaysOnTop")
+	FlaxLauncher.remove_option("Border")
+	FlaxLauncher.add_option("LastFound")
+	FlaxLauncher.add_agc("Edit", "HiddenEdit", "xm ym w300")
+	FlaxLauncher.HiddenEdit.method := "HiddenEdited"
+	FlaxLauncher.HiddenEdit.focus()
+	FlaxLauncher.add_agc("Button", "OK", "Hidden Default")
+	FlaxLauncher.OK.method := "LauncherOK"
+	FlaxLauncher.Show("Hide")
 	WinGetPos,,,w,h
-	Gui, FlaxLauncher:Add,Button,Default Hidden gLauncherOK,OK
 	w := MonitorSizeX - marg - w
 	h := MonitorSizeY - marg - h
-	Gui, FlaxLauncher:Show,X%w% Y%h% Hide,FlaxProgramLauncher
-	Gui, FlaxLauncher:Add,Edit,vHiddenEdit gHiddenEdited
-	GuiControl, FlaxLauncher:Focus,HiddenEdit
-	Gui, FlaxLauncher:Show
+	FlaxLauncher.Show("x" . w . " y" . h . " Hide", "FlaxProgramLauncher")
+	FlaxLauncher.Show("Autosize")
 	WinWaitNotActive,FlaxProgramLauncher
-	Gui, FlaxLauncher:Destroy
+	FlaxLauncher.Destroy()
 	Return
 	LauncherOK:
-		GuiControl, FlaxLauncher:-AltSubmit,ItemName
-		Gui, FlaxLauncher:Submit
-		Gui, FlaxLauncher:Destroy
+		FlaxLauncher.ItemName.remove_option("AltSubmit")
+		FlaxLauncher.Submit()
+		FlaxLauncher.Destroy()
 	LauncherUse:
 		LF := False
-		ItemParams := StrSplit(ItemName, " ")
-		ItemName := ItemParams[1]
+		ItemName_val := FlaxLauncher.ItemName.value
+		ItemParams := StrSplit(ItemName_val, " ")
+		ItemName_val := ItemParams[1]
 		LP := False
+		PathParam := False
 		if (ItemParams[2] == "locale")
 			LP := True
 		else if (ItemParams[2] == "path")
 			PathParam := True
-		if (RegExMatch(ItemName, "[a-zA-Z]:\\([^\\/:?*""<>|]+\\)*([^\\/:?*""<>|]+)?")){
-			Run, %ItemName%
+		if (RegExMatch(ItemName_val, "[a-zA-Z]:\\([^\\/:?*""<>|]+\\)*([^\\/:?*""<>|]+)?")){
+			Run, %ItemName_val%
 			return
 		}
 		if (LP){
 			LF := True
 		}
-		ID := launcherFD.dict[ItemName]
+		ID := launcherFD.dict[ItemName_val]
 		if (PathParam){
 			Clipboard := ID["command"]
 			ToolTip, %Clipboard%
@@ -2284,33 +2635,36 @@ MouseGetPos,X,Y
 		}
 		if (ItemType = "URL" or ItemType = "LocalPath" or ItemType = "Application"){
 			if (LF and ItemType != "URL"){
-				LP := RegExMatch(ItemCommand, "\\([^\\]*)$", ItemName)
+				LP := RegExMatch(ItemCommand, "\\([^\\]*)$", ItemName_val)
 				ItemCommand := SubStr(ItemCommand, 1, LP-1)
 				Run, %ItemCommand%
 				WinWaitActive, ahk_exe explorer.exe
-				sendraw,% ItemName1
+				sendraw,% ItemName_val1
 				return
 			}else{
 				Run, %ItemCommand%
 				return
 			}
-		}
+		}else if (ItemType == "Label"){
+            GoSub, %ItemCommand%
+            return
+        }
 		msgbox,404 Type
 		return
 	HiddenEdited:
-		Gui, FlaxLauncher:Submit,NoHide
-		GuiControl, FlaxLauncher:Text,ItemName,%HiddenEdit%
-		GuiControl, FlaxLauncher:+AltSubmit,ItemName
-		Gui, FlaxLauncher:Submit,NoHide
-		IoS := ItemName
-		GuiControl, FlaxLauncher:-AltSubmit,ItemName
+		FlaxLauncher.Submit("NoHide")
+		FlaxLauncher.ItemName.Text(FlaxLauncher.HiddenEdit.value)
+		FlaxLauncher.ItemName.add_option("AltSubmit")
+		FlaxLauncher.Submit("NoHide")
+		IoS := FlaxLauncher.ItemName.value
+		FlaxLauncher.ItemName.remove_option("AltSubmit")
 		if IoS is integer
 			return
-		Gui, FlaxLauncher:Submit,NoHide
+		FlaxLauncher.Submit("NoHide")
 		candidate := ""
 		NoI = 0
 		For Key, Value in launcherFD.dict{
-			StringGetPos, IP, Key, %ItemName%
+			StringGetPos, IP, Key, % FlaxLauncher.ItemName.value
 			command := ""
 			if (IP == 0)
 				command := launcherFD.dict[Key]["command"]
@@ -2319,52 +2673,46 @@ MouseGetPos,X,Y
 				NoI += 1
 			}
 		}
-		GuiControl, FlaxLauncher:,ItemName,%candidate%
-		GuiControl, FlaxLauncher:Text,ItemName,%HiddenEdit%
-		return
-	FlaxLauncherGuiEscape:
-	FlaxLauncherGuiClose:
-		Gui, FlaxLauncher:Destroy
+		FlaxLauncher.ItemName.value := candidate
+		FlaxLauncher.ItemName.Text(FlaxLauncher.HiddenEdit.value)
 		return
 #IfWinActive,FlaxProgramLauncher
 	Tab::
 	Down::
-		GuiControl, FlaxLauncher:+AltSubmit,ItemName
-		Gui, FlaxLauncher:Submit,NoHide
-		GuiControl, FlaxLauncher:-AltSubmit,ItemName
-		if (ItemName == NoI)
+		FlaxLauncher.ItemName.add_option("AltSubmit")
+		FlaxLauncher.Submit("NoHide")
+		FlaxLauncher.ItemName.remove_option("AltSubmit")
+		if (FlaxLauncher.ItemName.value == NoI)
 			return
-		if ItemName is not integer
-		{
-			GuiControl, FlaxLauncher:Choose,ItemName,|1
-			Gui, FlaxLauncher:Submit,NoHide
-			GuiControl, FlaxLauncher:Text,HiddenEdit,%ItemName%
+		if (RegExMatch(Flaxlauncher.ItemName.value, "^\d+$") != 1){
+			FlaxLauncher.ItemName.Choose("|1")
+			FlaxLauncher.Submit("NoHide")
+			FlaxLauncher.HiddenEdit.Text(FlaxLauncher.ItemName.value)
 			send,{End}
 			return
 		}
-		GuiControl, FlaxLauncher:Choose,ItemName,% "|"ItemName + 1
-		Gui, FlaxLauncher:Submit,NoHide
-		GuiControl, FlaxLauncher:Text,HiddenEdit,%ItemName%
+		FlaxLauncher.ItemName.Choose("|" . FlaxLauncher.ItemName.value + 1)
+		FlaxLauncher.Submit("NoHide")
+		FlaxLauncher.HiddenEdit.Text(FlaxLauncher.ItemName.value)
 		send,{End}
 		Return
 	+Tab::
 	Up::
-		GuiControl, FlaxLauncher:+AltSubmit,ItemName
-		Gui, FlaxLauncher:Submit,NoHide
-		GuiControl, FlaxLauncher:-AltSubmit,ItemName
-		if (ItemName == 1)
+		FlaxLauncher.ItemName.add_option("AltSubmit")
+		FlaxLauncher.Submit("NoHide")
+		FlaxLauncher.ItemName.remove_option("AltSubmit")
+		if (FlaxLauncher.ItemName.value == 1)
 			return
-		if ItemName is not integer
-		{
-			GuiControl, FlaxLauncher:Choose,ItemName,|1
-			Gui, FlaxLauncher:Submit,NoHide
-			GuiControl, FlaxLauncher:Text,HiddenEdit,%ItemName%
+		if (RegExMatch(FlaxLauncher.ItemName.value, "^\d+$") != 1){
+			FlaxLauncher.ItemName.choose("|1")
+			FlaxLauncher.Submit("NoHide")
+			FlaxLauncher.HiddenEdit.Text(FlaxLauncher.ItemName.value)
 			send,{End}
 			return
 		}
-		GuiControl, FlaxLauncher:Choose,ItemName,% "|"ItemName - 1
-		Gui, FlaxLauncher:Submit,NoHide
-		GuiControl, FlaxLauncher:Text,HiddenEdit,%ItemName%
+		FlaxLauncher.ItemName.Choose("|" . FlaxLauncher.ItemName.value - 1)
+		FlaxLauncher.Submit("NoHide")
+		FlaxLauncher.HiddenEdit.Text(FlaxLauncher.ItemName.value)
 		send,{End}
 		Return
 #IfWinActive
@@ -2514,6 +2862,37 @@ vk1D & 2::send,7
 vk1D & 3::send,8
 vk1D & 4::send,9
 vk1D & 5::send,0
+vk1D & LButton::
+    RapidButton := "LButton"
+    GoSub, RapidMouse
+    return
+vk1D & RButton::
+    RapidButton := "RButton"
+    GoSub, RapidMouse
+    return
+vk1D & MButton::
+    RapidButton := "MButton"
+    GoSub, RapidMouse
+    return
+RapidMouse:
+    if (RetKeyState("Ctrl")){
+        KeepRapid := True
+    }
+    if (RetKeyState("Shift")){
+        send, {%RapidButton% Down}
+        sleep 100
+        while (not RetKeyState("Esc") and not RetKeyState(RapidButton)){
+            sleep 10
+        }
+        send, {%RapidButton% Up}
+    }else{
+        while ((RetKeyState(RapidButton) and RetKeyState("vk1D")) or (KeepRapid and not RetKeyState("Esc") and not RetKeyState(RapidButton))){
+            sleep 10
+            send, {%RapidButton%}
+        }
+    }
+    KeepRapid := False
+    return
 
 #^l::send,^#{Right}
 #^h::send,^#{Left}
@@ -2858,29 +3237,51 @@ MouseGestureExecute:
 		GoSub, MakeLink
 		return
 	MakeLink:
-		CDPath := GetCurrentDirectory()
+		CDPath := RegExReplace(GetCurrentDirectory(), "\\$", "")
 		if (CDPath = "Error"){
 			msgbox, パスが不正
 			return
 		}
 		Clip := ClipboardAll
 		Clipboard := Clipboard
-		SplitPath, Clipboard, FileName
-		DestPath := CDPath . "\" . FileName
-		if (mode = "sym"){
-			DestPath .= "_sym"
-			param := ""
-			if (JudgeDir(Clipboard)){
-				param := "/d"
-			}
-			command := "mklink " . param . " """ . DestPath . """ """ Clipboard . """"
-			msgjoin(CmdRun(command, 0, "admin"))
-		}else if (mode = "shr"){
-			DestPath .= ".lnk"
-			FileCreateShortcut, %Clipboard%, %DestPath%
-		}
-		Clipboard := Clip
+        Loop, Parse, Clipboard, `n
+        {
+            LoopField := RegExReplace(A_LoopField, "\r|\n", "")
+            SplitPath, LoopField, FileName
+            DestPath := CDPath . "\" . FileName
+            target_path_is_dir := False
+            param := ""
+            if (JudgeDir(LoopField)){
+                target_path_is_dir := True
+                param := "/d"
+            }
+            if (C_S_x){
+                swp := LoopField
+                LoopField := DestPath
+                DestPath := swp
+                if (target_path_is_dir){
+                    FileMoveDir, %DestPath%, %LoopField%
+                }else{
+                    FileMove, %DestPath%, %LoopField%
+                }
+            }
+            if (mode = "sym"){
+                command := "mklink " . param . " """ . DestPath . "_sym"" """ LoopField . """"
+                msgjoin(CmdRun(command, 0, "admin"))
+            }else if (mode = "shr"){
+                FileCreateShortcut, %LoopField%, %DestPath%.lnk
+            }
+        }
+        if (not C_S_x){
+            Clipboard := Clip
+        }else{
+            C_S_x := False
+        }
 		return
+    ^+x::
+        send, ^x
+        C_S_x := True
+        return
 	^t::
 		run,::{20D04FE0-3AEA-1069-A2D8-08002B30309D}
 		return
@@ -2967,6 +3368,7 @@ MouseGestureExecute:
 			Gui, FlaxRegisterLauncher:Add,Radio, vRApp %RCApp%, &Application
 			Gui, FlaxRegisterLauncher:Add,Radio, vRLoc %RCLoc%, &LocalPath
 			Gui, FlaxRegisterLauncher:Add,Radio, vRURL, &URL
+			Gui, FlaxRegisterLauncher:Add,Radio, vRLab, &Label
 			Gui, FlaxRegisterLauncher:Add,Text,,Computer
 			Gui, FlaxRegisterLauncher:Add,Radio, vRThi Checked, &ThisComputer
 			Gui, FlaxRegisterLauncher:Add,Radio, vRAll, &AllComputer
@@ -2992,6 +3394,8 @@ MouseGestureExecute:
 					EType := "LocalPath"
 				else if (RURL = 1)
 					EType := "URL"
+                else if (RLab = 1)
+                    EType := "Label"
 				launcherFD.fdict[EName][B_ComputerName]["type"] := EType
 				launcherFD.write()
 				Gui, FlaxRegisterLauncher:Destroy
