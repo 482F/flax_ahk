@@ -487,7 +487,9 @@ Hex2Dec(Value, NoD=0){
 }
 Dec2Hex(Value, NoD=0){
 	K := Object(0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, "A", 11, "B", 12, "C", 13, "D", 14, "E", 15, "F")
-	if (Value != 0)
+    if (Value == "")
+        return
+	else if (Value != 0)
 		return FillStr(Dec2Hex(Value // 16, NoC) . K[mod(Value, 16)], NoD, 0)
 	return
 }
@@ -1953,46 +1955,58 @@ flaxguitestmethod:
 #IfWinActive
 ::flaxcolorviewer::
 	sleep 300
-	Gui,New,,colorviewerC
-	Gui,New,,colorviewerV
-	gui,margin,0,0
-	Gui, colorviewerV: -Border
-	Gui, colorviewerC:-Border
-	Gui, colorviewerV:Add,Slider,vRV gColorSliderMoved Vertical Invert Range0-255 Center Y0 X180 W40 H300 AltSubmit -BackGround
-	Gui, colorviewerV:Add,Slider,vGV gColorSliderMoved Vertical Invert Range0-255 Center Y0 X220 W40 H300 AltSubmit -BackGround
-	Gui, colorviewerV:Add,Slider,vBV gColorSliderMoved Vertical Invert Range0-255 Center Y0 X260 W40 H300 AltSubmit -BackGround
-	Gui, colorviewerV:Add,Edit,vColorEdit gColorEdited X0 Y281 H18 W89
-	Gui, colorviewerV:Add,Edit,vColorName X91 Y281 H18 W89
-	Gui, colorviewerV:Add,Button,Default hidden1,ColorOK
-	Gui, colorviewerC:+AlwaysOnTop
-	Gui, colorviewerC:Color,%Clopboard%
-	Gui, colorviewerC:Show,Y100 X102 H277 W177
-	Gui, colorviewerV:Show,Y100 X100 H300 W300
+    ColorViewerC := new AGui(, "ColorViewerC")
+    ColorViewerV := new AGui(, "ColorViewerV")
+    ColorViewerC.margin(0, 0)
+    ColorViewerV.margin(0, 0)
+    ColorViewerC.remove_option("Border")
+    ColorViewerV.remove_option("Border")
+    ColorViewerV.add_agc("Slider", "RV", "Vertical Invert Range0-255 Center Y0 X180 W40 H300 AltSubmit -BackGround")
+    ColorViewerV.add_agc("Slider", "GV", "Vertical Invert Range0-255 Center Y0 X220 W40 H300 AltSubmit -BackGround")
+    ColorViewerV.add_agc("Slider", "BV", "Vertical Invert Range0-255 Center Y0 X260 W40 H300 AltSubmit -BackGround")
+    ColorViewerV.RV.method := "ColorSliderMoved"
+    ColorViewerV.GV.method := "ColorSliderMoved"
+    ColorViewerV.BV.method := "ColorSliderMoved"
+    ColorViewerV.add_agc("Edit", "ColorEdit", "X0 Y281 H18 W89")
+    ColorViewerV.ColorEdit.method := "ColorEdited"
+    ColorViewerV.add_agc("Edit", "ColorName", "X91 Y281 H18 W89")
+    ColorViewerV.add_agc("Button", "ColorOK", "Default hidden1")
+    ColorViewerV.ColorOK.method := "ButtonColorOK"
+    ColorViewerC.add_option("AlwaysOnTop")
+    ColorViewerC.Color(Clipboard)
+    ColorViewerC.Close := Func("ColorViewerClose_Escape")
+    ColorViewerV.Close := Func("ColorViewerClose_Escape")
+    ColorViewerC.Escape := Func("ColorViewerClose_Escape")
+    ColorViewerV.Escape := Func("ColorViewerClose_Escape")
+    ColorViewerC.Show("Y100 X102 H277 W177")
+    ColorViewerV.Show("Y100 X100 H300 W300")
 	return
-	colorviewerCGuiEscape:
-	colorviewerVGuiEscape:
-	colorviewerCGuiClose:
-	colorviewerVGuiClose:
-		Gui, colorviewerC:Destroy
-		Gui, colorviewerV:Destroy
-		return
+    ColorViewerClose_Escape(){
+        global
+        ColorViewerC.Destroy()
+        ColorViewerV.Destroy()
+        return
+    }
 	ColorSliderMoved:
-		gui, colorviewerV:submit,NoHide
-		CV := Dec2Hex(RV * 16 ** 4 + GV * 16 ** 2 + BV, 6)
-		GuiControl,colorviewerV:, ColorEdit,%CV%
+        ColorviewerV.Submit("NoHide")
+		CV := Dec2Hex(ColorViewerV.RV.value * 16 ** 4 + ColorViewerV.GV.value * 16 ** 2 + ColorViewerV.BV.value, 6)
+        ColorViewerV.ColorEdit.Text(CV)
 	ColorEdited:
-		gui, colorviewerV:submit,nohide
-		if (RegExMatch(ColorEdit, "[\da-fA-F]{6}") = 1)
+        ColorViewerV.Submit("NoHide")
+		if (RegExMatch(ColorViewerV.ColorEdit.value, "[\da-fA-F]{6}") = 1)
 		{
-			GuiControl, colorviewerV:,RV,% Hex2Dec(SubStr(ColorEdit,1,2))
-			GuiControl, colorviewerV:,GV,% Hex2Dec(SubStr(ColorEdit,3,2))
-			GuiControl, colorviewerV:,BV,% Hex2Dec(SubStr(ColorEdit,5,2))
-			Gui, colorviewerC:Color,%ColorEdit%
+            ColorViewerV.RV.value := Hex2Dec(SubStr(ColorViewerV.ColorEdit.value, 1, 2))
+            ColorViewerV.GV.value := Hex2Dec(SubStr(ColorViewerV.ColorEdit.value, 3, 2))
+            ColorViewerV.BV.value := Hex2Dec(SubStr(ColorViewerV.ColorEdit.value, 5, 2))
+            ColorViewerC.Color(ColorViewerV.ColorEdit.value)
 		}
 		return
 	ButtonColorOK:
-		Gui, colorviewerV:Submit
-		Clipboard := ColorEdit
+        ColorViewerV.Submit()
+        ColorViewerC.Submit()
+		Clipboard := ColorViewerV.ColorEdit.value
+        ColorViewerV.Destroy()
+        ColorViewerC.Destroy()
 		return
 ::flaxpickcolor::
 MouseGetPos,X,Y
