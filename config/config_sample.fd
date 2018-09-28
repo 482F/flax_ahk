@@ -14,3 +14,4 @@ ChangeHotKey=[
 		IfWinActive=ahk_exe LINE.exe
 	]
 ]
+Font=ＭＳ　ゴシック
