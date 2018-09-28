@@ -3418,40 +3418,39 @@ MouseGestureExecute:
 				msgjoin("未実装")
 				return
 		editmp3tags:
-			Gui, New, , FlaxEditMp3Tags
-			Gui, FlaxEditMp3Tags:Font, , Meiryo UI
-			Gui, FlaxEditMp3Tags:Margin, 10, 10
-			Gui, FlaxEditMp3Tags:-Border
-			Gui, FlaxEditMp3Tags:Add, Text, , &NewName
+            EditMP3Tags := new AGui(, "EditMp3Tags")
+            EditMP3Tags.Font("Meiryo UI")
+            EditMP3Tags.Margin("10", "10")
+			EditMP3Tags.remove_option("Border")
+			EditMP3Tags.add_agc("Text", "NewNameLabel", , "&NewName")
 			SplitPath, FilePath, FileName, FileDir
 			Tags := GetMP3TagsFunc(FilePath)
-			Gui, FlaxEditMp3Tags:Add, Edit, w800 vENewName gNewNameChanged, %FileName%
-			Gui, FlaxEditMp3Tags:Add, Text, , &Title
-			Gui, FlaxEditMp3Tags:Add, Edit, w800 vETitle, % Tags[1]
-			Gui, FlaxEditMp3Tags:Add, Text, , &Artist
-			Gui, FlaxEditMp3Tags:Add, Edit, w800 vEArtist, % Tags[2]
-			Gui, FlaxEditMp3Tags:Add, Text, , &Albam
-			Gui, FlaxEditMp3Tags:Add, Edit, w800 vEAlbam, % Tags[3]
-			Gui, FlaxEditMp3Tags:Add, Button, Default gEditMp3TagsOK, &OK
-			Gui, FlaxEditMp3Tags:-Resize
-			Gui, FlaxEditMp3Tags:Show, Autosize, FlaxEditMp3Tags
+            EditMP3Tags.add_agc("Edit", "ENewName", "w800", FileName)
+            EditMP3Tags.ENewName.method := "NewNameChanged"
+            EditMP3Tags.add_agc("Text", "TitleLabel", , "&Title")
+			EditMP3Tags.add_agc("Edit", "ETitle", "w800", Tags[1])
+			EditMP3Tags.add_agc("Text", "ArtistLabel", , "&Artist")
+			EditMP3Tags.add_agc("Edit", "EArtist", "w800", Tags[2])
+			EditMP3Tags.add_agc("Text", "AlbamLabel", , "&Albam")
+			EditMP3Tags.add_agc("Edit", "EAlbam", "w800", Tags[3])
+			EditMP3Tags.add_agc("Button", "OK", "Default", "&OK")
+            EditMP3Tags.OK.method := "EditMP3TagsOK"
+            EditMP3Tags.remove_option("Resize")
+			EditMP3Tags.show("Autosize", "EditMP3Tags")
 			return
 			NewNameChanged:
-				Gui, FlaxEditMp3Tags:Submit, NoHide
-				SplitPath, ENewName, , , , PureName
-				GuiControl, FlaxEditMp3Tags:Text, ETitle, %PureName%
+                EditMP3Tags.submit("NoHide")
+                NewName := EditMP3Tags.ENewName.value
+				SplitPath, NewName, , , , PureName
+                EditMP3Tags.ETitle.value := PureName
 				return
-			EditMp3TagsOK:
-				Gui, FlaxEditMp3Tags:Submit
-				Gui, FlaxEditMp3Tags:Destroy
-				EditMP3TagsFunc(FilePath, ETitle, EArtist, EAlbam, ENewName)
+			EditMP3TagsOK:
+                EditMP3Tags.submit()
+                EditMP3Tags.destroy()
+				EditMP3TagsFunc(FilePath, EditMP3Tags.ETitle.value, EditMP3Tags.EArtist.value, EditMP3Tags.EAlbam.value, EditMP3Tags.ENewName.value)
 				ToolTip, Done
 				sleep 1000
 				ToolTip,
-				return
-			FlaxEditMp3TagsGuiEscape:
-			FlaxEditMp3TagsGuiClose:
-				Gui, FlaxEditMp3Tags:Destroy
 				return
 #IfWinActive,ahk_exe chrome.exe
  	^+q::return
