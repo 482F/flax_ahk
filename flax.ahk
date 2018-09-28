@@ -1482,7 +1482,7 @@ flaxguitestmethod:
 ::flaxmakecodegui::
 	sleep 100
 	FlaxCode_Maker := new AGui(, "FlaxCode_Maker")
-	FlaxCode_Maker.Font(, "Meiryo UI")
+	FlaxCode_Maker.Font(, configFD.dict["Font"])
 	FlaxCode_Maker.Margin(10, 10)
 	FlaxCode_Maker.add_agc("Text", "", , "&Clear Text")
 	FlaxCode_Maker.add_agc("Edit", "CText", "W500 Multi Password*")
@@ -2123,7 +2123,7 @@ MouseGetPos,X,Y
     VirtualFolder := new AGui(, "VirtualFolder")
     VirtualFolder.dropfiles := Func("VirtualFolderDropFiles")
     VirtualFolder.size := Func("VirtualFolderSize")
-	VirtualFolder.Font(, "Meiryo UI")
+	VirtualFolder.Font(, configFD.dict["Font"])
 	VirtualFolder.add_option("Resize")
 	VirtualFolder.Margin("10", "10")
 	VirtualFolder.add_agc("ListView", "ListView", "AltSubmit w600 h300", "Title|Path")
@@ -2212,7 +2212,7 @@ MouseGetPos,X,Y
 	TTCellHeight = 100
     TimeTable := new AGui(, "TimeTable")
     TimeTable.contextmenu := Func("timetable_context_menu")
-    TimeTable.Font(, "Meiryo UI")
+    TimeTable.Font(, configFD.dict["Font"])
     TimeTable.Margin("50", "50")
     TimeTable.add_option("AlwaysOnTop")
     TimeTable.remove_option("Border")
@@ -2340,7 +2340,7 @@ MouseGetPos,X,Y
 	sleep 400
     EditGesture := new AGui(, "EditGesture")
     EditGesture.escape := Func("EditGestureEscape")
-    EditGesture.Font(, "Meiryo UI")
+    EditGesture.Font(, configFD.dict["Font"])
     EditGesture.Margin("10", "10")
     EditGesture.add_agc("Text", "GestureLabel", , "&Gesture")
     EditGesture.add_agc("Edit", "EGesture", "w400")
@@ -2440,7 +2440,7 @@ MouseGetPos,X,Y
 	TTCellWidth = 100
 	TTCellHeight = 100
     EditTimeTable := new AGui(, "EditTimeTable")
-    EditTimeTable.Font(, "Meiryo UI")
+    EditTimeTable.Font(, configFD.dict["Font"])
     EditTimeTable.Margin("50", "50")
 	x := marg
 	y := marg
@@ -3364,7 +3364,7 @@ MouseGestureExecute:
 			}
 			sleep 100
             RegisterLauncher := new AGui(, "RegisterLauncher")
-            RegisterLauncher.Font(, "Meiryo UI")
+            RegisterLauncher.Font(, configFD.dict["Font"])
             RegisterLauncher.Margin("10", "10")
             RegisterLauncher.add_agc("Text", "NameLabel", , "&Name")
 			SplitPath, FilePath, FileName
@@ -3413,7 +3413,7 @@ MouseGestureExecute:
 				return
 		editmp3tags:
             EditMP3Tags := new AGui(, "EditMp3Tags")
-            EditMP3Tags.Font(, "Meiryo UI")
+            EditMP3Tags.Font(, configFD.dict["Font"])
             EditMP3Tags.Margin("10", "10")
 			EditMP3Tags.remove_option("Border")
 			EditMP3Tags.add_agc("Text", "NewNameLabel", , "&NewName")
