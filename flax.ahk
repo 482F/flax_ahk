@@ -809,6 +809,18 @@ AGUIEscape(GuiHwnd){
 	AGui.HwndDict[GuiHwnd].escape()
 	return true
 }
+AGuiSize(GuiHwnd){
+    AGui.HwndDict[GuiHwnd].size()
+    return
+}
+AGuiDropFiles(GuiHwnd){
+    AGui.HwndDict[GuiHwnd].dropfiles()
+    return
+}
+AGuiContextMenu(GuiHwnd){
+    AGui.HwndDict[GuiHwnd].contextmenu()
+    return
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
@@ -1209,6 +1221,15 @@ class AGui{
 		this.destroy()
 		return
 	}
+    size(){
+        return
+    }
+    dropfiles(){
+        return
+    }
+    contextmenu(){
+        return
+    }
 	destroy(){
 		Hwnd := this.Hwnd
 		if not (AGui.HwndDict.HasKey(Hwnd))
