@@ -3369,53 +3369,50 @@ MouseGestureExecute:
 				RCApp := "Checked"
 			}
 			sleep 100
-			Gui, New, , FlaxRegisterLauncher
-			Gui, FlaxRegisterLauncher:Font,,Meiryo UI
-			Gui, FlaxRegisterLauncher:Margin,10,10
-			Gui, FlaxRegisterLauncher:Add,Text,,&Name
+            RegisterLauncher := new AGui(, "RegisterLauncher")
+            RegisterLauncher.Font("Meiryo UI")
+            RegisterLauncher.Margin("10", "10")
+            RegisterLauncher.add_agc("Text", "NameLabel", , "&Name")
 			SplitPath, FilePath, FileName
-			Gui, FlaxRegisterLauncher:Add,Edit, w800 vEName, %FileName%
-			Gui, FlaxRegisterLauncher:Add,Text,,&Command
-			Gui, FlaxRegisterLauncher:Add,Edit, w800 vECommand, %FilePath%
-			Gui, FlaxRegisterLauncher:Add,Text,,Type
-			Gui, FlaxRegisterLauncher:Add,Radio, vRApp %RCApp%, &Application
-			Gui, FlaxRegisterLauncher:Add,Radio, vRLoc %RCLoc%, &LocalPath
-			Gui, FlaxRegisterLauncher:Add,Radio, vRURL, &URL
-			Gui, FlaxRegisterLauncher:Add,Radio, vRLab, &Label
-			Gui, FlaxRegisterLauncher:Add,Text,,Computer
-			Gui, FlaxRegisterLauncher:Add,Radio, vRThi Checked, &ThisComputer
-			Gui, FlaxRegisterLauncher:Add,Radio, vRAll, &AllComputer
-			Gui, FlaxRegisterLauncher:Add,Button,Default gRegisterLauncherOK,&OK
-			Gui, FlaxRegisterLauncher:-Resize
-			Gui, FlaxRegisterLauncher:Show,Autosize, FlaxRegisterLauncher
+            RegisterLauncher.add_agc("Edit", "EName", "w800", FileName)
+            RegisterLauncher.add_agc("Text", "CommandLabel", , "&Command")
+            RegisterLauncher.add_agc("Edit", "ECommand", "w800", FilePath)
+            RegisterLauncher.add_agc("Text", "TypeLabel", , "Type")
+			RegisterLauncher.add_agc("Radio", "RApp", RCApp, "&Application")
+			RegisterLauncher.add_agc("Radio", "RLoc", RCLoc, "&LocalPath")
+			RegisterLauncher.add_agc("Radio", "RURL", , "&URL")
+			RegisterLauncher.add_agc("Radio", "RLab", , "&Label")
+			RegisterLauncher.add_agc("Text", "ComputerLabel", , "Computer")
+			RegisterLauncher.add_agc("Radio", "RThi", "Checked", "&ThisComputer")
+			RegisterLauncher.add_agc("Radio", "RAll", , "&AllComputer")
+			RegisterLauncher.add_agc("Button", "OK", "Default", "&OK")
+            RegisterLauncher.OK.method := "RegisterLauncherOK"
+			RegisterLauncher.remove_option("Resize")
+			RegisterLauncher.show("Autosize", "RegisterLauncher")
 			return
 			RegisterLauncherOK:
-				Gui, FlaxRegisterLauncher: Submit
+                RegisterLauncher.Submit()
 				B_ComputerName := ""
-				if (RThi = 1)
+				if (RegisterLauncher.RThi.value = 1)
 					B_ComputerName := A_ComputerName
-				else if (RAll = 1)
+				else if (RegisterLauncher.RAll.value = 1)
 					B_ComputerName := "default"
-				if (not launcherFD.fdict.HasKey(EName))
-					launcherFD.fdict[EName] := Object()
-				if (not launcherFD.fdict[EName].HasKey(B_ComputerName))
-					launcherFD.fdict[EName][B_ComputerName] := Object()
-				launcherFD.fdict[EName][B_ComputerName]["command"] := ECommand
-				if (RApp = 1)
+				if (not launcherFD.fdict.HasKey(RegisterLauncher.EName.value))
+					launcherFD.fdict[RegisterLauncher.EName.value] := Object()
+				if (not launcherFD.fdict[RegisterLauncher.EName.value].HasKey(B_ComputerName))
+					launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName] := Object()
+				launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName]["command"] := RegisterLauncher.ECommand.value
+				if (RegisterLauncher.RApp.value = 1)
 					EType := "Application"
-				else if (RLoc = 1)
+				else if (RegisterLauncher.RLoc.value = 1)
 					EType := "LocalPath"
-				else if (RURL = 1)
+				else if (RegisterLauncher.RURL.value = 1)
 					EType := "URL"
-                else if (RLab = 1)
+                else if (RegisterLauncher.RLab.value = 1)
                     EType := "Label"
-				launcherFD.fdict[EName][B_ComputerName]["type"] := EType
+				launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName]["type"] := EType
 				launcherFD.write()
-				Gui, FlaxRegisterLauncher:Destroy
-				return
-			FlaxRegisterLauncherGuiEscape:
-			FlaxRegisterLauncherGuiClose:
-				Gui, FlaxRegisterLauncher:Destroy
+                RegisterLauncher.Destroy()
 				return
 			open_with:
 				msgjoin("未実装")
