@@ -809,6 +809,18 @@ AGUIEscape(GuiHwnd){
 	AGui.HwndDict[GuiHwnd].escape()
 	return true
 }
+AGuiSize(GuiHwnd){
+    AGui.HwndDict[GuiHwnd].size()
+    return
+}
+AGuiDropFiles(GuiHwnd){
+    AGui.HwndDict[GuiHwnd].dropfiles()
+    return
+}
+AGuiContextMenu(GuiHwnd){
+    AGui.HwndDict[GuiHwnd].contextmenu()
+    return
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
@@ -1209,6 +1221,15 @@ class AGui{
 		this.destroy()
 		return
 	}
+    size(){
+        return
+    }
+    dropfiles(){
+        return
+    }
+    contextmenu(){
+        return
+    }
 	destroy(){
 		Hwnd := this.Hwnd
 		if not (AGui.HwndDict.HasKey(Hwnd))
@@ -2196,6 +2217,7 @@ MouseGetPos,X,Y
 	TTCellWidth = 100
 	TTCellHeight = 100
     TimeTable := new AGui(, "TimeTable")
+    TimeTable.contextmenu := Func("timetable_context_menu")
     TimeTable.Font("Meiryo UI")
     TimeTable.Margin("50", "50")
     TimeTable.add_option("AlwaysOnTop")
@@ -2206,20 +2228,42 @@ MouseGetPos,X,Y
     GoSub, TimeTableAddText
     DropDownText := ""
     for Key, Value in timetableFD.dict{
-        DropDownText .= Key . "|"
+        if (Key != "template")
+            DropDownText .= Key . "|"
         if (Key == term){
             DropDownText .= "|"
         }
     }
-    TimeTable.add_agc("DropDownList", "TimeTableDDLV", "Sort", DropDownText)
+    TimeTable.add_agc("DropDownList", "TimeTableDDLV", "Sort xp-40 y+10", DropDownText)
     TimeTable.TimeTableDDLV.method := "TimeTableChanged"
     TimeTable.Show("", "FlaxTimeTable")
 	return
+    timetable_context_menu(){
+        global
+        MouseGetPos, mx, my
+        clicked_r := SubStr(A_GuiControl, 29, 1)
+        clicked_c := SubStr(A_GuiControl, 30, 1)
+        Menu, TTMenu, Add, URL を開く, timetable_open_URL
+        Menu, TTMenu, Add, URL を編集する, timetable_edit_URL
+		Menu, TTMenu, Show, %mx%, %my%
+		Menu, TTMenu, DeleteAll
+        return
+    }
+    timetable_open_URL:
+        run, % timetableFD.dict[term][clicked_r][clicked_c]["URL"]
+        TimeTable.Destroy()
+        return
+    timetable_edit_URL:
+        TimeTable.add_option("OwnDialogs")
+        InputBox, URL, TimeTable, 登録する URL を入力, , , , , , , % timetableFD.dict[term][clicked_r][clicked_c]["URL"]
+        timetableFD.dict[term][clicked_r][clicked_c]["URL"] := URL
+        timetableFD.write()
+        return
     TimeTableAddText:
-        Loop, 6{
-            R := A_Index - 1
-            Loop, 7{
-                C := A_Index - 1
+        Loop, 7{
+            C := A_Index - 1
+            Loop, 6{
+                R := A_Index - 1
                 x := marg + C * TTCellWidth
                 y := marg + R * TTCellHeight
                 Text := ""
@@ -2270,6 +2314,7 @@ MouseGetPos,X,Y
             msgbox, 4, , 授業フォルダが存在しません。作成しますか？           
             ifMsgBox, Yes
             {
+                TimeTable.Destroy()
                 FileCreateDir, %ClassPath%
             }
             else
@@ -2277,11 +2322,11 @@ MouseGetPos,X,Y
                 return
             }
         }
+        TimeTable.Destroy()
         IfExist, %ClassPath%
         {
             Run, %ClassPath%
         }
-        TimeTable.Destroy()
 		return
 ::flaxhanoy::
 	sleep 400
@@ -2404,10 +2449,10 @@ MouseGetPos,X,Y
     EditTimeTable.Margin("50", "50")
 	x := marg
 	y := marg
-	Loop, 6{
-		R := A_Index - 1
-		Loop, 7{
-			C := A_Index - 1
+	Loop, 7{
+		C := A_Index - 1
+		Loop, 6{
+			R := A_Index - 1
 			x := marg + C * TTCellWidth
 			y := marg + R * TTCellHeight
 			Text := ""
@@ -2425,17 +2470,19 @@ MouseGetPos,X,Y
             DropDownText .= "|"
         }
     }
-    EditTimeTable.add_agc("DropDownList", "ETimeTableDDLV", "Sort", DropDownText)
+    EditTimeTable.add_agc("DropDownList", "ETimeTableDDLV", "Sort xp-40 y+10", DropDownText)
     EditTimeTable.ETimeTableDDLV.method := "ETimeTableChanged"
-    EditTimeTable.add_agc("Button", "EditTimeTableOK", "Default", "OK")
+    EditTimeTable.add_agc("Button", "EditTimeTableOK", "Default y+10", "OK")
     EditTimeTable.EditTimeTableOK.method := "EditTimeTableOK"
+    EditTimeTable.add_agc("Button", "EditTimeTableDelete","y+10" , "Delete")
+    EditTimeTable.EditTimeTableDelete.method := "EditTimeTableDelete"
     EditTimeTable.Show("", "FlaxEditTimeTable")
 	return
     ETimeTableChangeText:
-        Loop, 6{
-            R := A_Index - 1
-            Loop, 7{
-                C := A_Index - 1
+        Loop, 7{
+            C := A_Index - 1
+            Loop, 6{
+                R := A_Index - 1
                 Text := ""
                 Loop, 4{
                     L := A_Index - 1
@@ -2447,22 +2494,30 @@ MouseGetPos,X,Y
         return
     ETimeTableChanged:
         EditTimeTable.Submit("NoHide")
+        DDLV_value := EditTimeTable.ETimeTableDDLV.value
         if (EditTimeTable.ETimeTableDDLV.value == "new"){
-            InputBox, new_name, , 新規プロファイル名を入力
+            if (not timetableFD.dict.HasKey("template")){
+                msgbox, テンプレートが見つかりませんでした。`n先にテンプレートを作成してください。
+                new_name := "template"
+            }else{
+                InputBox, new_name, , 新規プロファイル名を入力
+            }
             EditTimeTable.ETimeTableDDLV.value := new_name . "||"
+            DDLV_value := "template"
         }
         sterm := term
-        term := EditTimeTable.ETimeTableDDLV.value
+        term := DDLV_value
         GoSub, ETimeTableChangeText
         term := sterm
         return
 	EditTimeTableOK:
         EditTimeTable.Submit()
+        sterm := term
         term := EditTimeTable.ETimeTableDDLV.value
-		Loop, 6{
-			R := A_Index - 1
-			Loop, 7{
-				C := A_Index - 1
+		Loop, 7{
+			C := A_Index - 1
+			Loop, 6{
+				R := A_Index - 1
 				Text := EditTimeTable["E" . R . C].value
 				Text := StrSplit(Text, "`n")
                 if (not timetableFD.dict.HasKey(term))
@@ -2477,9 +2532,21 @@ MouseGetPos,X,Y
 			}
 		}
         configFD.read()
+        if (term == "template")
+            term := sterm
         configFD.dict["CurrentClassTerm"] := term
         configFD.write()
 		timetableFD.write()
+        return
+    EditTimeTableDelete:
+        EditTimeTable.Submit("NoHide")
+        term := EditTimeTable.ETimeTableDDLV.value
+        msgbox, 4, , プロファイル "%term%" を削除します。よろしいですか？
+        ifMsgBox, Yes
+        {
+            timetableFD.dict.Delete(term)
+            EditTimeTable.Destroy()
+        }
         return
 ::flaxgetprocesspath::
 	sleep 100
