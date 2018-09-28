@@ -2195,10 +2195,11 @@ MouseGetPos,X,Y
 	sleep 300
 	TTCellWidth = 100
 	TTCellHeight = 100
-	Gui, New, , FlaxTimeTable
-	Gui, FlaxTimeTable:Font, MeiryoUI
-	Gui, FlaxTimeTable:Margin, 50, 50
-	Gui, FlaxTimeTable:+AlwaysOnTop -Border
+    TimeTable := new AGui(, "TimeTable")
+    TimeTable.Font("Meiryo UI")
+    TimeTable.Margin("50", "50")
+    TimeTable.add_option("AlwaysOnTop")
+    TimeTable.remove_option("Border")
 	x := marg
 	y := marg
     term := configFD.dict["CurrentClassTerm"]
@@ -2210,8 +2211,9 @@ MouseGetPos,X,Y
             DropDownText .= "|"
         }
     }
-    Gui, FlaxTimeTable:Add, DropDownList, Sort VTimeTableDDLV GTimeTableChanged, %DropDownText%
-	Gui, FlaxTimeTable:Show, , FlaxTimeTable
+    TimeTable.add_agc("DropDownList", "TimeTableDDLV", "Sort", DropDownText)
+    TimeTable.TimeTableDDLV.method := "TimeTableChanged"
+    TimeTable.Show("", "FlaxTimeTable")
 	return
     TimeTableAddText:
         Loop, 6{
@@ -2225,7 +2227,8 @@ MouseGetPos,X,Y
                     L := A_Index - 1
                     Text .= "`n" timetableFD.dict[term][R][C][L]
                 }
-                Gui, FlaxTimeTable:Add, Text, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center gOpenClassFolder vTimeTableCell%R%%C%, %Text%
+                TimeTable.add_agc("Text", "TimeTableCell" . R . C, "w" . TTCellWidth . " h" . TTCellHeight . " x" . x . " y" . y . " Border Center", Text)
+                TimeTable["TimeTableCell" . R . C].method := "OpenClassFolder"
             }
         }
         return
@@ -2239,14 +2242,14 @@ MouseGetPos,X,Y
                     L := A_Index - 1
                     Text .= "`n" . timetableFD.dict[term][R][C][L]
                 }
-                GuiControl, , TimeTableCell%R%%C%, %Text%
+                TimeTable["TimeTableCell" . R . C].value := Text
             }
         }
         return
     TimeTableChanged:
-        Gui, FlaxTimeTable:Submit, NoHide
+        TimeTable.Submit("NoHide")
         sterm := term
-        term := TimeTableDDLV
+        term := TimeTable.TimeTableDDLV.value
         GoSub, TimeTableChangeText
         term := sterm
         return
@@ -2263,7 +2266,7 @@ MouseGetPos,X,Y
 		ClassPath := pathFD.dict["class"] . term . "\" . ClassName
         IfNotExist, %ClassPath%
         {
-            Gui, FlaxTimeTable:+OwnDialogs
+            TimeTable.add_option("OwnDialogs")
             msgbox, 4, , 授業フォルダが存在しません。作成しますか？           
             ifMsgBox, Yes
             {
@@ -2278,11 +2281,7 @@ MouseGetPos,X,Y
         {
             Run, %ClassPath%
         }
-        Gui, FlaxTimeTable:Destroy
-		return
-	FlaxTimeTableGuiEscape:
-	FlaxTimeTableGuiClose:
-		Gui, FlaxTimeTable:Destroy
+        TimeTable.Destroy()
 		return
 ::flaxhanoy::
 	sleep 400
@@ -2400,9 +2399,9 @@ MouseGetPos,X,Y
 	sleep 300
 	TTCellWidth = 100
 	TTCellHeight = 100
-	Gui, New, , FlaxEditTimeTable
-	Gui, FlaxEditTimeTable:Font, MeiryoUI
-	Gui, FlaxEditTimeTable:Margin, 50, 50
+    EditTimeTable := new AGui(, "EditTimeTable")
+    EditTimeTable.Font("Meiryo UI")
+    EditTimeTable.Margin("50", "50")
 	x := marg
 	y := marg
 	Loop, 6{
@@ -2416,7 +2415,7 @@ MouseGetPos,X,Y
 				L := A_Index - 1
 				Text .= "`n" timetableFD.dict[term][R][C][L]
 			}
-			Gui, FlaxEditTimeTable:Add, Edit, w%TTCellWidth% h%TTCellHeight% x%x% y%y% Border Center vE%R%%C% -VScroll, %Text%
+            EditTimeTable.add_agc("Edit", "E" . R . C, "w" . TTCellWidth . " h" . TTCellHeight . " x" . x . " y" . y . " Border Center -VScroll", Text)
 		}
 	}
     DropDownText := "new|"
@@ -2426,9 +2425,11 @@ MouseGetPos,X,Y
             DropDownText .= "|"
         }
     }
-    Gui, FlaxEditTimeTable:Add, DropDownList, Sort VETimeTableDDLV GETimeTableChanged, %DropDownText%
-	Gui, FlaxEditTimeTable:Add, Button, Default gEditTimeTableOK, OK
-	Gui, FlaxEditTimeTable:Show, , FlaxEditTimeTable
+    EditTimeTable.add_agc("DropDownList", "ETimeTableDDLV", "Sort", DropDownText)
+    EditTimeTable.ETimeTableDDLV.method := "ETimeTableChanged"
+    EditTimeTable.add_agc("Button", "EditTimeTableOK", "Default", "OK")
+    EditTimeTable.EditTimeTableOK.method := "EditTimeTableOK"
+    EditTimeTable.Show("", "FlaxEditTimeTable")
 	return
     ETimeTableChangeText:
         Loop, 6{
@@ -2440,29 +2441,29 @@ MouseGetPos,X,Y
                     L := A_Index - 1
                     Text .= "`n" . timetableFD.dict[term][R][C][L]
                 }
-                GuiControl, , E%R%%C%, %Text%
+                EditTimeTable["E" . R . C].value := Text
             }
         }
         return
     ETimeTableChanged:
-        Gui, FlaxEditTimeTable:Submit, Nohide
-        if (ETimeTableDDLV == "new"){
+        EditTimeTable.Submit("NoHide")
+        if (EditTimeTable.ETimeTableDDLV.value == "new"){
             InputBox, new_name, , 新規プロファイル名を入力
-            GuiControl, , ETimeTableDDLV, %new_name%||
+            EditTimeTable.ETimeTableDDLV.value := new_name . "||"
         }
         sterm := term
-        term := ETimeTableDDLV
+        term := EditTimeTable.ETimeTableDDLV.value
         GoSub, ETimeTableChangeText
         term := sterm
         return
 	EditTimeTableOK:
-		Gui, FlaxEditTimeTable:Submit
-        term := ETimeTableDDLV
+        EditTimeTable.Submit()
+        term := EditTimeTable.ETimeTableDDLV.value
 		Loop, 6{
 			R := A_Index - 1
 			Loop, 7{
 				C := A_Index - 1
-				Text := E%R%%C%
+				Text := EditTimeTable["E" . R . C].value
 				Text := StrSplit(Text, "`n")
                 if (not timetableFD.dict.HasKey(term))
                     timetableFD.dict[term] := Object()
@@ -2479,11 +2480,7 @@ MouseGetPos,X,Y
         configFD.dict["CurrentClassTerm"] := term
         configFD.write()
 		timetableFD.write()
-	FlaxEditTimeTableGuiEscape:
-	FlaxEditTimeTableGuiClose:
-		Gui, FlaxEditTimeTable:Destroy
-		return
-	return
+        return
 ::flaxgetprocesspath::
 	sleep 100
 	clipboard := GetProcessPath()
@@ -2609,8 +2606,6 @@ MouseGetPos,X,Y
 		if IoS is integer
 			return
 		FlaxLauncher.Submit("NoHide")
-		GuiControl, FlaxLauncher:-AltSubmit, ItemName
-		Gui, FlaxLauncher:Submit, NoHide
 		candidate := ""
 		NoI = 0
 		For Key, Value in launcherFD.dict{
