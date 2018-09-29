@@ -2994,18 +2994,26 @@ MouseGestureExecute:
 	return
 #If (KeyGestureBool)
 	Left::
+    h::
+    a::
 		Key := "L"
 		GoSub, KeyGestureCheck
 		return
 	Right::
+    l::
+    d::
 		Key := "R"
 		GoSub, KeyGestureCheck
 		return
 	UP::
+    k::
+    w::
 		Key := "U"
 		GoSub, KeyGestureCheck
 		return
 	Down::
+    j::
+    s::
 		Key := "D"
 		GoSub, KeyGestureCheck
 		return
@@ -3014,6 +3022,7 @@ MouseGestureExecute:
 		ToolTip, % GestureCandidate(KR, gestureFD)
 		return
 	Enter::
+    Space::
 		KeyGestureBool := False
 		route := KR.route
 		ToolTip,
