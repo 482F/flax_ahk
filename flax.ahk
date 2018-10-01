@@ -64,15 +64,6 @@ DefVars:
 GoSub,DefVars
 
 return
-;Gui の特殊ラベル
-GuiDropFiles:
-	ifWinExist,VirtualFolder
-		GoSub,VirtualFolderDropFiles
-	return
-GuiSize:
-	ifWinExist,VirtualFolder
-		GoSub,VirtualFolderSize
-	return
 
 ;function
 ;関数
@@ -2129,21 +2120,26 @@ MouseGetPos,X,Y
 	return
 ::flaxvirtualfolder::
 	sleep 300
-	Gui, New, , FlaxVirtualFolder
-	Gui, FlaxVirtualFolder:Font,,Meiryo UI
-	Gui, FlaxVirtualFolder:+Resize
-	Gui, FlaxVirtualFolder:Margin,10,10
-	Gui, FlaxVirtualFolder:Add,ListView,VVirtualFolderListView GVirtualFolderListViewEdited AltSubmit W600 H300,Title|Path
+    VirtualFolder := new AGui(, "VirtualFolder")
+    VirtualFolder.dropfiles := Func("VirtualFolderDropFiles")
+    VirtualFolder.size := Func("VirtualFolderSize")
+	VirtualFolder.Font("Meiryo UI")
+	VirtualFolder.add_option("Resize")
+	VirtualFolder.Margin("10", "10")
+	VirtualFolder.add_agc("ListView", "ListView", "AltSubmit w600 h300", "Title|Path")
+    VirtualFolder.ListView.method := "VirtualFolderListViewEdited"
 	LV_ModifyCol(1,300)
 	LV_ModifyCol(2,"AutoHdr")
-	Gui, FlaxVirtualFolder:Add,DropDownList,VVirtualFolderDropDownList GVirtualFolderDropDownListChanged,Make Link||Rename
-	Gui, FlaxVirtualFolder:Add,Text,VVirtualFolderDPathText yp+0 x+50 Section,Dist Path
-	Gui, FlaxVirtualFolder:Add,Text,VVirtualFolderRuleText xs ys hidden, Rule
-	Gui, FlaxVirtualFolder:Add,Edit,VVirtualFolderDPathEdit ys xs+80 W300
-	Gui, FlaxVirtualFolder:Add,Edit,VVirtualFolderRuleEdit ys+0 xs+80 hidden W300
-	Gui, FlaxVirtualFolder:Add,Button,GVirtualFolderConfirmPressed,&Confirm
+    VirtualFolder.add_agc("DropDownList", "DropDownList", , "Make Link||Rename")
+    VirtualFolder.DropDownList.method := "VirtualFolderDropDownListChanged"
+    VirtualFolder.add_agc("Text", "DPathLabel", "yp+0 x+50 Section", "Dist Path")
+	VirtualFolder.add_agc("Text", "RuleLabel", "xs ys hidden", "Rule")
+	VirtualFolder.add_agc("Edit", "DPathEdit", "ys xs+80 w300")
+	VirtualFolder.add_agc("Edit", "RuleEdit", "ys+0 xs+80 hidden w300")
+	VirtualFolder.add_agc("Button", "Confirm", , "&Confirm")
+    VirtualFolder.Confirm.method := "VirtualFolderConfirmPressed"
 	VirtualFolderFileList := ""
-	Gui, FlaxVirtualFolder:Show,Autosize,VirtualFolder
+    VirtualFolder.show("AutoSize", "VirtualFolder")
 	return
 	VirtualFolderListViewEdited:
 		if (A_GuiEvent == "K" and A_EventInfo == "46"){
@@ -2152,8 +2148,8 @@ MouseGetPos,X,Y
 			}
 		}
 		return
-	FlaxVirtualFolderGuiDropFiles:
-	VirtualFolderDropFiles:
+    VirtualFolderDropFiles(){
+        global
 		Loop,Parse,A_GuiEvent,`n
 		{
 			if (InStr(VirtualFolderFileList, A_LoopField) == 0){
@@ -2163,49 +2159,47 @@ MouseGetPos,X,Y
 			}
 		}
 		return
-	FlaxVirtualFolderGuiSize:
-	VirtualFolderSize:
-		return
+    }
+    VirtualFolderSize(){
+        global
+        return
 		w := A_GuiWidth - 20
 		h := A_GuiHeight - 20
-		GuiControl, FlaxVirtualFolder:Move,VirtualFolderListView,W%w% H%h%
+        VirtualFolder.ListView.Move("w" . w . " h" . h)
 		return
+    }
 	VirtualFolderDropDownListChanged:
-		Gui, FlaxVirtualFolder:Submit,NoHide
-		If (VirtualFolderDropDownList == "Rename"){
-			GuiControl, FlaxVirtualFolder:show,VirtualFolderRuleText
-			GuiControl, FlaxVirtualFolder:show,VirtualFolderRuleEdit
-			GuiControl, FlaxVirtualFolder:hide,VirtualFolderDPathText
-			GuiControl, FlaxVirtualFolder:hide,VirtualFolderDPathEdit
-		}else If (VirtualFolderDropDownList == "Make Link"){
-			GuiControl, FlaxVirtualFolder:hide,VirtualFolderRuleText
-			GuiControl, FlaxVirtualFolder:hide,VirtualFolderRuleEdit
-			GuiControl, FlaxVirtualFolder:show,VirtualFolderDPathText
-			GuiControl, FlaxVirtualFolder:show,VirtualFolderDPathEdit
+        VirtualFolder.submit("NoHide")
+		If (VirtualFolder.DropDownList.value == "Rename"){
+            VirtualFolder.DPathText.Hide()
+			VirtualFolder.DPathEdit.Hide()
+            VirtualFolder.RuleText.Show()
+            VirtualFolder.RuleEdit.Show()
+		}else If (VirtualFolder.DropDownList.value == "Make Link"){
+            VirtualFolder.RuleText.Hide()
+            VirtualFolder.RuleEdit.Hide()
+            VirtualFolder.DPathText.Show()
+			VirtualFolder.DPathEdit.Show()
 		}
 		return
 	VirtualFolderConfirmPressed:
-		Gui, FlaxVirtualFolder:Submit,NoHide
-		If (VirtualFolderDropDownList == "Rename"){
+        VirtualFolder.submit("NoHide")
+		If (VirtualFolder.DropDownList.value == "Rename"){
 
-		}else If (VirtualFolderDropDownList == "Make Link"){
-			If (JudgePath(VirtualFolderDPathEdit) != 0){
+		}else If (VirtualFolder.DropDownList.value == "Make Link"){
+			If (JudgePath(VirtualFolder.DPathEdit.value) != 0){
 				FileCreateDir, %VirtualFolderDPathEdit%
 				Loop,% LV_GetCount()
 				{
 					LV_GetText(Name, A_Index, 1)
 					LV_GetText(Path, A_Index, 2)
 					Path .= Name
-					DPath := VirtualFolderDPathEdit . "\" . Name . ".lnk"
+					DPath := VirtualFolder.DPathEdit.value . "\" . Name . ".lnk"
 					FileCreateShortcut,%Path%, %DPath%
 				}
 			}
 		}
 		msgbox,done
-		return
-	FlaxVirtualFolderGuiEscape:
-	FlaxVirtualFolderGuiClose:
-		Gui, FlaxVirtualFolder:Destroy
 		return
 ::flaxconnectratwifi::
 	msgjoin(CmdRun("netsh wlan connect name=RAT-WIRELESS-A", 0))
