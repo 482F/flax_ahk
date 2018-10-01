@@ -2344,99 +2344,100 @@ MouseGetPos,X,Y
 	return
 ::flaxeditgesture::
 	sleep 400
-	Gui, New, , FlaxEditGesture
-	Gui, FlaxEditGesture:Font, , Meiryo UI
-	Gui, FlaxEditGesture:Margin, 10, 10
-	Gui, FlaxEditGesture:Add, Text, , &Gesture
-	Gui, FlaxEditGesture:Add, Edit, w400 vEGesture
-	Gui, FlaxEditGesture:Add, Text, vSymbol w400
-	Gui, FlaxEditGesture:Add, Button, gEditGestureREC, &REC
-	Gui, FlaxEditGesture:Add, Text, , &Command
-	Gui, FlaxEditGesture:Add, Edit, w400 vECommand
-	Gui, FlaxEditGesture:Add, Text, , &Label
-	Gui, FlaxEditGesture:Add, Edit, w400 Section vELabel
-	Gui, FlaxEditGesture:Add, Text, xs+0 ys+50, Mouse Button
-	Gui, FlaxEditGesture:Add, Radio, vRL Checked, &LeftButton
-	Gui, FlaxEditGesture:Add, Radio, vRM, &MiddleButton
-	Gui, FlaxEditGesture:Add, Radio, vRR, &RightButton
-	Gui, FlaxEditGesture:Add, Text, , Modifier Key
-	Gui, FlaxEditGesture:Add, Checkbox, vCCtrl, &Ctrl
-	Gui, FlaxEditGesture:Add, Checkbox, vCAlt, &Alt
-	Gui, FlaxEditGesture:Add, Checkbox, vCShift, &Shift
-	Gui, FlaxEditGesture:Add, Text, xs+200 ys+50, Computer
-	Gui, FlaxEditGesture:Add, Radio, vRThi Checked, &ThisComputer
-	Gui, FlaxEditGesture:Add, Radio, vRAll, &AllComputer
-	Gui, FlaxEditGesture:Add, Text, , Type
-	Gui, FlaxEditGesture:Add, Radio, vRLab, &Label
-	Gui, FlaxEditGesture:Add, Radio, vRLoc, &LocalPath
-	Gui, FlaxEditGesture:Add, Radio, vRApp, &Application
-	Gui, FlaxEditGesture:Add, Radio, vRURL, &URL
-	Gui, FlaxEditGesture:Add, Radio, vRLau, &Launcher
-	Gui, FlaxEditGesture:Add, Button, Default gEditGestureOK, &OK
-	Gui, FlaxEditGesture:-Resize
-	Gui, FlaxEditGesture:Show,Autosize, FlaxEditGesture
+    EditGesture := new AGui(, "EditGesture")
+    EditGesture.escape := Func("EditGestureEscape")
+    EditGesture.Font("Meiryo UI")
+    EditGesture.Margin("10", "10")
+    EditGesture.add_agc("Text", "GestureLabel", , "&Gesture")
+    EditGesture.add_agc("Edit", "EGesture", "w400")
+    EditGesture.add_agc("Text", "SymbolLabel", "w400")
+    EditGesture.add_agc("Button", "RECButton", , "&REC")
+    EditGesture.RECButton.method := "EditGestureREC"
+    EditGesture.add_agc("Text", "CommandLabel", , "&Command")
+    EditGesture.add_agc("Edit", "ECommand", "w400")
+    EditGesture.add_agc("Text", "LabelLabel", , "&Label")
+    EditGesture.add_agc("Edit", "ELabel", "w400 Section")
+    EditGesture.add_agc("Text", "MBLabel", "xs+0 ys+50", "Mouse Button")
+    EditGesture.add_agc("Radio", "RL", "Checked", "&LeftButton")
+    EditGesture.add_agc("Radio", "RM", , "&MiddleButton")
+    EditGesture.add_agc("Radio", "RR", , "&RightButton")
+    EditGesture.add_agc("Text", "ModifierKeyLabel", , "Modifier Key")
+    EditGesture.add_agc("Checkbox", "CCtrl", , "&Ctrl")
+    EditGesture.add_agc("Checkbox", "CAlt", , "&Alt")
+    EditGesture.add_agc("Checkbox", "CShift", , "&Shift")
+    EditGesture.add_agc("Text", "ComputerLabel", "xs+200 ys+50", "Computer")
+    EditGesture.add_agc("Radio", "RThi", "Checked", "&ThisComputer")
+    EditGesture.add_agc("Radio", "RAll", "Checked", "&AllComputer")
+    EditGesture.add_agc("Text", "TypeLabel", , "Type")
+    EditGesture.add_agc("Radio", "RLab", , "&Label")
+    EditGesture.add_agc("Radio", "RLoc", , "&LocalPath")
+    EditGesture.add_agc("Radio", "RApp", , "&Application")
+    EditGesture.add_agc("Radio", "RURL", , "&URL")
+    EditGesture.add_agc("Radio", "RLau", , "&Launcher")
+    EditGesture.add_agc("Button", "OKButton", "Default", "&OK")
+    EditGesture.OKButton.method := "EditGestureOK"
+    EditGesture.remove_option("Resize")
+    EditGesture.show("Autosize", "FlaxEditGesture")
 	return
 	EditGestureREC:
 		RECG := 1
 		MR := new MouseRoute()
 		while (RECG){
 			if (MR.check()){
-				GuiControl, , EGesture, % MR.route
-				GuiControl, , Symbol, % MR.getMRSymbol()
+                EditGesture.EGesture.value := MR.route
+                EditGesture.SymbolLabel.value := MR.getMRSymbol()
 			}
 			sleep 100
 		}
 		return
 	EditGestureOK:
-		Gui, FlaxEditGesture:Submit
+        EditGesture.Submit()
 		Prefix := ""
-		if (RL)
+		if (EditGesture.RL.value)
 			Prefix .= "LB"
-		else if (RM)
+		else if (EditGesture.RM.value)
 			Prefix .= "MB"
-		else if (RR)
+		else if (EditGesture.RR.value)
 			Prefix .= "RB"
-		if (CCtrl)
+		if (EditGesture.CCtrl.value)
 			Prefix .= "^"
-		if (CAlt)
+		if (EditGesture.CAlt.value)
 			Prefix .= "!"
-		if (CShift)
+		if (EditGesture.CShift.value)
 			Prefix .= "+"
 		B_ComputerName := ""
-		if (RThi = 1)
+		if (EditGesture.RThi.value = 1)
 			B_ComputerName := A_ComputerName
-		else if (RAll = 1)
+		else if (EditGesture.RAll.value = 1)
 			B_ComputerName := "default"
-		if (RLab)
+		if (EditGesture.RLab.value)
 			Type := "label"
-		else if (RLoc)
+		else if (EditGesture.RLoc.value)
 			Type := "LocalPath"
-		else if (RApp)
+		else if (EditGesture.RApp.value)
 			Type := "Application"
-		else if (RURL)
+		else if (EditGesture.RURL.value)
 			Type := "URL"
-		else if (RLau)
+		else if (EditGesture.RLau.value)
 			Type := "launcher"
-		EGesture := Prefix . EGesture
-		if (not gestureFD.fdict.HasKey(EGesture))
-			gestureFD.fdict[EGesture] := Object()
-		if (not gestureFD.fdict[EGesture].HasKey(B_ComputerName))
-			gestureFD.fdict[EGesture][B_ComputerName] := Object()
-		gestureFD.fdict[EGesture][B_ComputerName]["command"] := ECommand
-		gestureFD.fdict[EGesture][B_ComputerName]["type"] := Type
-		gestureFD.fdict[EGesture][B_ComputerName]["label"] := ELabel
+		EditGesture.EGesture.value := Prefix . EditGesture.EGesture.value
+		if (not gestureFD.fdict.HasKey(EditGesture.EGesture.value))
+			gestureFD.fdict[EditGesture.EGesture.value] := Object()
+		if (not gestureFD.fdict[EditGesture.EGesture.value].HasKey(B_ComputerName))
+			gestureFD.fdict[EditGesture.EGesture.value][B_ComputerName] := Object()
+		gestureFD.fdict[EditGesture.EGesture.value][B_ComputerName]["command"] := ECommand
+		gestureFD.fdict[EditGesture.EGesture.value][B_ComputerName]["type"] := Type
+		gestureFD.fdict[EditGesture.EGesture.value][B_ComputerName]["label"] := ELabel
 		gestureFD.write()
-		Gui, FlaxEditGesture:Destroy
+        EditGesture.Destroy()
 		return
-	FlaxEditGestureGuiEscape:
-		if (RECG){
-			RECG := 0
-			return
-		}
-	FlaxEditGestureGuiClose:
-		Gui, FlaxEditGesture:Destroy
-		return
-	return
+    EditGestureEscape(){
+        global
+        if (RECG){
+            RECG := 0
+        }
+        return
+    }
 ::flaxedittimetable::
 	timetableFD.read()
     pathFD.read()
