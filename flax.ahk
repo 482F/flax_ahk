@@ -3056,6 +3056,7 @@ MouseGestureExecute:
 ^+!d::send,!+.
 ^+!r::send,!+l
 #G::
+    gestureFD.read()
 	KeyGestureBool := True
 	LPT := 0
 	KR := new KeyRoute("LB")
