@@ -2322,24 +2322,32 @@ MouseGetPos,X,Y
         }
 		return
     #IfWinActive, FlaxTimeTable
+        W::
+        K::
         Up::
             if (0 < timetablePos.r){
                 timetablePos.r -= 1
                 timetable_move_groupbox(timetablePos)
             }
             return
+        S::
+        J::
         Down::
             if (timetablePos.r < 5){
                 timetablePos.r += 1
                 timetable_move_groupbox(timetablePos)
             }
             return
+        A::
+        H::
         Left::
             if (0 < timetablePos.c){
                 timetablePos.c -= 1
                 timetable_move_groupbox(timetablePos)
             }
             return
+        D::
+        L::
         Right::
             if (timetablePos.c < 6){
                 timetablePos.c += 1
