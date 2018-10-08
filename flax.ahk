@@ -2207,6 +2207,9 @@ MouseGetPos,X,Y
 ::flaxtimetable::
 	timetableFD.read()
     configFD.read()
+    timetablePos := Object()
+    timetablePos.r := 0
+    timetablePos.c := 0
 	sleep 300
 	TTCellWidth = 100
 	TTCellHeight = 100
@@ -2230,7 +2233,9 @@ MouseGetPos,X,Y
     }
     TimeTable.add_agc("DropDownList", "TimeTableDDLV", "Sort xp-40 y+10", DropDownText)
     TimeTable.TimeTableDDLV.method := "TimeTableChanged"
-    TimeTable.Show("", "FlaxTimeTable")
+    TimeTable.add_agc("GroupBox", "GroupBox", "BackgroundTrans")
+    timetable_move_groupbox(timetablePos)
+    TimeTable.Show("AutoSize", "FlaxTimeTable")
 	return
     timetable_open_URL(){
         global
@@ -2238,6 +2243,13 @@ MouseGetPos,X,Y
         clicked_c := SubStr(A_GuiControl, 30, 1)
         run, % timetableFD.dict[term][clicked_r][clicked_c]["URL"]
         TimeTable.Destroy()
+        return
+    }
+    timetable_move_groupbox(Pos){
+        global
+        x := marg + Pos.c * TTCellWidth + 5
+        y := marg + Pos.r * TTCellHeight
+        TimeTable.GroupBox.movedraw("x" . x . " y" . y . " h" . TTCellHeight - 3 . " w" . TTCellWidth - 8)
         return
     }
     TimeTableAddText:
@@ -2309,6 +2321,32 @@ MouseGetPos,X,Y
             Run, %ClassPath%
         }
 		return
+    #IfWinActive, FlaxTimeTable
+        Up::
+            if (0 < timetablePos.r){
+                timetablePos.r -= 1
+                timetable_move_groupbox(timetablePos)
+            }
+            return
+        Down::
+            if (timetablePos.r < 5){
+                timetablePos.r += 1
+                timetable_move_groupbox(timetablePos)
+            }
+            return
+        Left::
+            if (0 < timetablePos.c){
+                timetablePos.c -= 1
+                timetable_move_groupbox(timetablePos)
+            }
+            return
+        Right::
+            if (timetablePos.c < 6){
+                timetablePos.c += 1
+                timetable_move_groupbox(timetablePos)
+            }
+            return
+    #IfWinActive
 ::flaxhanoy::
 	sleep 400
 	CmdRun(pathFD.dict["python"] . " Hanoy.py ")
