@@ -2211,7 +2211,7 @@ MouseGetPos,X,Y
 	TTCellWidth = 100
 	TTCellHeight = 100
     TimeTable := new AGui(, "TimeTable")
-    TimeTable.contextmenu := Func("timetable_context_menu")
+    TimeTable.contextmenu := Func("timetable_open_URL")
     TimeTable.Font(, configFD.dict["Font"])
     TimeTable.Margin("50", "50")
     TimeTable.add_option("AlwaysOnTop")
@@ -2232,27 +2232,14 @@ MouseGetPos,X,Y
     TimeTable.TimeTableDDLV.method := "TimeTableChanged"
     TimeTable.Show("", "FlaxTimeTable")
 	return
-    timetable_context_menu(){
+    timetable_open_URL(){
         global
-        MouseGetPos, mx, my
         clicked_r := SubStr(A_GuiControl, 29, 1)
         clicked_c := SubStr(A_GuiControl, 30, 1)
-        Menu, TTMenu, Add, URL を開く, timetable_open_URL
-        Menu, TTMenu, Add, URL を編集する, timetable_edit_URL
-		Menu, TTMenu, Show, %mx%, %my%
-		Menu, TTMenu, DeleteAll
-        return
-    }
-    timetable_open_URL:
         run, % timetableFD.dict[term][clicked_r][clicked_c]["URL"]
         TimeTable.Destroy()
         return
-    timetable_edit_URL:
-        TimeTable.add_option("OwnDialogs")
-        InputBox, URL, TimeTable, 登録する URL を入力, , , , , , , % timetableFD.dict[term][clicked_r][clicked_c]["URL"]
-        timetableFD.dict[term][clicked_r][clicked_c]["URL"] := URL
-        timetableFD.write()
-        return
+    }
     TimeTableAddText:
         Loop, 7{
             C := A_Index - 1
