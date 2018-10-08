@@ -2207,9 +2207,7 @@ MouseGetPos,X,Y
 ::flaxtimetable::
 	timetableFD.read()
     configFD.read()
-    timetablePos := Object()
-    timetablePos.r := 0
-    timetablePos.c := 0
+    timetablePos := timetable_current_cell_pos()
 	sleep 300
 	TTCellWidth = 100
 	TTCellHeight = 100
@@ -2237,6 +2235,23 @@ MouseGetPos,X,Y
     timetable_move_groupbox(timetablePos)
     TimeTable.Show("AutoSize", "FlaxTimeTable")
 	return
+    timetable_current_cell_pos(){
+        global
+        pos := Object()
+        pos.r := 0
+        pos.c := 0
+        FormatTime, CurrentTime, , HHmm
+        FormatTime, CurrentDay, , WDay
+        pos.c := CurrentDay - 1
+        for key, value in configFD.dict["ClassTime"]{
+            if (value <= CurrentTime){
+                pos.r := key
+            }else{
+                break
+            }
+        }
+        return pos
+    }
     timetable_open_URL(r="", c=""){
         global
         if (r == ""){
