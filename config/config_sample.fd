@@ -14,3 +14,11 @@ ChangeHotKey=[
 		IfWinActive=ahk_exe LINE.exe
 	]
 ]
+Font=ＭＳ　ゴシック
+ClassTime=[
+    1=0900
+    2=1050
+    3=1320
+    4=1510
+    5=1700
+]
