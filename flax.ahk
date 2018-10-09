@@ -723,7 +723,7 @@ GestureCandidate(MR, gFD){
 	reg := MR.Reg
 	CommandCandidate := ""
 	For Key, Value in gFD.dict{
-		if (InStr(Key, route) == 1){
+		if (InStr(Key, route) == 1 and gFD.dict[Key]["label"] != "" and gFD.dict[Key]["command"] != ""){
 			CommandLabel := gFD.dict[Key]["label"]
 			CandiName := SubStr(Key, StrLen(route) + 1, StrLen(Key))
 			CandiValue := CandiName == "" ? "" : " : "
