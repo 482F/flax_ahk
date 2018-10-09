@@ -2258,12 +2258,14 @@ MouseGetPos,X,Y
     }
     timetable_open_URL(r="", c=""){
         global
-        if (r == ""){
+        if r is not integer
+        {
             clicked_r := SubStr(A_GuiControl, 29, 1)
         }else{
             clicked_r := r
         }
-        if (c == ""){
+        if c is not integer
+        {
             clicked_c := SubStr(A_GuiControl, 30, 1)
         }else{
             clicked_c := c
