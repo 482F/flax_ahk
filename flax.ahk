@@ -994,6 +994,8 @@ class TestObj{
 }
 class KeyRoute extends MouseRoute{
 	__New(Prefix){
+        global
+        configFD.read()
 		base.__New(Prefix)
 		this.LastKey := ""
 		this.LastKeyPressedTime := 0
