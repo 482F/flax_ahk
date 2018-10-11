@@ -2450,7 +2450,7 @@ MouseGetPos,X,Y
 			R := A_Index - 1
 			x := marg + C * TTCellWidth
 			y := marg + R * TTCellHeight
-			Text := ""
+			Text := timetableFD.dict[term][R][C]["URL"]
 			Loop, 4{
 				L := A_Index - 1
 				Text .= "`n" timetableFD.dict[term][R][C][L]
@@ -2478,7 +2478,7 @@ MouseGetPos,X,Y
             C := A_Index - 1
             Loop, 6{
                 R := A_Index - 1
-                Text := ""
+                Text := timetableFD.dict[term][R][C]["URL"]
                 Loop, 4{
                     L := A_Index - 1
                     Text .= "`n" . timetableFD.dict[term][R][C][L]
@@ -2521,6 +2521,7 @@ MouseGetPos,X,Y
                     timetableFD.dict[term][R] := Object()
                 if (not timetableFD.dict[term][R].HasKey(C))
                     timetableFD.dict[term][R][C] := Object()
+                timetableFD.dict[term][R][C]["URL"] := Text[1]
 				Loop, 4{
 					timetableFD.dict[term][R][C][A_Index - 1] := Text[A_Index + 1]
 				}
