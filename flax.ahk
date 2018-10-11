@@ -2291,16 +2291,19 @@ MouseGetPos,X,Y
         term := sterm
         return
 	OpenClassFolder:
-        GuiControlGet, ClassName, , %A_GuiControl%
-		Loop, Parse, ClassName, `n
-		{
-			if (A_Index == 2)
-			{
-				ClassName := A_LoopField
-				break
-			}
-		}
+        if (ClassName == ""){
+            GuiControlGet, ClassName, , %A_GuiControl%
+            Loop, Parse, ClassName, `n
+            {
+                if (A_Index == 2)
+                {
+                    ClassName := A_LoopField
+                    break
+                }
+            }
+        }
 		ClassPath := pathFD.dict["class"] . term . "\" . ClassName
+        ClassName := ""
         IfNotExist, %ClassPath%
         {
             TimeTable.add_option("OwnDialogs")
@@ -2353,6 +2356,11 @@ MouseGetPos,X,Y
                 timetablePos.c += 1
                 timetable_move_groupbox(timetablePos)
             }
+            return
+        Enter::
+        Space::
+            ClassName := timetableFD.dict[term][timetablePos.r][timetablePos.c][0]
+            GoSub, OpenClassFolder
             return
     #IfWinActive
 ::flaxhanoy::
