@@ -2237,10 +2237,18 @@ MouseGetPos,X,Y
     timetable_move_groupbox(timetablePos)
     TimeTable.Show("AutoSize", "FlaxTimeTable")
 	return
-    timetable_open_URL(){
+    timetable_open_URL(r="", c=""){
         global
-        clicked_r := SubStr(A_GuiControl, 29, 1)
-        clicked_c := SubStr(A_GuiControl, 30, 1)
+        if (r == ""){
+            clicked_r := SubStr(A_GuiControl, 29, 1)
+        }else{
+            clicked_r := r
+        }
+        if (c == ""){
+            clicked_c := SubStr(A_GuiControl, 30, 1)
+        }else{
+            clicked_c := c
+        }
         run, % timetableFD.dict[term][clicked_r][clicked_c]["URL"]
         TimeTable.Destroy()
         return
@@ -2361,6 +2369,10 @@ MouseGetPos,X,Y
         Space::
             ClassName := timetableFD.dict[term][timetablePos.r][timetablePos.c][0]
             GoSub, OpenClassFolder
+            return
+        ^Enter::
+        ^Space::
+            timetable_open_URL(timetablePos.r, timetablePos.c)
             return
     #IfWinActive
 ::flaxhanoy::
