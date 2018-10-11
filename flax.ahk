@@ -2633,6 +2633,7 @@ MouseGetPos,X,Y
 	Sleep 100
 	NoDI := 5
 	NoI := NoDI
+    LIoS := 0
 	candidate := ""
 	SysGet,MonitorSizeX,0
 	SysGet,MonitorSizeY,1
@@ -2736,8 +2737,10 @@ MouseGetPos,X,Y
 		FlaxLauncher.Submit("NoHide")
 		IoS := FlaxLauncher.ItemName.value
 		FlaxLauncher.ItemName.remove_option("AltSubmit")
-		if IoS is integer
-			return
+        if ((IoS == 1) or (abs(LIoS - IoS) == 1)){
+            LIoS := IoS
+            return
+        }
 		FlaxLauncher.Submit("NoHide")
 		candidate := ""
 		NoI = 0
@@ -2753,6 +2756,12 @@ MouseGetPos,X,Y
 		}
 		FlaxLauncher.ItemName.value := candidate
 		FlaxLauncher.ItemName.Text(FlaxLauncher.HiddenEdit.value)
+        if IoS is integer
+        {
+            LIoS := 1
+        }else{
+            LIoS := IoS
+        }
 		return
 #IfWinActive,FlaxProgramLauncher
 	Tab::
