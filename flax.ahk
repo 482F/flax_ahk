@@ -2207,6 +2207,9 @@ MouseGetPos,X,Y
 ::flaxtimetable::
 	timetableFD.read()
     configFD.read()
+    timetablePos := Object()
+    timetablePos.r := 0
+    timetablePos.c := 0
 	sleep 300
 	TTCellWidth = 100
 	TTCellHeight = 100
@@ -2230,14 +2233,31 @@ MouseGetPos,X,Y
     }
     TimeTable.add_agc("DropDownList", "TimeTableDDLV", "Sort xp-40 y+10", DropDownText)
     TimeTable.TimeTableDDLV.method := "TimeTableChanged"
-    TimeTable.Show("", "FlaxTimeTable")
+    TimeTable.add_agc("GroupBox", "GroupBox", "BackgroundTrans")
+    timetable_move_groupbox(timetablePos)
+    TimeTable.Show("AutoSize", "FlaxTimeTable")
 	return
-    timetable_open_URL(){
+    timetable_open_URL(r="", c=""){
         global
-        clicked_r := SubStr(A_GuiControl, 29, 1)
-        clicked_c := SubStr(A_GuiControl, 30, 1)
+        if (r == ""){
+            clicked_r := SubStr(A_GuiControl, 29, 1)
+        }else{
+            clicked_r := r
+        }
+        if (c == ""){
+            clicked_c := SubStr(A_GuiControl, 30, 1)
+        }else{
+            clicked_c := c
+        }
         run, % timetableFD.dict[term][clicked_r][clicked_c]["URL"]
         TimeTable.Destroy()
+        return
+    }
+    timetable_move_groupbox(Pos){
+        global
+        x := marg + Pos.c * TTCellWidth + 5
+        y := marg + Pos.r * TTCellHeight
+        TimeTable.GroupBox.movedraw("x" . x . " y" . y . " h" . TTCellHeight - 3 . " w" . TTCellWidth - 8)
         return
     }
     TimeTableAddText:
@@ -2279,16 +2299,19 @@ MouseGetPos,X,Y
         term := sterm
         return
 	OpenClassFolder:
-        GuiControlGet, ClassName, , %A_GuiControl%
-		Loop, Parse, ClassName, `n
-		{
-			if (A_Index == 2)
-			{
-				ClassName := A_LoopField
-				break
-			}
-		}
+        if (ClassName == ""){
+            GuiControlGet, ClassName, , %A_GuiControl%
+            Loop, Parse, ClassName, `n
+            {
+                if (A_Index == 2)
+                {
+                    ClassName := A_LoopField
+                    break
+                }
+            }
+        }
 		ClassPath := pathFD.dict["class"] . term . "\" . ClassName
+        ClassName := ""
         IfNotExist, %ClassPath%
         {
             TimeTable.add_option("OwnDialogs")
@@ -2309,6 +2332,49 @@ MouseGetPos,X,Y
             Run, %ClassPath%
         }
 		return
+    #IfWinActive, FlaxTimeTable
+        W::
+        K::
+        Up::
+            if (0 < timetablePos.r){
+                timetablePos.r -= 1
+                timetable_move_groupbox(timetablePos)
+            }
+            return
+        S::
+        J::
+        Down::
+            if (timetablePos.r < 5){
+                timetablePos.r += 1
+                timetable_move_groupbox(timetablePos)
+            }
+            return
+        A::
+        H::
+        Left::
+            if (0 < timetablePos.c){
+                timetablePos.c -= 1
+                timetable_move_groupbox(timetablePos)
+            }
+            return
+        D::
+        L::
+        Right::
+            if (timetablePos.c < 6){
+                timetablePos.c += 1
+                timetable_move_groupbox(timetablePos)
+            }
+            return
+        Enter::
+        Space::
+            ClassName := timetableFD.dict[term][timetablePos.r][timetablePos.c][0]
+            GoSub, OpenClassFolder
+            return
+        ^Enter::
+        ^Space::
+            timetable_open_URL(timetablePos.r, timetablePos.c)
+            return
+    #IfWinActive
 ::flaxhanoy::
 	sleep 400
 	CmdRun(pathFD.dict["python"] . " Hanoy.py ")
