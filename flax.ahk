@@ -2629,6 +2629,7 @@ MouseGetPos,X,Y
 ;ホットキー
 +!^W::
 	FlaxLauncher := new AGui(, "FlaxLauncher")
+    FlaxLauncher.Font(, configFD.dict["Font"])
 	launcherFD.read()
 	Sleep 100
 	NoDI := 5
