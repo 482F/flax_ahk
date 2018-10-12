@@ -1483,6 +1483,7 @@ flaxguitestmethod:
 	return
 ::flaxmakecodegui::
 	sleep 100
+    configFD.read()
 	FlaxCode_Maker := new AGui(, "FlaxCode_Maker")
 	FlaxCode_Maker.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
 	FlaxCode_Maker.Margin(10, 10)
@@ -2122,6 +2123,7 @@ MouseGetPos,X,Y
 	return
 ::flaxvirtualfolder::
 	sleep 300
+    configFD.read()
     VirtualFolder := new AGui(, "VirtualFolder")
     VirtualFolder.dropfiles := Func("VirtualFolderDropFiles")
     VirtualFolder.size := Func("VirtualFolderSize")
@@ -2408,6 +2410,7 @@ MouseGetPos,X,Y
 	return
 ::flaxeditgesture::
 	sleep 400
+    configFD.read()
     EditGesture := new AGui(, "EditGesture")
     EditGesture.escape := Func("EditGestureEscape")
     EditGesture.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
@@ -2504,6 +2507,7 @@ MouseGetPos,X,Y
     }
 ::flaxedittimetable::
 	timetableFD.read()
+    configFD.read()
     pathFD.read()
     term := configFD.dict["CurrentClassTerm"]
 	sleep 300
@@ -2628,6 +2632,7 @@ MouseGetPos,X,Y
 ;hotkey
 ;ホットキー
 +!^W::
+    configFD.read()
 	FlaxLauncher := new AGui(, "FlaxLauncher")
     FlaxLauncher.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
 	launcherFD.read()
@@ -3444,6 +3449,7 @@ MouseGestureExecute:
 		Menu, ExpMenu, DeleteAll
 		return
 		register_launcher:
+            configFD.read()
 			RCLoc := ""
 			RCApp := ""
 			if (InStr(FileExist(FilePath), "D") != 0){
@@ -3503,6 +3509,7 @@ MouseGestureExecute:
 				msgjoin("未実装")
 				return
 		editmp3tags:
+            configFD.read()
             EditMP3Tags := new AGui(, "EditMp3Tags")
             EditMP3Tags.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
             EditMP3Tags.Margin("10", "10")
