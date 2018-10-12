@@ -64,15 +64,6 @@ DefVars:
 GoSub,DefVars
 
 return
-;Gui の特殊ラベル
-GuiDropFiles:
-	ifWinExist,VirtualFolder
-		GoSub,VirtualFolderDropFiles
-	return
-GuiSize:
-	ifWinExist,VirtualFolder
-		GoSub,VirtualFolderSize
-	return
 
 ;function
 ;関数
@@ -1003,6 +994,8 @@ class TestObj{
 }
 class KeyRoute extends MouseRoute{
 	__New(Prefix){
+        global
+        configFD.read()
 		base.__New(Prefix)
 		this.LastKey := ""
 		this.LastKeyPressedTime := 0
@@ -1491,7 +1484,7 @@ flaxguitestmethod:
 ::flaxmakecodegui::
 	sleep 100
 	FlaxCode_Maker := new AGui(, "FlaxCode_Maker")
-	FlaxCode_Maker.Font("Meiryo UI")
+	FlaxCode_Maker.Font(, configFD.dict["Font"])
 	FlaxCode_Maker.Margin(10, 10)
 	FlaxCode_Maker.add_agc("Text", "", , "&Clear Text")
 	FlaxCode_Maker.add_agc("Edit", "CText", "W500 Multi Password*")
@@ -2129,21 +2122,26 @@ MouseGetPos,X,Y
 	return
 ::flaxvirtualfolder::
 	sleep 300
-	Gui, New, , FlaxVirtualFolder
-	Gui, FlaxVirtualFolder:Font,,Meiryo UI
-	Gui, FlaxVirtualFolder:+Resize
-	Gui, FlaxVirtualFolder:Margin,10,10
-	Gui, FlaxVirtualFolder:Add,ListView,VVirtualFolderListView GVirtualFolderListViewEdited AltSubmit W600 H300,Title|Path
+    VirtualFolder := new AGui(, "VirtualFolder")
+    VirtualFolder.dropfiles := Func("VirtualFolderDropFiles")
+    VirtualFolder.size := Func("VirtualFolderSize")
+	VirtualFolder.Font(, configFD.dict["Font"])
+	VirtualFolder.add_option("Resize")
+	VirtualFolder.Margin("10", "10")
+	VirtualFolder.add_agc("ListView", "ListView", "AltSubmit w600 h300", "Title|Path")
+    VirtualFolder.ListView.method := "VirtualFolderListViewEdited"
 	LV_ModifyCol(1,300)
 	LV_ModifyCol(2,"AutoHdr")
-	Gui, FlaxVirtualFolder:Add,DropDownList,VVirtualFolderDropDownList GVirtualFolderDropDownListChanged,Make Link||Rename
-	Gui, FlaxVirtualFolder:Add,Text,VVirtualFolderDPathText yp+0 x+50 Section,Dist Path
-	Gui, FlaxVirtualFolder:Add,Text,VVirtualFolderRuleText xs ys hidden, Rule
-	Gui, FlaxVirtualFolder:Add,Edit,VVirtualFolderDPathEdit ys xs+80 W300
-	Gui, FlaxVirtualFolder:Add,Edit,VVirtualFolderRuleEdit ys+0 xs+80 hidden W300
-	Gui, FlaxVirtualFolder:Add,Button,GVirtualFolderConfirmPressed,&Confirm
+    VirtualFolder.add_agc("DropDownList", "DropDownList", , "Make Link||Rename")
+    VirtualFolder.DropDownList.method := "VirtualFolderDropDownListChanged"
+    VirtualFolder.add_agc("Text", "DPathLabel", "yp+0 x+50 Section", "Dist Path")
+	VirtualFolder.add_agc("Text", "RuleLabel", "xs ys hidden", "Rule")
+	VirtualFolder.add_agc("Edit", "DPathEdit", "ys xs+80 w300")
+	VirtualFolder.add_agc("Edit", "RuleEdit", "ys+0 xs+80 hidden w300")
+	VirtualFolder.add_agc("Button", "Confirm", , "&Confirm")
+    VirtualFolder.Confirm.method := "VirtualFolderConfirmPressed"
 	VirtualFolderFileList := ""
-	Gui, FlaxVirtualFolder:Show,Autosize,VirtualFolder
+    VirtualFolder.show("AutoSize", "VirtualFolder")
 	return
 	VirtualFolderListViewEdited:
 		if (A_GuiEvent == "K" and A_EventInfo == "46"){
@@ -2152,8 +2150,8 @@ MouseGetPos,X,Y
 			}
 		}
 		return
-	FlaxVirtualFolderGuiDropFiles:
-	VirtualFolderDropFiles:
+    VirtualFolderDropFiles(){
+        global
 		Loop,Parse,A_GuiEvent,`n
 		{
 			if (InStr(VirtualFolderFileList, A_LoopField) == 0){
@@ -2163,49 +2161,47 @@ MouseGetPos,X,Y
 			}
 		}
 		return
-	FlaxVirtualFolderGuiSize:
-	VirtualFolderSize:
-		return
+    }
+    VirtualFolderSize(){
+        global
+        return
 		w := A_GuiWidth - 20
 		h := A_GuiHeight - 20
-		GuiControl, FlaxVirtualFolder:Move,VirtualFolderListView,W%w% H%h%
+        VirtualFolder.ListView.Move("w" . w . " h" . h)
 		return
+    }
 	VirtualFolderDropDownListChanged:
-		Gui, FlaxVirtualFolder:Submit,NoHide
-		If (VirtualFolderDropDownList == "Rename"){
-			GuiControl, FlaxVirtualFolder:show,VirtualFolderRuleText
-			GuiControl, FlaxVirtualFolder:show,VirtualFolderRuleEdit
-			GuiControl, FlaxVirtualFolder:hide,VirtualFolderDPathText
-			GuiControl, FlaxVirtualFolder:hide,VirtualFolderDPathEdit
-		}else If (VirtualFolderDropDownList == "Make Link"){
-			GuiControl, FlaxVirtualFolder:hide,VirtualFolderRuleText
-			GuiControl, FlaxVirtualFolder:hide,VirtualFolderRuleEdit
-			GuiControl, FlaxVirtualFolder:show,VirtualFolderDPathText
-			GuiControl, FlaxVirtualFolder:show,VirtualFolderDPathEdit
+        VirtualFolder.submit("NoHide")
+		If (VirtualFolder.DropDownList.value == "Rename"){
+            VirtualFolder.DPathText.Hide()
+			VirtualFolder.DPathEdit.Hide()
+            VirtualFolder.RuleText.Show()
+            VirtualFolder.RuleEdit.Show()
+		}else If (VirtualFolder.DropDownList.value == "Make Link"){
+            VirtualFolder.RuleText.Hide()
+            VirtualFolder.RuleEdit.Hide()
+            VirtualFolder.DPathText.Show()
+			VirtualFolder.DPathEdit.Show()
 		}
 		return
 	VirtualFolderConfirmPressed:
-		Gui, FlaxVirtualFolder:Submit,NoHide
-		If (VirtualFolderDropDownList == "Rename"){
+        VirtualFolder.submit("NoHide")
+		If (VirtualFolder.DropDownList.value == "Rename"){
 
-		}else If (VirtualFolderDropDownList == "Make Link"){
-			If (JudgePath(VirtualFolderDPathEdit) != 0){
+		}else If (VirtualFolder.DropDownList.value == "Make Link"){
+			If (JudgePath(VirtualFolder.DPathEdit.value) != 0){
 				FileCreateDir, %VirtualFolderDPathEdit%
 				Loop,% LV_GetCount()
 				{
 					LV_GetText(Name, A_Index, 1)
 					LV_GetText(Path, A_Index, 2)
 					Path .= Name
-					DPath := VirtualFolderDPathEdit . "\" . Name . ".lnk"
+					DPath := VirtualFolder.DPathEdit.value . "\" . Name . ".lnk"
 					FileCreateShortcut,%Path%, %DPath%
 				}
 			}
 		}
 		msgbox,done
-		return
-	FlaxVirtualFolderGuiEscape:
-	FlaxVirtualFolderGuiClose:
-		Gui, FlaxVirtualFolder:Destroy
 		return
 ::flaxconnectratwifi::
 	msgjoin(CmdRun("netsh wlan connect name=RAT-WIRELESS-A", 0))
@@ -2213,12 +2209,13 @@ MouseGetPos,X,Y
 ::flaxtimetable::
 	timetableFD.read()
     configFD.read()
+    timetablePos := timetable_current_cell_pos()
 	sleep 300
 	TTCellWidth = 100
 	TTCellHeight = 100
     TimeTable := new AGui(, "TimeTable")
-    TimeTable.contextmenu := Func("timetable_context_menu")
-    TimeTable.Font("Meiryo UI")
+    TimeTable.contextmenu := Func("timetable_open_URL")
+    TimeTable.Font(, configFD.dict["Font"])
     TimeTable.Margin("50", "50")
     TimeTable.add_option("AlwaysOnTop")
     TimeTable.remove_option("Border")
@@ -2234,31 +2231,52 @@ MouseGetPos,X,Y
             DropDownText .= "|"
         }
     }
-    TimeTable.add_agc("DropDownList", "TimeTableDDLV", "Sort", DropDownText)
+    TimeTable.add_agc("DropDownList", "TimeTableDDLV", "Sort xp-40 y+10", DropDownText)
     TimeTable.TimeTableDDLV.method := "TimeTableChanged"
-    TimeTable.Show("", "FlaxTimeTable")
+    TimeTable.add_agc("GroupBox", "GroupBox", "BackgroundTrans")
+    timetable_move_groupbox(timetablePos)
+    TimeTable.Show("AutoSize", "FlaxTimeTable")
 	return
-    timetable_context_menu(){
+    timetable_current_cell_pos(){
         global
-        MouseGetPos, mx, my
-        clicked_r := SubStr(A_GuiControl, 29, 1)
-        clicked_c := SubStr(A_GuiControl, 30, 1)
-        Menu, TTMenu, Add, URL を開く, timetable_open_URL
-        Menu, TTMenu, Add, URL を編集する, timetable_edit_URL
-		Menu, TTMenu, Show, %mx%, %my%
-		Menu, TTMenu, DeleteAll
-        return
+        pos := Object()
+        pos.r := 0
+        pos.c := 0
+        FormatTime, CurrentTime, , HHmm
+        FormatTime, CurrentDay, , WDay
+        pos.c := CurrentDay - 1
+        for key, value in configFD.dict["ClassTime"]{
+            if (value <= CurrentTime){
+                pos.r := key
+            }else{
+                break
+            }
+        }
+        return pos
     }
-    timetable_open_URL:
+    timetable_open_URL(r="", c=""){
+        global
+        if (r == ""){
+            clicked_r := SubStr(A_GuiControl, 29, 1)
+        }else{
+            clicked_r := r
+        }
+        if (c == ""){
+            clicked_c := SubStr(A_GuiControl, 30, 1)
+        }else{
+            clicked_c := c
+        }
         run, % timetableFD.dict[term][clicked_r][clicked_c]["URL"]
         TimeTable.Destroy()
         return
-    timetable_edit_URL:
-        TimeTable.add_option("OwnDialogs")
-        InputBox, URL, TimeTable, 登録する URL を入力, , , , , , , % timetableFD.dict[term][clicked_r][clicked_c]["URL"]
-        timetableFD.dict[term][clicked_r][clicked_c]["URL"] := URL
-        timetableFD.write()
+    }
+    timetable_move_groupbox(Pos){
+        global
+        x := marg + Pos.c * TTCellWidth + 5
+        y := marg + Pos.r * TTCellHeight
+        TimeTable.GroupBox.movedraw("x" . x . " y" . y . " h" . TTCellHeight - 3 . " w" . TTCellWidth - 8)
         return
+    }
     TimeTableAddText:
         Loop, 7{
             C := A_Index - 1
@@ -2298,16 +2316,19 @@ MouseGetPos,X,Y
         term := sterm
         return
 	OpenClassFolder:
-        GuiControlGet, ClassName, , %A_GuiControl%
-		Loop, Parse, ClassName, `n
-		{
-			if (A_Index == 2)
-			{
-				ClassName := A_LoopField
-				break
-			}
-		}
+        if (ClassName == ""){
+            GuiControlGet, ClassName, , %A_GuiControl%
+            Loop, Parse, ClassName, `n
+            {
+                if (A_Index == 2)
+                {
+                    ClassName := A_LoopField
+                    break
+                }
+            }
+        }
 		ClassPath := pathFD.dict["class"] . term . "\" . ClassName
+        ClassName := ""
         IfNotExist, %ClassPath%
         {
             TimeTable.add_option("OwnDialogs")
@@ -2328,6 +2349,49 @@ MouseGetPos,X,Y
             Run, %ClassPath%
         }
 		return
+    #IfWinActive, FlaxTimeTable
+        W::
+        K::
+        Up::
+            if (0 < timetablePos.r){
+                timetablePos.r -= 1
+                timetable_move_groupbox(timetablePos)
+            }
+            return
+        S::
+        J::
+        Down::
+            if (timetablePos.r < 5){
+                timetablePos.r += 1
+                timetable_move_groupbox(timetablePos)
+            }
+            return
+        A::
+        H::
+        Left::
+            if (0 < timetablePos.c){
+                timetablePos.c -= 1
+                timetable_move_groupbox(timetablePos)
+            }
+            return
+        D::
+        L::
+        Right::
+            if (timetablePos.c < 6){
+                timetablePos.c += 1
+                timetable_move_groupbox(timetablePos)
+            }
+            return
+        Enter::
+        Space::
+            ClassName := timetableFD.dict[term][timetablePos.r][timetablePos.c][0]
+            GoSub, OpenClassFolder
+            return
+        ^Enter::
+        ^Space::
+            timetable_open_URL(timetablePos.r, timetablePos.c)
+            return
+    #IfWinActive
 ::flaxhanoy::
 	sleep 400
 	CmdRun(pathFD.dict["python"] . " Hanoy.py ")
@@ -2344,99 +2408,100 @@ MouseGetPos,X,Y
 	return
 ::flaxeditgesture::
 	sleep 400
-	Gui, New, , FlaxEditGesture
-	Gui, FlaxEditGesture:Font, , Meiryo UI
-	Gui, FlaxEditGesture:Margin, 10, 10
-	Gui, FlaxEditGesture:Add, Text, , &Gesture
-	Gui, FlaxEditGesture:Add, Edit, w400 vEGesture
-	Gui, FlaxEditGesture:Add, Text, vSymbol w400
-	Gui, FlaxEditGesture:Add, Button, gEditGestureREC, &REC
-	Gui, FlaxEditGesture:Add, Text, , &Command
-	Gui, FlaxEditGesture:Add, Edit, w400 vECommand
-	Gui, FlaxEditGesture:Add, Text, , &Label
-	Gui, FlaxEditGesture:Add, Edit, w400 Section vELabel
-	Gui, FlaxEditGesture:Add, Text, xs+0 ys+50, Mouse Button
-	Gui, FlaxEditGesture:Add, Radio, vRL Checked, &LeftButton
-	Gui, FlaxEditGesture:Add, Radio, vRM, &MiddleButton
-	Gui, FlaxEditGesture:Add, Radio, vRR, &RightButton
-	Gui, FlaxEditGesture:Add, Text, , Modifier Key
-	Gui, FlaxEditGesture:Add, Checkbox, vCCtrl, &Ctrl
-	Gui, FlaxEditGesture:Add, Checkbox, vCAlt, &Alt
-	Gui, FlaxEditGesture:Add, Checkbox, vCShift, &Shift
-	Gui, FlaxEditGesture:Add, Text, xs+200 ys+50, Computer
-	Gui, FlaxEditGesture:Add, Radio, vRThi Checked, &ThisComputer
-	Gui, FlaxEditGesture:Add, Radio, vRAll, &AllComputer
-	Gui, FlaxEditGesture:Add, Text, , Type
-	Gui, FlaxEditGesture:Add, Radio, vRLab, &Label
-	Gui, FlaxEditGesture:Add, Radio, vRLoc, &LocalPath
-	Gui, FlaxEditGesture:Add, Radio, vRApp, &Application
-	Gui, FlaxEditGesture:Add, Radio, vRURL, &URL
-	Gui, FlaxEditGesture:Add, Radio, vRLau, &Launcher
-	Gui, FlaxEditGesture:Add, Button, Default gEditGestureOK, &OK
-	Gui, FlaxEditGesture:-Resize
-	Gui, FlaxEditGesture:Show,Autosize, FlaxEditGesture
+    EditGesture := new AGui(, "EditGesture")
+    EditGesture.escape := Func("EditGestureEscape")
+    EditGesture.Font(, configFD.dict["Font"])
+    EditGesture.Margin("10", "10")
+    EditGesture.add_agc("Text", "GestureLabel", , "&Gesture")
+    EditGesture.add_agc("Edit", "EGesture", "w400")
+    EditGesture.add_agc("Text", "SymbolLabel", "w400")
+    EditGesture.add_agc("Button", "RECButton", , "&REC")
+    EditGesture.RECButton.method := "EditGestureREC"
+    EditGesture.add_agc("Text", "CommandLabel", , "&Command")
+    EditGesture.add_agc("Edit", "ECommand", "w400")
+    EditGesture.add_agc("Text", "LabelLabel", , "&Label")
+    EditGesture.add_agc("Edit", "ELabel", "w400 Section")
+    EditGesture.add_agc("Text", "MBLabel", "xs+0 ys+50", "Mouse Button")
+    EditGesture.add_agc("Radio", "RL", "Checked", "&LeftButton")
+    EditGesture.add_agc("Radio", "RM", , "&MiddleButton")
+    EditGesture.add_agc("Radio", "RR", , "&RightButton")
+    EditGesture.add_agc("Text", "ModifierKeyLabel", , "Modifier Key")
+    EditGesture.add_agc("Checkbox", "CCtrl", , "&Ctrl")
+    EditGesture.add_agc("Checkbox", "CAlt", , "&Alt")
+    EditGesture.add_agc("Checkbox", "CShift", , "&Shift")
+    EditGesture.add_agc("Text", "ComputerLabel", "xs+200 ys+50", "Computer")
+    EditGesture.add_agc("Radio", "RThi", "Checked", "&ThisComputer")
+    EditGesture.add_agc("Radio", "RAll", "Checked", "&AllComputer")
+    EditGesture.add_agc("Text", "TypeLabel", , "Type")
+    EditGesture.add_agc("Radio", "RLab", , "&Label")
+    EditGesture.add_agc("Radio", "RLoc", , "&LocalPath")
+    EditGesture.add_agc("Radio", "RApp", , "&Application")
+    EditGesture.add_agc("Radio", "RURL", , "&URL")
+    EditGesture.add_agc("Radio", "RLau", , "&Launcher")
+    EditGesture.add_agc("Button", "OKButton", "Default", "&OK")
+    EditGesture.OKButton.method := "EditGestureOK"
+    EditGesture.remove_option("Resize")
+    EditGesture.show("Autosize", "FlaxEditGesture")
 	return
 	EditGestureREC:
 		RECG := 1
 		MR := new MouseRoute()
 		while (RECG){
 			if (MR.check()){
-				GuiControl, , EGesture, % MR.route
-				GuiControl, , Symbol, % MR.getMRSymbol()
+                EditGesture.EGesture.value := MR.route
+                EditGesture.SymbolLabel.value := MR.getMRSymbol()
 			}
 			sleep 100
 		}
 		return
 	EditGestureOK:
-		Gui, FlaxEditGesture:Submit
+        EditGesture.Submit()
 		Prefix := ""
-		if (RL)
+		if (EditGesture.RL.value)
 			Prefix .= "LB"
-		else if (RM)
+		else if (EditGesture.RM.value)
 			Prefix .= "MB"
-		else if (RR)
+		else if (EditGesture.RR.value)
 			Prefix .= "RB"
-		if (CCtrl)
+		if (EditGesture.CCtrl.value)
 			Prefix .= "^"
-		if (CAlt)
+		if (EditGesture.CAlt.value)
 			Prefix .= "!"
-		if (CShift)
+		if (EditGesture.CShift.value)
 			Prefix .= "+"
 		B_ComputerName := ""
-		if (RThi = 1)
+		if (EditGesture.RThi.value = 1)
 			B_ComputerName := A_ComputerName
-		else if (RAll = 1)
+		else if (EditGesture.RAll.value = 1)
 			B_ComputerName := "default"
-		if (RLab)
+		if (EditGesture.RLab.value)
 			Type := "label"
-		else if (RLoc)
+		else if (EditGesture.RLoc.value)
 			Type := "LocalPath"
-		else if (RApp)
+		else if (EditGesture.RApp.value)
 			Type := "Application"
-		else if (RURL)
+		else if (EditGesture.RURL.value)
 			Type := "URL"
-		else if (RLau)
+		else if (EditGesture.RLau.value)
 			Type := "launcher"
-		EGesture := Prefix . EGesture
-		if (not gestureFD.fdict.HasKey(EGesture))
-			gestureFD.fdict[EGesture] := Object()
-		if (not gestureFD.fdict[EGesture].HasKey(B_ComputerName))
-			gestureFD.fdict[EGesture][B_ComputerName] := Object()
-		gestureFD.fdict[EGesture][B_ComputerName]["command"] := ECommand
-		gestureFD.fdict[EGesture][B_ComputerName]["type"] := Type
-		gestureFD.fdict[EGesture][B_ComputerName]["label"] := ELabel
+		EditGesture.EGesture.value := Prefix . EditGesture.EGesture.value
+		if (not gestureFD.fdict.HasKey(EditGesture.EGesture.value))
+			gestureFD.fdict[EditGesture.EGesture.value] := Object()
+		if (not gestureFD.fdict[EditGesture.EGesture.value].HasKey(B_ComputerName))
+			gestureFD.fdict[EditGesture.EGesture.value][B_ComputerName] := Object()
+		gestureFD.fdict[EditGesture.EGesture.value][B_ComputerName]["command"] := ECommand
+		gestureFD.fdict[EditGesture.EGesture.value][B_ComputerName]["type"] := Type
+		gestureFD.fdict[EditGesture.EGesture.value][B_ComputerName]["label"] := ELabel
 		gestureFD.write()
-		Gui, FlaxEditGesture:Destroy
+        EditGesture.Destroy()
 		return
-	FlaxEditGestureGuiEscape:
-		if (RECG){
-			RECG := 0
-			return
-		}
-	FlaxEditGestureGuiClose:
-		Gui, FlaxEditGesture:Destroy
-		return
-	return
+    EditGestureEscape(){
+        global
+        if (RECG){
+            RECG := 0
+        }
+        return
+    }
 ::flaxedittimetable::
 	timetableFD.read()
     pathFD.read()
@@ -2445,7 +2510,7 @@ MouseGetPos,X,Y
 	TTCellWidth = 100
 	TTCellHeight = 100
     EditTimeTable := new AGui(, "EditTimeTable")
-    EditTimeTable.Font("Meiryo UI")
+    EditTimeTable.Font(, configFD.dict["Font"])
     EditTimeTable.Margin("50", "50")
 	x := marg
 	y := marg
@@ -2455,7 +2520,7 @@ MouseGetPos,X,Y
 			R := A_Index - 1
 			x := marg + C * TTCellWidth
 			y := marg + R * TTCellHeight
-			Text := ""
+			Text := timetableFD.dict[term][R][C]["URL"]
 			Loop, 4{
 				L := A_Index - 1
 				Text .= "`n" timetableFD.dict[term][R][C][L]
@@ -2470,10 +2535,12 @@ MouseGetPos,X,Y
             DropDownText .= "|"
         }
     }
-    EditTimeTable.add_agc("DropDownList", "ETimeTableDDLV", "Sort", DropDownText)
+    EditTimeTable.add_agc("DropDownList", "ETimeTableDDLV", "Sort xp-40 y+10", DropDownText)
     EditTimeTable.ETimeTableDDLV.method := "ETimeTableChanged"
-    EditTimeTable.add_agc("Button", "EditTimeTableOK", "Default", "OK")
+    EditTimeTable.add_agc("Button", "EditTimeTableOK", "Default y+10", "OK")
     EditTimeTable.EditTimeTableOK.method := "EditTimeTableOK"
+    EditTimeTable.add_agc("Button", "EditTimeTableDelete","y+10" , "Delete")
+    EditTimeTable.EditTimeTableDelete.method := "EditTimeTableDelete"
     EditTimeTable.Show("", "FlaxEditTimeTable")
 	return
     ETimeTableChangeText:
@@ -2481,7 +2548,7 @@ MouseGetPos,X,Y
             C := A_Index - 1
             Loop, 6{
                 R := A_Index - 1
-                Text := ""
+                Text := timetableFD.dict[term][R][C]["URL"]
                 Loop, 4{
                     L := A_Index - 1
                     Text .= "`n" . timetableFD.dict[term][R][C][L]
@@ -2524,6 +2591,7 @@ MouseGetPos,X,Y
                     timetableFD.dict[term][R] := Object()
                 if (not timetableFD.dict[term][R].HasKey(C))
                     timetableFD.dict[term][R][C] := Object()
+                timetableFD.dict[term][R][C]["URL"] := Text[1]
 				Loop, 4{
 					timetableFD.dict[term][R][C][A_Index - 1] := Text[A_Index + 1]
 				}
@@ -2535,6 +2603,16 @@ MouseGetPos,X,Y
         configFD.dict["CurrentClassTerm"] := term
         configFD.write()
 		timetableFD.write()
+        return
+    EditTimeTableDelete:
+        EditTimeTable.Submit("NoHide")
+        term := EditTimeTable.ETimeTableDDLV.value
+        msgbox, 4, , プロファイル "%term%" を削除します。よろしいですか？
+        ifMsgBox, Yes
+        {
+            timetableFD.dict.Delete(term)
+            EditTimeTable.Destroy()
+        }
         return
 ::flaxgetprocesspath::
 	sleep 100
@@ -2555,6 +2633,7 @@ MouseGetPos,X,Y
 	Sleep 100
 	NoDI := 5
 	NoI := NoDI
+    LIoS := 0
 	candidate := ""
 	SysGet,MonitorSizeX,0
 	SysGet,MonitorSizeY,1
@@ -2658,8 +2737,10 @@ MouseGetPos,X,Y
 		FlaxLauncher.Submit("NoHide")
 		IoS := FlaxLauncher.ItemName.value
 		FlaxLauncher.ItemName.remove_option("AltSubmit")
-		if IoS is integer
-			return
+        if ((IoS == 1) or (abs(LIoS - IoS) == 1)){
+            LIoS := IoS
+            return
+        }
 		FlaxLauncher.Submit("NoHide")
 		candidate := ""
 		NoI = 0
@@ -2675,6 +2756,12 @@ MouseGetPos,X,Y
 		}
 		FlaxLauncher.ItemName.value := candidate
 		FlaxLauncher.ItemName.Text(FlaxLauncher.HiddenEdit.value)
+        if IoS is integer
+        {
+            LIoS := 1
+        }else{
+            LIoS := IoS
+        }
 		return
 #IfWinActive,FlaxProgramLauncher
 	Tab::
@@ -2980,6 +3067,7 @@ MouseGestureExecute:
 ^+!d::send,!+.
 ^+!r::send,!+l
 #G::
+    gestureFD.read()
 	KeyGestureBool := True
 	LPT := 0
 	KR := new KeyRoute("LB")
@@ -2987,18 +3075,26 @@ MouseGestureExecute:
 	return
 #If (KeyGestureBool)
 	Left::
+    h::
+    a::
 		Key := "L"
 		GoSub, KeyGestureCheck
 		return
 	Right::
+    l::
+    d::
 		Key := "R"
 		GoSub, KeyGestureCheck
 		return
 	UP::
+    k::
+    w::
 		Key := "U"
 		GoSub, KeyGestureCheck
 		return
 	Down::
+    j::
+    s::
 		Key := "D"
 		GoSub, KeyGestureCheck
 		return
@@ -3007,6 +3103,7 @@ MouseGestureExecute:
 		ToolTip, % GestureCandidate(KR, gestureFD)
 		return
 	Enter::
+    Space::
 		KeyGestureBool := False
 		route := KR.route
 		ToolTip,
@@ -3356,92 +3453,88 @@ MouseGestureExecute:
 				RCApp := "Checked"
 			}
 			sleep 100
-			Gui, New, , FlaxRegisterLauncher
-			Gui, FlaxRegisterLauncher:Font,,Meiryo UI
-			Gui, FlaxRegisterLauncher:Margin,10,10
-			Gui, FlaxRegisterLauncher:Add,Text,,&Name
+            RegisterLauncher := new AGui(, "RegisterLauncher")
+            RegisterLauncher.Font(, configFD.dict["Font"])
+            RegisterLauncher.Margin("10", "10")
+            RegisterLauncher.add_agc("Text", "NameLabel", , "&Name")
 			SplitPath, FilePath, FileName
-			Gui, FlaxRegisterLauncher:Add,Edit, w800 vEName, %FileName%
-			Gui, FlaxRegisterLauncher:Add,Text,,&Command
-			Gui, FlaxRegisterLauncher:Add,Edit, w800 vECommand, %FilePath%
-			Gui, FlaxRegisterLauncher:Add,Text,,Type
-			Gui, FlaxRegisterLauncher:Add,Radio, vRApp %RCApp%, &Application
-			Gui, FlaxRegisterLauncher:Add,Radio, vRLoc %RCLoc%, &LocalPath
-			Gui, FlaxRegisterLauncher:Add,Radio, vRURL, &URL
-			Gui, FlaxRegisterLauncher:Add,Radio, vRLab, &Label
-			Gui, FlaxRegisterLauncher:Add,Text,,Computer
-			Gui, FlaxRegisterLauncher:Add,Radio, vRThi Checked, &ThisComputer
-			Gui, FlaxRegisterLauncher:Add,Radio, vRAll, &AllComputer
-			Gui, FlaxRegisterLauncher:Add,Button,Default gRegisterLauncherOK,&OK
-			Gui, FlaxRegisterLauncher:-Resize
-			Gui, FlaxRegisterLauncher:Show,Autosize, FlaxRegisterLauncher
+            RegisterLauncher.add_agc("Edit", "EName", "w800", FileName)
+            RegisterLauncher.add_agc("Text", "CommandLabel", , "&Command")
+            RegisterLauncher.add_agc("Edit", "ECommand", "w800", FilePath)
+            RegisterLauncher.add_agc("Text", "TypeLabel", , "Type")
+			RegisterLauncher.add_agc("Radio", "RApp", RCApp, "&Application")
+			RegisterLauncher.add_agc("Radio", "RLoc", RCLoc, "&LocalPath")
+			RegisterLauncher.add_agc("Radio", "RURL", , "&URL")
+			RegisterLauncher.add_agc("Radio", "RLab", , "&Label")
+			RegisterLauncher.add_agc("Text", "ComputerLabel", , "Computer")
+			RegisterLauncher.add_agc("Radio", "RThi", "Checked", "&ThisComputer")
+			RegisterLauncher.add_agc("Radio", "RAll", , "&AllComputer")
+			RegisterLauncher.add_agc("Button", "OK", "Default", "&OK")
+            RegisterLauncher.OK.method := "RegisterLauncherOK"
+			RegisterLauncher.remove_option("Resize")
+			RegisterLauncher.show("Autosize", "RegisterLauncher")
 			return
 			RegisterLauncherOK:
-				Gui, FlaxRegisterLauncher: Submit
+                RegisterLauncher.Submit()
 				B_ComputerName := ""
-				if (RThi = 1)
+				if (RegisterLauncher.RThi.value = 1)
 					B_ComputerName := A_ComputerName
-				else if (RAll = 1)
+				else if (RegisterLauncher.RAll.value = 1)
 					B_ComputerName := "default"
-				if (not launcherFD.fdict.HasKey(EName))
-					launcherFD.fdict[EName] := Object()
-				if (not launcherFD.fdict[EName].HasKey(B_ComputerName))
-					launcherFD.fdict[EName][B_ComputerName] := Object()
-				launcherFD.fdict[EName][B_ComputerName]["command"] := ECommand
-				if (RApp = 1)
+				if (not launcherFD.fdict.HasKey(RegisterLauncher.EName.value))
+					launcherFD.fdict[RegisterLauncher.EName.value] := Object()
+				if (not launcherFD.fdict[RegisterLauncher.EName.value].HasKey(B_ComputerName))
+					launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName] := Object()
+				launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName]["command"] := RegisterLauncher.ECommand.value
+				if (RegisterLauncher.RApp.value = 1)
 					EType := "Application"
-				else if (RLoc = 1)
+				else if (RegisterLauncher.RLoc.value = 1)
 					EType := "LocalPath"
-				else if (RURL = 1)
+				else if (RegisterLauncher.RURL.value = 1)
 					EType := "URL"
-                else if (RLab = 1)
+                else if (RegisterLauncher.RLab.value = 1)
                     EType := "Label"
-				launcherFD.fdict[EName][B_ComputerName]["type"] := EType
+				launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName]["type"] := EType
 				launcherFD.write()
-				Gui, FlaxRegisterLauncher:Destroy
-				return
-			FlaxRegisterLauncherGuiEscape:
-			FlaxRegisterLauncherGuiClose:
-				Gui, FlaxRegisterLauncher:Destroy
+                RegisterLauncher.Destroy()
 				return
 			open_with:
 				msgjoin("未実装")
 				return
 		editmp3tags:
-			Gui, New, , FlaxEditMp3Tags
-			Gui, FlaxEditMp3Tags:Font, , Meiryo UI
-			Gui, FlaxEditMp3Tags:Margin, 10, 10
-			Gui, FlaxEditMp3Tags:-Border
-			Gui, FlaxEditMp3Tags:Add, Text, , &NewName
+            EditMP3Tags := new AGui(, "EditMp3Tags")
+            EditMP3Tags.Font(, configFD.dict["Font"])
+            EditMP3Tags.Margin("10", "10")
+			EditMP3Tags.remove_option("Border")
+			EditMP3Tags.add_agc("Text", "NewNameLabel", , "&NewName")
 			SplitPath, FilePath, FileName, FileDir
 			Tags := GetMP3TagsFunc(FilePath)
-			Gui, FlaxEditMp3Tags:Add, Edit, w800 vENewName gNewNameChanged, %FileName%
-			Gui, FlaxEditMp3Tags:Add, Text, , &Title
-			Gui, FlaxEditMp3Tags:Add, Edit, w800 vETitle, % Tags[1]
-			Gui, FlaxEditMp3Tags:Add, Text, , &Artist
-			Gui, FlaxEditMp3Tags:Add, Edit, w800 vEArtist, % Tags[2]
-			Gui, FlaxEditMp3Tags:Add, Text, , &Albam
-			Gui, FlaxEditMp3Tags:Add, Edit, w800 vEAlbam, % Tags[3]
-			Gui, FlaxEditMp3Tags:Add, Button, Default gEditMp3TagsOK, &OK
-			Gui, FlaxEditMp3Tags:-Resize
-			Gui, FlaxEditMp3Tags:Show, Autosize, FlaxEditMp3Tags
+            EditMP3Tags.add_agc("Edit", "ENewName", "w800", FileName)
+            EditMP3Tags.ENewName.method := "NewNameChanged"
+            EditMP3Tags.add_agc("Text", "TitleLabel", , "&Title")
+			EditMP3Tags.add_agc("Edit", "ETitle", "w800", Tags[1])
+			EditMP3Tags.add_agc("Text", "ArtistLabel", , "&Artist")
+			EditMP3Tags.add_agc("Edit", "EArtist", "w800", Tags[2])
+			EditMP3Tags.add_agc("Text", "AlbamLabel", , "&Albam")
+			EditMP3Tags.add_agc("Edit", "EAlbam", "w800", Tags[3])
+			EditMP3Tags.add_agc("Button", "OK", "Default", "&OK")
+            EditMP3Tags.OK.method := "EditMP3TagsOK"
+            EditMP3Tags.remove_option("Resize")
+			EditMP3Tags.show("Autosize", "EditMP3Tags")
 			return
 			NewNameChanged:
-				Gui, FlaxEditMp3Tags:Submit, NoHide
-				SplitPath, ENewName, , , , PureName
-				GuiControl, FlaxEditMp3Tags:Text, ETitle, %PureName%
+                EditMP3Tags.submit("NoHide")
+                NewName := EditMP3Tags.ENewName.value
+				SplitPath, NewName, , , , PureName
+                EditMP3Tags.ETitle.value := PureName
 				return
-			EditMp3TagsOK:
-				Gui, FlaxEditMp3Tags:Submit
-				Gui, FlaxEditMp3Tags:Destroy
-				EditMP3TagsFunc(FilePath, ETitle, EArtist, EAlbam, ENewName)
+			EditMP3TagsOK:
+                EditMP3Tags.submit()
+                EditMP3Tags.destroy()
+				EditMP3TagsFunc(FilePath, EditMP3Tags.ETitle.value, EditMP3Tags.EArtist.value, EditMP3Tags.EAlbam.value, EditMP3Tags.ENewName.value)
 				ToolTip, Done
 				sleep 1000
 				ToolTip,
-				return
-			FlaxEditMp3TagsGuiEscape:
-			FlaxEditMp3TagsGuiClose:
-				Gui, FlaxEditMp3Tags:Destroy
 				return
 #IfWinActive,ahk_exe chrome.exe
  	^+q::return
