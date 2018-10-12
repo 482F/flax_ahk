@@ -1484,7 +1484,7 @@ flaxguitestmethod:
 ::flaxmakecodegui::
 	sleep 100
 	FlaxCode_Maker := new AGui(, "FlaxCode_Maker")
-	FlaxCode_Maker.Font(, configFD.dict["Font"])
+	FlaxCode_Maker.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
 	FlaxCode_Maker.Margin(10, 10)
 	FlaxCode_Maker.add_agc("Text", "", , "&Clear Text")
 	FlaxCode_Maker.add_agc("Edit", "CText", "W500 Multi Password*")
@@ -2125,7 +2125,7 @@ MouseGetPos,X,Y
     VirtualFolder := new AGui(, "VirtualFolder")
     VirtualFolder.dropfiles := Func("VirtualFolderDropFiles")
     VirtualFolder.size := Func("VirtualFolderSize")
-	VirtualFolder.Font(, configFD.dict["Font"])
+	VirtualFolder.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
 	VirtualFolder.add_option("Resize")
 	VirtualFolder.Margin("10", "10")
 	VirtualFolder.add_agc("ListView", "ListView", "AltSubmit w600 h300", "Title|Path")
@@ -2215,7 +2215,7 @@ MouseGetPos,X,Y
 	TTCellHeight = 100
     TimeTable := new AGui(, "TimeTable")
     TimeTable.contextmenu := Func("timetable_open_URL")
-    TimeTable.Font(, configFD.dict["Font"])
+    TimeTable.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
     TimeTable.Margin("50", "50")
     TimeTable.add_option("AlwaysOnTop")
     TimeTable.remove_option("Border")
@@ -2410,7 +2410,7 @@ MouseGetPos,X,Y
 	sleep 400
     EditGesture := new AGui(, "EditGesture")
     EditGesture.escape := Func("EditGestureEscape")
-    EditGesture.Font(, configFD.dict["Font"])
+    EditGesture.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
     EditGesture.Margin("10", "10")
     EditGesture.add_agc("Text", "GestureLabel", , "&Gesture")
     EditGesture.add_agc("Edit", "EGesture", "w400")
@@ -2510,7 +2510,7 @@ MouseGetPos,X,Y
 	TTCellWidth = 100
 	TTCellHeight = 100
     EditTimeTable := new AGui(, "EditTimeTable")
-    EditTimeTable.Font(, configFD.dict["Font"])
+    EditTimeTable.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
     EditTimeTable.Margin("50", "50")
 	x := marg
 	y := marg
@@ -2629,7 +2629,7 @@ MouseGetPos,X,Y
 ;ホットキー
 +!^W::
 	FlaxLauncher := new AGui(, "FlaxLauncher")
-    FlaxLauncher.Font(, configFD.dict["Font"])
+    FlaxLauncher.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
 	launcherFD.read()
 	Sleep 100
 	NoDI := 5
@@ -3455,7 +3455,7 @@ MouseGestureExecute:
 			}
 			sleep 100
             RegisterLauncher := new AGui(, "RegisterLauncher")
-            RegisterLauncher.Font(, configFD.dict["Font"])
+            RegisterLauncher.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
             RegisterLauncher.Margin("10", "10")
             RegisterLauncher.add_agc("Text", "NameLabel", , "&Name")
 			SplitPath, FilePath, FileName
@@ -3504,7 +3504,7 @@ MouseGestureExecute:
 				return
 		editmp3tags:
             EditMP3Tags := new AGui(, "EditMp3Tags")
-            EditMP3Tags.Font(, configFD.dict["Font"])
+            EditMP3Tags.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
             EditMP3Tags.Margin("10", "10")
 			EditMP3Tags.remove_option("Border")
 			EditMP3Tags.add_agc("Text", "NewNameLabel", , "&NewName")
