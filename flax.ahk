@@ -2413,6 +2413,7 @@ MouseGetPos,X,Y
 ::flaxeditgesture::
 	sleep 400
     configFD.read()
+    gestureFD.read()
     EditGesture := new AGui(, "EditGesture")
     EditGesture.escape := Func("EditGestureEscape")
     EditGesture.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
@@ -2489,14 +2490,14 @@ MouseGetPos,X,Y
 			Type := "URL"
 		else if (EditGesture.RLau.value)
 			Type := "launcher"
-		EditGesture.EGesture.value := Prefix . EditGesture.EGesture.value
-		if (not gestureFD.fdict.HasKey(EditGesture.EGesture.value))
-			gestureFD.fdict[EditGesture.EGesture.value] := Object()
-		if (not gestureFD.fdict[EditGesture.EGesture.value].HasKey(B_ComputerName))
-			gestureFD.fdict[EditGesture.EGesture.value][B_ComputerName] := Object()
-		gestureFD.fdict[EditGesture.EGesture.value][B_ComputerName]["command"] := ECommand
-		gestureFD.fdict[EditGesture.EGesture.value][B_ComputerName]["type"] := Type
-		gestureFD.fdict[EditGesture.EGesture.value][B_ComputerName]["label"] := ELabel
+		Gesture := Prefix . EditGesture.EGesture.value
+		if (not gestureFD.fdict.HasKey(Gesture))
+			gestureFD.fdict[Gesture] := Object()
+		if (not gestureFD.fdict[Gesture].HasKey(B_ComputerName))
+			gestureFD.fdict[Gesture][B_ComputerName] := Object()
+		gestureFD.fdict[Gesture][B_ComputerName]["command"] := EditGesture.ECommand.value
+		gestureFD.fdict[Gesture][B_ComputerName]["type"] := Type
+		gestureFD.fdict[Gesture][B_ComputerName]["label"] := EditGesture.ELabel.value
 		gestureFD.write()
         EditGesture.Destroy()
 		return
