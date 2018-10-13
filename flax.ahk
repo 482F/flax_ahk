@@ -2519,13 +2519,9 @@ MouseGetPos,X,Y
 		else if (EditGesture.RLau.value)
 			Type := "launcher"
 		Gesture := Prefix . EditGesture.EGesture.value
-		if (not gestureFD.fdict.HasKey(Gesture))
-			gestureFD.fdict[Gesture] := Object()
-		if (not gestureFD.fdict[Gesture].HasKey(B_ComputerName))
-			gestureFD.fdict[Gesture][B_ComputerName] := Object()
-		gestureFD.fdict[Gesture][B_ComputerName]["command"] := EditGesture.ECommand.value
-		gestureFD.fdict[Gesture][B_ComputerName]["type"] := Type
-		gestureFD.fdict[Gesture][B_ComputerName]["label"] := EditGesture.ELabel.value
+        gestureFD.fdict[Gesture, B_ComputerName, "command"] := EditGesture.ECommand.value
+		gestureFD.fdict[Gesture, B_ComputerName, "type"] := Type
+		gestureFD.fdict[Gesture, B_ComputerName, "label"] := EditGesture.ELabel.value
 		gestureFD.write()
         EditGesture.Destroy()
 		return
@@ -2620,15 +2616,9 @@ MouseGetPos,X,Y
 				R := A_Index - 1
 				Text := EditTimeTable["E" . R . C].value
 				Text := StrSplit(Text, "`n")
-                if (not timetableFD.dict.HasKey(term))
-                    timetableFD.dict[term] := Object()
-                if (not timetableFD.dict[term].HasKey(R))
-                    timetableFD.dict[term][R] := Object()
-                if (not timetableFD.dict[term][R].HasKey(C))
-                    timetableFD.dict[term][R][C] := Object()
-                timetableFD.dict[term][R][C]["URL"] := Text[1]
+                timetableFD.dict[term, R, C, "URL"] := Text[1]
 				Loop, 4{
-					timetableFD.dict[term][R][C][A_Index - 1] := Text[A_Index + 1]
+					timetableFD.dict[term, R, C, A_Index - 1] := Text[A_Index + 1]
 				}
 			}
 		}
@@ -3521,12 +3511,11 @@ MouseGestureExecute:
                 Title := Tags[1]
                 Artist := Tags[2]
                 Albam := Tags[3]
-                EditMP3sTags.dict[A_Index] := Object()
-                EditMP3sTags.dict[A_Index]["Name"] := Name
-                EditMP3sTags.dict[A_Index]["Path"] := Path
-                EditMP3sTags.dict[A_Index]["Title"] := Title
-                EditMP3sTags.dict[A_Index]["Artist"] := Artist
-                EditMP3sTags.dict[A_Index]["Albam"] := Albam
+                EditMP3sTags.dict[A_Index, "Name"] := Name
+                EditMP3sTags.dict[A_Index, "Path"] := Path
+                EditMP3sTags.dict[A_Index, "Title"] := Title
+                EditMP3sTags.dict[A_Index, "Artist"] := Artist
+                EditMP3sTags.dict[A_Index, "Albam"] := Albam
                 ifWinNotExist, EditMP3sTags
                     break
                 EditMP3sTags.Na_ListView.LV_Add(, Name)
