@@ -825,6 +825,7 @@ class FD{
 		this.LastUpdate := LU
 	}
 	ConvertFlaxDict_to_Text(Dict, Depth=0){
+        Str := ""
 		if not(IsObject(Dict))
 			return Dict
 		for Key, Value in Dict{
@@ -2518,13 +2519,9 @@ MouseGetPos,X,Y
 		else if (EditGesture.RLau.value)
 			Type := "launcher"
 		Gesture := Prefix . EditGesture.EGesture.value
-		if (not gestureFD.fdict.HasKey(Gesture))
-			gestureFD.fdict[Gesture] := Object()
-		if (not gestureFD.fdict[Gesture].HasKey(B_ComputerName))
-			gestureFD.fdict[Gesture][B_ComputerName] := Object()
-		gestureFD.fdict[Gesture][B_ComputerName]["command"] := EditGesture.ECommand.value
-		gestureFD.fdict[Gesture][B_ComputerName]["type"] := Type
-		gestureFD.fdict[Gesture][B_ComputerName]["label"] := EditGesture.ELabel.value
+        gestureFD.fdict[Gesture, B_ComputerName, "command"] := EditGesture.ECommand.value
+		gestureFD.fdict[Gesture, B_ComputerName, "type"] := Type
+		gestureFD.fdict[Gesture, B_ComputerName, "label"] := EditGesture.ELabel.value
 		gestureFD.write()
         EditGesture.Destroy()
 		return
@@ -2619,15 +2616,9 @@ MouseGetPos,X,Y
 				R := A_Index - 1
 				Text := EditTimeTable["E" . R . C].value
 				Text := StrSplit(Text, "`n")
-                if (not timetableFD.dict.HasKey(term))
-                    timetableFD.dict[term] := Object()
-                if (not timetableFD.dict[term].HasKey(R))
-                    timetableFD.dict[term][R] := Object()
-                if (not timetableFD.dict[term][R].HasKey(C))
-                    timetableFD.dict[term][R][C] := Object()
-                timetableFD.dict[term][R][C]["URL"] := Text[1]
+                timetableFD.dict[term, R, C, "URL"] := Text[1]
 				Loop, 4{
-					timetableFD.dict[term][R][C][A_Index - 1] := Text[A_Index + 1]
+					timetableFD.dict[term, R, C, A_Index - 1] := Text[A_Index + 1]
 				}
 			}
 		}
@@ -2656,6 +2647,7 @@ MouseGetPos,X,Y
 	ToolTip,
 	return
 ::flaxregisterlauncher::
+    FilePath := ""
     GoSub, register_launcher
     return
 
@@ -2704,25 +2696,25 @@ MouseGetPos,X,Y
 		FlaxLauncher.ItemName.remove_option("AltSubmit")
 		FlaxLauncher.Submit()
 		FlaxLauncher.Destroy()
+        ItemName := FlaxLauncher.ItemName.value
 	LauncherUse:
 		LF := False
-		ItemName_val := FlaxLauncher.ItemName.value
-		ItemParams := StrSplit(ItemName_val, " ")
-		ItemName_val := ItemParams[1]
+		ItemParams := StrSplit(ItemName, " ")
+		ItemName := ItemParams[1]
 		LP := False
 		PathParam := False
 		if (ItemParams[2] == "locale")
 			LP := True
 		else if (ItemParams[2] == "path")
 			PathParam := True
-		if (RegExMatch(ItemName_val, "[a-zA-Z]:\\([^\\/:?*""<>|]+\\)*([^\\/:?*""<>|]+)?")){
-			Run, %ItemName_val%
+		if (RegExMatch(ItemName, "[a-zA-Z]:\\([^\\/:?*""<>|]+\\)*([^\\/:?*""<>|]+)?")){
+			Run, %ItemName%
 			return
 		}
 		if (LP){
 			LF := True
 		}
-		ID := launcherFD.dict[ItemName_val]
+		ID := launcherFD.dict[ItemName]
 		if (PathParam){
 			Clipboard := ID["command"]
 			ToolTip, %Clipboard%
@@ -2754,11 +2746,11 @@ MouseGetPos,X,Y
         }
 		if (ItemType = "URL" or ItemType = "LocalPath" or ItemType = "Application"){
 			if (LF and ItemType != "URL"){
-				LP := RegExMatch(ItemCommand, "\\([^\\]*)$", ItemName_val)
+				LP := RegExMatch(ItemCommand, "\\([^\\]*)$", ItemName)
 				ItemCommand := SubStr(ItemCommand, 1, LP-1)
 				Run, %ItemCommand%
 				WinWaitActive, ahk_exe explorer.exe
-				sendraw,% ItemName_val1
+				sendraw,% ItemName
 				return
 			}else{
 				Run, %ItemCommand%, %ItemWD%
@@ -3520,12 +3512,11 @@ MouseGestureExecute:
                 Title := Tags[1]
                 Artist := Tags[2]
                 Albam := Tags[3]
-                EditMP3sTags.dict[A_Index] := Object()
-                EditMP3sTags.dict[A_Index]["Name"] := Name
-                EditMP3sTags.dict[A_Index]["Path"] := Path
-                EditMP3sTags.dict[A_Index]["Title"] := Title
-                EditMP3sTags.dict[A_Index]["Artist"] := Artist
-                EditMP3sTags.dict[A_Index]["Albam"] := Albam
+                EditMP3sTags.dict[A_Index, "Name"] := Name
+                EditMP3sTags.dict[A_Index, "Path"] := Path
+                EditMP3sTags.dict[A_Index, "Title"] := Title
+                EditMP3sTags.dict[A_Index, "Artist"] := Artist
+                EditMP3sTags.dict[A_Index, "Albam"] := Albam
                 ifWinNotExist, EditMP3sTags
                     break
                 EditMP3sTags.Na_ListView.LV_Add(, Name)
@@ -3557,12 +3548,11 @@ MouseGestureExecute:
                     if (n_Name == Name and n_Title == Title and n_Artist == Artist and n_Albam == Albam)
                         continue
                     NoEM += 1
-                    MD[NoEM] := Object()
-                    MD[NoEM]["Name"] := n_Name . ".mp3"
-                    MD[NoEM]["Path"] := Path
-                    MD[NoEM]["Title"] := n_Title
-                    MD[NoEM]["Artist"] := n_Artist
-                    MD[NoEM]["Albam"] := n_Albam
+                    MD[NoEM, "Name"] := n_Name . ".mp3"
+                    MD[NoEM, "Path"] := Path
+                    MD[NoEM, "Title"] := n_Title
+                    MD[NoEM, "Artist"] := n_Artist
+                    MD[NoEM, "Albam"] := n_Albam
                 }
                 For Key, Value in MD{
                     EditMP3TagsFunc(Value["Path"], Value["Title"], Value["Artist"], Value["Albam"], Value["Name"])
@@ -3650,12 +3640,9 @@ MouseGestureExecute:
 					B_ComputerName := A_ComputerName
 				else if (RegisterLauncher.RAll.value = 1)
 					B_ComputerName := "default"
-				if (not launcherFD.fdict.HasKey(RegisterLauncher.EName.value))
-					launcherFD.fdict[RegisterLauncher.EName.value] := Object()
-				if (not launcherFD.fdict[RegisterLauncher.EName.value].HasKey(B_ComputerName))
-					launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName] := Object()
-				launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName]["command"] := RegisterLauncher.ECommand.value
-                launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName]["working_dir"] := RegisterLauncher.EWD.value
+                EName := RegisterLauncher.EName.value
+				launcherFD.fdict[EName, B_ComputerName, "command"] := RegisterLauncher.ECommand.value
+                launcherFD.fdict[EName, B_ComputerName, "working_dir"] := RegisterLauncher.EWD.value
 				if (RegisterLauncher.RApp.value = 1)
 					EType := "Application"
 				else if (RegisterLauncher.RLoc.value = 1)
@@ -3664,7 +3651,7 @@ MouseGestureExecute:
 					EType := "URL"
                 else if (RegisterLauncher.RLab.value = 1)
                     EType := "Label"
-				launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName]["type"] := EType
+				launcherFD.fdict[EName, B_ComputerName, "type"] := EType
 				launcherFD.write()
                 RegisterLauncher.Destroy()
 				return
