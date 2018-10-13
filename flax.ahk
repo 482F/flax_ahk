@@ -2705,25 +2705,25 @@ MouseGetPos,X,Y
 		FlaxLauncher.ItemName.remove_option("AltSubmit")
 		FlaxLauncher.Submit()
 		FlaxLauncher.Destroy()
+        ItemName := FlaxLauncher.ItemName.value
 	LauncherUse:
 		LF := False
-		ItemName_val := FlaxLauncher.ItemName.value
-		ItemParams := StrSplit(ItemName_val, " ")
-		ItemName_val := ItemParams[1]
+		ItemParams := StrSplit(ItemName, " ")
+		ItemName := ItemParams[1]
 		LP := False
 		PathParam := False
 		if (ItemParams[2] == "locale")
 			LP := True
 		else if (ItemParams[2] == "path")
 			PathParam := True
-		if (RegExMatch(ItemName_val, "[a-zA-Z]:\\([^\\/:?*""<>|]+\\)*([^\\/:?*""<>|]+)?")){
-			Run, %ItemName_val%
+		if (RegExMatch(ItemName, "[a-zA-Z]:\\([^\\/:?*""<>|]+\\)*([^\\/:?*""<>|]+)?")){
+			Run, %ItemName%
 			return
 		}
 		if (LP){
 			LF := True
 		}
-		ID := launcherFD.dict[ItemName_val]
+		ID := launcherFD.dict[ItemName]
 		if (PathParam){
 			Clipboard := ID["command"]
 			ToolTip, %Clipboard%
@@ -2755,11 +2755,11 @@ MouseGetPos,X,Y
         }
 		if (ItemType = "URL" or ItemType = "LocalPath" or ItemType = "Application"){
 			if (LF and ItemType != "URL"){
-				LP := RegExMatch(ItemCommand, "\\([^\\]*)$", ItemName_val)
+				LP := RegExMatch(ItemCommand, "\\([^\\]*)$", ItemName)
 				ItemCommand := SubStr(ItemCommand, 1, LP-1)
 				Run, %ItemCommand%
 				WinWaitActive, ahk_exe explorer.exe
-				sendraw,% ItemName_val1
+				sendraw,% ItemName
 				return
 			}else{
 				Run, %ItemCommand%, %ItemWD%
