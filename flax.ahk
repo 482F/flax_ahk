@@ -2754,6 +2754,10 @@ MouseGetPos,X,Y
 				ItemCommand := ItemCommand . " " . ItemParam
 			}
 		}
+        ItemWD := ID["working_dir"]
+        if (ItemWD == "" and ItemType != "URL"){
+            SplitPath, ItemCommand, , ItemWD
+        }
 		if (ItemType = "URL" or ItemType = "LocalPath" or ItemType = "Application"){
 			if (LF and ItemType != "URL"){
 				LP := RegExMatch(ItemCommand, "\\([^\\]*)$", ItemName_val)
@@ -2763,7 +2767,7 @@ MouseGetPos,X,Y
 				sendraw,% ItemName_val1
 				return
 			}else{
-				Run, %ItemCommand%
+				Run, %ItemCommand%, %ItemWD%
 				return
 			}
 		}else if (ItemType == "Label"){
