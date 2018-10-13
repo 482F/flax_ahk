@@ -1264,7 +1264,7 @@ class AGuiControl{
 			return Object.__Get(this, name)
 		}
 	}
-	do(sub_command, param=""){
+	do(sub_command="", param=""){
 		name := this.name
 		sub_command := this.gui.Hwnd . ":" . sub_command
 		GuiControl, %sub_command%, %name%, %param%
