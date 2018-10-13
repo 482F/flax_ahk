@@ -754,6 +754,7 @@ EvalConfig(cFD){
 GetMP3TagsFunc(FilePath){
 	PreCommand := "Python """ . A_ScriptDir . "\mp3_tags.py"" """ . FilePath . """"
 	Tags := CmdRun(PreCommand . " get title artist album")
+    StringReplace, Tags, Tags, `r, , A
 	Tags := StrSplit(Tags, "`n")
 	return Tags
 }
