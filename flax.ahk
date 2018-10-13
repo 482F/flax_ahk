@@ -3495,6 +3495,7 @@ MouseGestureExecute:
         editmp3stags:
             EditMP3sTags := new AGui(, "EditMP3sTags")
             configFD.read()
+            EditMP3sTags.Editing := False
             EditMP3sTags.font(configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
             EditMP3sTags.add_option("Resize")
             EditMP3sTags.add_agc("ListView", "Na_ListView", "Grid w300 h500 NoSortHdr gMP3sLV AltSubmit")
@@ -3591,10 +3592,28 @@ MouseGestureExecute:
                 }else if (A_GuiEvent == "e" and A_GuiControl == "AGuiControlVar_Na_ListView"){
                     Name := EditMP3sTags.Na_ListView.LV_GetText(A_EventInfo, 1)
                     EditMP3sTags.Ti_ListView.LV_Modify(A_EventInfo, , RegExReplace(Name, "\.mp3$", ""))
+                    EditMP3sTags.Editing := False
                 }else if (A_GuiEvent == "E"){
+                    EditMP3sTags.Editing := True
                     send, {Right}
                 }
             }
+#IfWinActive EditMP3sTags
+            ^Tab::
+                if (EditMP3sTags.Editing){
+                    send, {Enter}{Tab}{F2}
+                }else{
+                    send, {Ctrl Tab}
+                }
+                return
+            ^+Tab::
+                if (EditMP3sTags.Editing){
+                    send, {Enter}{Shift Tab}{F2}
+                }else{
+                    send, {Ctrl Shift Tab}
+                }
+                return
+#IfWinActive
 		register_launcher:
             configFD.read()
 			RCLoc := ""
