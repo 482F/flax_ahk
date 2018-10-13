@@ -34,6 +34,8 @@
 #InstallMouseHook
 #UseHook On
 #NoEnv
+#Warn UseUnsetGlobal
+#Warn UseUnsetLocal
 AutoTrim,off
 SetWorkingDir,%A_ScripdDir%
 SetTitleMatchMode,2
