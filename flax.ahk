@@ -1309,6 +1309,38 @@ class AGuiControl{
 	remove_option(option){
 		this.do("-" . option)
 	}
+    LV_Default(){
+        this.gui.do("ListView", this.name)
+    }
+    LV_Add(options="", Col*){
+        this.LV_Default()
+        return LV_Add(options, Col*)
+    }
+    LV_Insert(RowNumber, Options="", Col*){
+        this.LV_Default()
+        return LV_Insert(RowNumber, Options, Col*)
+    }
+    LV_Modify(RowNumber, Options="", Col*){
+        this.LV_Default()
+        return LV_Modify(RowNumber, Options, Col*)
+    }
+    LV_Delete(RowNumber=""){
+        this.LV_Default()
+        return LV_Delete(RowNumber)
+    }
+    LV_GetCount(Type=""){
+        this.LV_Default()
+        return LV_GetCount(Type)
+    }
+    LV_GetNext(StartingRowNumber, Type=""){
+        this.LV_Default()
+        return LV_GetNext(StartingRowNumber, Type)
+    }
+    LV_GetText(RowNumber, ColumnNumber=""){
+        this.LV_Default()
+        LV_GetText(tmp, RowNumber, ColumnNumber)
+        return tmp
+    }
 }
 class AGuiControlText extends AGuiControl{
 	__New(target_gui){
