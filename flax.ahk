@@ -2754,6 +2754,10 @@ MouseGetPos,X,Y
 				ItemCommand := ItemCommand . " " . ItemParam
 			}
 		}
+        ItemWD := ID["working_dir"]
+        if (ItemWD == "" and ItemType != "URL"){
+            SplitPath, ItemCommand, , ItemWD
+        }
 		if (ItemType = "URL" or ItemType = "LocalPath" or ItemType = "Application"){
 			if (LF and ItemType != "URL"){
 				LP := RegExMatch(ItemCommand, "\\([^\\]*)$", ItemName_val)
@@ -2763,7 +2767,7 @@ MouseGetPos,X,Y
 				sendraw,% ItemName_val1
 				return
 			}else{
-				Run, %ItemCommand%
+				Run, %ItemCommand%, %ItemWD%
 				return
 			}
 		}else if (ItemType == "Label"){
@@ -3607,10 +3611,12 @@ MouseGestureExecute:
             RegisterLauncher.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
             RegisterLauncher.Margin("10", "10")
             RegisterLauncher.add_agc("Text", "NameLabel", , "&Name")
-			SplitPath, FilePath, FileName
+			SplitPath, FilePath, FileName, FileDir
             RegisterLauncher.add_agc("Edit", "EName", "w800", FileName)
             RegisterLauncher.add_agc("Text", "CommandLabel", , "&Command")
             RegisterLauncher.add_agc("Edit", "ECommand", "w800", FilePath)
+            RegisterLauncher.add_agc("Text", "WDLabel", , "&Working Directory")
+            RegisterLauncher.add_agc("Edit", "EWD", "w800", FileDir)
             RegisterLauncher.add_agc("Text", "TypeLabel", , "Type")
 			RegisterLauncher.add_agc("Radio", "RApp", RCApp, "&Application")
 			RegisterLauncher.add_agc("Radio", "RLoc", RCLoc, "&LocalPath")
@@ -3636,6 +3642,7 @@ MouseGestureExecute:
 				if (not launcherFD.fdict[RegisterLauncher.EName.value].HasKey(B_ComputerName))
 					launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName] := Object()
 				launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName]["command"] := RegisterLauncher.ECommand.value
+                launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName]["working_dir"] := RegisterLauncher.EWD.value
 				if (RegisterLauncher.RApp.value = 1)
 					EType := "Application"
 				else if (RegisterLauncher.RLoc.value = 1)
