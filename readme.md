@@ -14,6 +14,8 @@
 			- そのままの意味。キーワード。
 		- Command
 			- パスや URL。
+        - working directory
+            - 作業ディレクトリ
 		- Type
 			- 登録対象がフォルダならば LocalPath、ファイルやアプリケーションならば Application。URL, Label も登録できるがブラウザ上で GUI は表示されないので、Command に URL, Label を張り付ける必要がある。
 		- Computer
