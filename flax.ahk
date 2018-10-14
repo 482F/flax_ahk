@@ -564,6 +564,7 @@ ToolSplash(Text=""){
 JoinObj(Obj, Depth=0){
 	if not(IsObject(Obj))
 		return Obj
+    Str := ""
 	for Key, Value in Obj{
 		IoI := A_Index
 		Loop,% Depth{
@@ -580,12 +581,16 @@ RetAllMatch(Target, Pattern){
 	Pos := 0
 	while (True){
 		CurMatch := Object()
+        RegExReplace(Pattern, "\(", "", NoR)
+        NoR += 1
+        Loop, %NoR%
+        {
+            Match%A_Index% := ""
+        }
 		Pos := RegExMatch(Target, Pattern, Match)
 		if (Pos == 0)
 			break
-		while (True){
-			if (Match%A_Index% == "")
-				break
+		while (Match%A_Index% != ""){
 			CurMatch[A_Index] := Match%A_Index%
 		}
 		AllMatch[A_index] := CurMatch
