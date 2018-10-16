@@ -2647,6 +2647,7 @@ MouseGetPos,X,Y
 	ToolTip,
 	return
 ::flaxregisterlauncher::
+    FilePath := ""
     GoSub, register_launcher
     return
 
@@ -3602,7 +3603,6 @@ MouseGestureExecute:
             configFD.read()
 			RCLoc := ""
 			RCApp := ""
-            FilePath := ""
 			if (InStr(FileExist(FilePath), "D") != 0){
 				type := "LocalPath"
 				RCLoc := "Checked"
