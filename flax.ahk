@@ -825,6 +825,7 @@ class FD{
 		this.LastUpdate := LU
 	}
 	ConvertFlaxDict_to_Text(Dict, Depth=0){
+        Str := ""
 		if not(IsObject(Dict))
 			return Dict
 		for Key, Value in Dict{
