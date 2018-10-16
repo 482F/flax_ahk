@@ -34,19 +34,20 @@
 #InstallMouseHook
 #UseHook On
 #NoEnv
+#Warn UseUnsetGlobal
+#Warn UseUnsetLocal
 AutoTrim,off
-SetWorkingDir,%A_ScripdDir%
+SetWorkingDir,%A_ScriptDir%
 SetTitleMatchMode,2
 ;初期変数
 DefVars:
 {
 	marg := 50
-	flaxmode = normal
-	flaxmoviemode = False
-	ALCmode = Select
-	copymode = normal
+    KeyGestureBool := False
+    MoveFlag := False
+	flaxmoviemode := False
+	copymode := "normal"
 	FIFOClip := Object()
-	editmode = normal
 	launcherFD := new FD_for_EC("config/launcher.fd")
 	gestureFD := new FD_for_EC("config/gesture.fd")
 	registerFD := new FD("config/register.fd")
@@ -354,6 +355,7 @@ RetCorBracketSplit(Str,Index=1,Offset=0, Target="()"){
 	return Object(0, SubStr(Str,1,BP["S"]), 1, SubStr(Str,BP["S"] + 2, BP["E"] - BP["S"] - 1), 2, SubStr(Str,BP["E"] + 2,StrLen(Str)))
 }
 JoinStr(params*){
+    str := ""
 	for index,param in params
 		str .= AlignDigit(A_Index, 3) . "  :  " . param . "`n"
 	return SubStr(str, 1, -StrLen("`n"))
@@ -1245,6 +1247,7 @@ class AGuiControl{
 		this.name := name
 	}
 	__Set(name, value){
+        Object := 
 		if (name = "value"){
 			this.do("", value)
 			return
@@ -1498,21 +1501,12 @@ flaxguitestmethod:
 	sleep 100
 	listvars
 	return
-::flaxmodevim::
-	flaxmode = vim
-	return
-::flaxmodenormal::
-	flaxmode = normal
-	return
 ::flaxcopymodefifo::
 	copymode = FIFO
 	Clipboard =
 	return
 ::flaxcopymodenormal::
 	copymode = normal
-	return
-::flaxeditmode::
-	input,editmode,I *,{Enter},
 	return
 ::flaxmakecodegui::
 	sleep 100
