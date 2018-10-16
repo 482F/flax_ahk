@@ -3480,10 +3480,117 @@ MouseGestureExecute:
 		}
 		Menu, ExpMenu, Add, Launcher に登録(&R), register_launcher
 		Menu, ExpMenu, Add, プログラムから開く(&P), open_with
-		Menu, ExpMenu, Add, MP3 のタグを編集(&M), editmp3tags
+        if (InStr(FileExist(FilePath), "D") != 0){
+            Menu, ExpMenu, add, フォルダ内の MP3 のタグを編集(&M), editmp3stags
+        }else if (SubStr(FilePath, StrLen(FilePath) - 3, 4) == ".mp3"){
+            Menu, ExpMenu, Add, MP3 のタグを編集(&M), editmp3tags
+        }
 		Menu, ExpMenu, Show, %A_GuiX%, %A_GuiY%
 		Menu, ExpMenu, DeleteAll
 		return
+        editmp3stags:
+            EditMP3sTags := new AGui(, "EditMP3sTags")
+            configFD.read()
+            EditMP3sTags.font(configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
+            EditMP3sTags.add_option("Resize")
+            EditMP3sTags.add_agc("ListView", "Na_ListView", "Grid w300 h500 NoSortHdr gMP3sLV AltSubmit")
+            EditMP3sTags.Na_ListView.remove_option("ReadOnly")
+            EditMP3sTags.Na_ListView.remove_option("HScroll")
+            LV_InsertCol(1, 297, "Name")
+            EditMP3sTags.add_agc("ListView", "Ti_ListView", "Grid w300 h500 x+0 NoSortHdr gMP3sLV AltSubmit")
+            EditMP3sTags.Ti_ListView.remove_option("ReadOnly")
+            EditMP3sTags.Ti_ListView.remove_option("HScroll")
+            LV_InsertCol(1, 297, "Title")
+            EditMP3sTags.add_agc("ListView", "Ar_ListView", "Grid w200 h500 x+0 NoSortHdr gMP3sLV AltSubmit")
+            EditMP3sTags.Ar_ListView.remove_option("ReadOnly")
+            EditMP3sTags.Ar_ListView.remove_option("HScroll")
+            LV_InsertCol(1, 197, "Artist")
+            EditMP3sTags.add_agc("ListView", "Al_ListView", "Grid w200 h500 x+0 NoSortHdr gMP3sLV AltSubmit")
+            EditMP3sTags.Al_ListView.remove_option("ReadOnly")
+            EditMP3sTags.Al_ListView.remove_option("HScroll")
+            LV_InsertCol(1, 197, "Albam")
+            EditMP3sTags.add_agc("Button", "OKButton", "Default Hidden gEditMP3sOK")
+            EditMP3sTags.dict := Object()
+            EditMP3sTags.add_agc("Progress", "Progress", "Backgroundwhite x20 y515 w200 h20 border")
+            EditMP3sTags.show("AutoSize")
+            Loop, %FilePath%\*.mp3, 0, 1
+            {
+                Name := RegExReplace(A_LoopFileName, "\.mp3$", "")
+                Path := A_LoopFileFullPath
+                Tags := GetMP3TagsFunc(Path)
+                Title := Tags[1]
+                Artist := Tags[2]
+                Albam := Tags[3]
+                EditMP3sTags.dict[A_Index] := Object()
+                EditMP3sTags.dict[A_Index]["Name"] := Name
+                EditMP3sTags.dict[A_Index]["Path"] := Path
+                EditMP3sTags.dict[A_Index]["Title"] := Title
+                EditMP3sTags.dict[A_Index]["Artist"] := Artist
+                EditMP3sTags.dict[A_Index]["Albam"] := Albam
+                ifWinNotExist, EditMP3sTags
+                    break
+                EditMP3sTags.Na_ListView.LV_Add(, Name)
+                EditMP3sTags.Ti_ListView.LV_Add(, Title)
+                EditMP3sTags.Ar_ListView.LV_Add(, Artist)
+                EditMP3sTags.Al_ListView.LV_Add(, Albam)
+            }
+            return
+            EditMP3sOK(){
+                global EditMP3sTags
+                EditMP3sTags.Progress.do(, 1)
+                NoEM := 0
+                MD := Object()
+                Loop, % EditMP3sTags.Na_ListView.LV_GetCount()
+                {
+                    n_Name := EditMP3sTags.Na_ListView.LV_GetText(A_Index, 1)
+                    n_Title := EditMP3sTags.Ti_ListView.LV_GetText(A_Index, 1)
+                    n_Artist := EditMP3sTags.Ar_ListView.LV_GetText(A_Index, 1)
+                    n_Albam := EditMP3sTags.Al_ListView.LV_GetText(A_Index, 1)
+                    Name := EditMP3sTags.dict[A_Index]["Name"]
+                    Path := EditMP3sTags.dict[A_Index]["Path"]
+                    Title := EditMP3sTags.dict[A_Index]["Title"]
+                    Artist := EditMP3sTags.dict[A_Index]["Artist"]
+                    Albam := EditMP3sTags.dict[A_Index]["Albam"]
+                    EditMP3sTags.dict[A_Index]["Name"] := n_Name
+                    EditMP3sTags.dict[A_Index]["Title"] := n_Title
+                    EditMP3sTags.dict[A_Index]["Artist"] := n_Artist
+                    EditMP3sTags.dict[A_Index]["Albam"] := n_Albam
+                    if (n_Name == Name and n_Title == Title and n_Artist == Artist and n_Albam == Albam)
+                        continue
+                    NoEM += 1
+                    MD[NoEM] := Object()
+                    MD[NoEM]["Name"] := n_Name . ".mp3"
+                    MD[NoEM]["Path"] := Path
+                    MD[NoEM]["Title"] := n_Title
+                    MD[NoEM]["Artist"] := n_Artist
+                    MD[NoEM]["Albam"] := n_Albam
+                }
+                For Key, Value in MD{
+                    EditMP3TagsFunc(Value["Path"], Value["Title"], Value["Artist"], Value["Albam"], Value["Name"])
+                    EditMP3sTags.Progress.do(, (A_Index / NoEM) * 100)
+                }
+                msgjoin("Done")
+            }
+            MP3sLV(){
+                global EditMP3sTags
+                global PF
+                if (A_GuiEvent == "I" and InStr(ErrorLevel, "S", true) and EditMP3sTags.current_selected_row != A_EventInfo){
+                    EditMP3sTags.Na_ListView.LV_Modify(0, "Select0 Focus0")
+                    EditMP3sTags.Ti_ListView.LV_Modify(0, "Select0 Focus0")
+                    EditMP3sTags.Ar_ListView.LV_Modify(0, "Select0 Focus0")
+                    EditMP3sTags.Al_ListView.LV_Modify(0, "Select0 Focus0")
+                    EditMP3sTags.Na_ListView.LV_Modify(A_EventInfo, "Select1 Focus1")
+                    EditMP3sTags.Ti_ListView.LV_Modify(A_EventInfo, "Select1 Focus1")
+                    EditMP3sTags.Ar_ListView.LV_Modify(A_EventInfo, "Select1 Focus1")
+                    EditMP3sTags.Al_ListView.LV_Modify(A_EventInfo, "Select1 Focus1")
+                    EditMP3sTags.current_selected_row := A_EventInfo
+                }else if (A_GuiEvent == "e" and A_GuiControl == "AGuiControlVar_Na_ListView"){
+                    Name := EditMP3sTags.Na_ListView.LV_GetText(A_EventInfo, 1)
+                    EditMP3sTags.Ti_ListView.LV_Modify(A_EventInfo, , RegExReplace(Name, "\.mp3$", ""))
+                }else if (A_GuiEvent == "E"){
+                    send, {Right}
+                }
+            }
 		register_launcher:
             configFD.read()
 			RCLoc := ""
