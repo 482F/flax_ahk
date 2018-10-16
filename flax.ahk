@@ -1365,14 +1365,24 @@ ExecuteTimer:
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-    Path := "E:\document\授業\2年秋\情報基礎学A\"
-    Loop, 100
+    Path := "D:\temp\"
+    msgjoin("A")
+    str := "y\x"
+    NoX := 100
+    NoY := 100
+    Loop, %NoX%
     {
-        x := A_Index
-        Loop, 100
+        str .= "," . A_Index
+    }
+    str .= "`n"
+    Loop, %NoY%
+    {
+        y := A_Index
+        str .= y . ","
+        Loop, %NoX%
         {
             param := ""
-            y := A_Index
+            x := A_Index
             Loop, %x%
             {
                 param .= "1"
@@ -1383,10 +1393,18 @@ ExecuteTimer:
                 param .= "1"
             }
             result := CmdRun("python " . Path . "tm.py " . Path . "addition.tm " . param, 0)
-            result := RetAllMatch(result, "(\d+)\ steps")[0][0]
+            str .= RetAllMatch(result, "(\d+)\ steps")[1][1] . ","
+            sleep 100
+            tooltip, % x . "," . y
         }
+        str .= "`n"
     }
-    sleep 100
+    Clipboard := str
+    log_file := new AFile(Path . "addition.log")
+    log_file.text := str
+    log_file.write()
+    tooltip,
+    msgjoin("Done")
 	return
 flaxguitestmethod:
 	msgjoin("A")
