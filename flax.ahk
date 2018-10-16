@@ -3548,12 +3548,11 @@ MouseGestureExecute:
                     if (n_Name == Name and n_Title == Title and n_Artist == Artist and n_Albam == Albam)
                         continue
                     NoEM += 1
-                    MD[NoEM] := Object()
-                    MD[NoEM]["Name"] := n_Name . ".mp3"
-                    MD[NoEM]["Path"] := Path
-                    MD[NoEM]["Title"] := n_Title
-                    MD[NoEM]["Artist"] := n_Artist
-                    MD[NoEM]["Albam"] := n_Albam
+                    MD[NoEM, "Name"] := n_Name . ".mp3"
+                    MD[NoEM, "Path"] := Path
+                    MD[NoEM, "Title"] := n_Title
+                    MD[NoEM, "Artist"] := n_Artist
+                    MD[NoEM, "Albam"] := n_Albam
                 }
                 For Key, Value in MD{
                     EditMP3TagsFunc(Value["Path"], Value["Title"], Value["Artist"], Value["Albam"], Value["Name"])
@@ -3641,12 +3640,9 @@ MouseGestureExecute:
 					B_ComputerName := A_ComputerName
 				else if (RegisterLauncher.RAll.value = 1)
 					B_ComputerName := "default"
-				if (not launcherFD.fdict.HasKey(RegisterLauncher.EName.value))
-					launcherFD.fdict[RegisterLauncher.EName.value] := Object()
-				if (not launcherFD.fdict[RegisterLauncher.EName.value].HasKey(B_ComputerName))
-					launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName] := Object()
-				launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName]["command"] := RegisterLauncher.ECommand.value
-                launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName]["working_dir"] := RegisterLauncher.EWD.value
+                EName := RegisterLauncher.EName.value
+				launcherFD.fdict[EName, B_ComputerName, "command"] := RegisterLauncher.ECommand.value
+                launcherFD.fdict[EName, B_ComputerName, "working_dir"] := RegisterLauncher.EWD.value
 				if (RegisterLauncher.RApp.value = 1)
 					EType := "Application"
 				else if (RegisterLauncher.RLoc.value = 1)
@@ -3655,7 +3651,7 @@ MouseGestureExecute:
 					EType := "URL"
                 else if (RegisterLauncher.RLab.value = 1)
                     EType := "Label"
-				launcherFD.fdict[RegisterLauncher.EName.value][B_ComputerName]["type"] := EType
+				launcherFD.fdict[EName, B_ComputerName, "type"] := EType
 				launcherFD.write()
                 RegisterLauncher.Destroy()
 				return
