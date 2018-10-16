@@ -1360,7 +1360,28 @@ ExecuteTimer:
 ;ホットストリング
 ::flaxtest::
 	sleep 300
-    GoSub, ::flaxedittimetable
+    Path := "E:\document\授業\2年秋\情報基礎学A\"
+    Loop, 100
+    {
+        x := A_Index
+        Loop, 100
+        {
+            param := ""
+            y := A_Index
+            Loop, %x%
+            {
+                param .= "1"
+            }
+            param .= "$"
+            Loop, %y%
+            {
+                param .= "1"
+            }
+            result := CmdRun("python " . Path . "tm.py " . Path . "addition.tm " . param, 0)
+            result := RetAllMatch(result, "(\d+)\ steps")[0][0]
+        }
+    }
+    sleep 100
 	return
 flaxguitestmethod:
 	msgjoin("A")
