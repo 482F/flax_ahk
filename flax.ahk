@@ -69,6 +69,7 @@ return
 ;function
 ;関数
 RevStr(Str){
+    RetStr := ""
 	Loop,Parse,Str
 	{
 		RetStr := A_LoopField . RetStr
@@ -1599,6 +1600,7 @@ flaxguitestmethod:
 	sleep 100
 	RetShuffleList(StrList,Seed)
 	{
+        ShuffleList := ""
 		StrListLen := StrLen(StrList)
 		Random,,%Seed%
 		Loop,%StrListLen%
@@ -1672,6 +1674,7 @@ flaxguitestmethod:
 		Random,rot1Off,1,%Len%
 		Random,rot2Off,1,%Len%
 		Random,rot3Off,1,%Len%
+        Crypt := ""
 		Loop,Parse,Ctext
 		{
 			Char := A_LoopField
