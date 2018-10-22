@@ -1364,12 +1364,17 @@ ExecuteTimer:
 ;hotstring
 ;ホットストリング
 ::flaxtest::
+    winset, alwaysontop, on, A
+    winset, Disable
+    msgjoin("A")
+    winset, alwaysontop, off, A
+    winset, Enable
+    return
 	sleep 300
     Path := "D:\temp\"
-    msgjoin("A")
     str := "y\x"
-    NoX := 100
-    NoY := 100
+    NoX := 50
+    NoY := 50
     Loop, %NoX%
     {
         str .= "," . A_Index
@@ -1392,7 +1397,7 @@ ExecuteTimer:
             {
                 param .= "1"
             }
-            result := CmdRun("python " . Path . "tm.py " . Path . "addition.tm " . param, 0)
+            result := CmdRun("python " . Path . "tm.py " . Path . "division.tm " . param, 0)
             str .= RetAllMatch(result, "(\d+)\ steps")[1][1] . ","
             sleep 100
             tooltip, % x . "," . y
@@ -1400,7 +1405,7 @@ ExecuteTimer:
         str .= "`n"
     }
     Clipboard := str
-    log_file := new AFile(Path . "addition.log")
+    log_file := new AFile(Path . "division.log")
     log_file.text := str
     log_file.write()
     tooltip,
