@@ -2482,14 +2482,51 @@ MouseGetPos,X,Y
 	return
 ::flaxtransparent::
 	sleep 400
-	if (flaxtransparent_k != 50){
-		WinSet, Transparent, 50, A
-		flaxtransparent_k := 50
-	}else{
-		flaxtransparent_k := 255
-		WinSet, Transparent, OFF, A
-	}
+    transparent_gui := new AGui(, "transparent_gui")
+    winget, ID, ID, A
+    transparent_gui.ID := ID
+    winset, alwaysontop, on, ahk_id %ID%
+    transparent_gui.close := Func("transparent_gui_close")
+    transparent_gui.escape := Func("transparent_gui_close")
+    transparent_gui.add_option("AlwaysOnTop")
+    transparent_gui.remove_option("Border")
+    transparent_gui.add_option("LastFound")
+    transparent_gui.add_agc("Slider", "Slider", "Vertical Invert Range0-255 H300 Center AltSubmit -BackGround")
+    transparent_gui.add_agc("Button", "OK", "Default Hidden")
+    transparent_gui.OK.method := "transparent_gui_OK"
+    transparent_gui.Slider.method := "transparent_gui_slider"
+    transparent_gui.show("Hide")
+	SysGet,MonitorSizeX,0
+	SysGet,MonitorSizeY,1
+	WinGetPos, , , w, h
+	w := MonitorSizeX - marg - w
+	h := MonitorSizeY - marg - h
+	transparent_gui.Show("x" . w . " y" . h . " Hide", "transparent_gui")
+    transparent_gui.remove_option("LastFound")
+    transparent_gui.show("AutoSize")
 	return
+    transparent_gui_OK(){
+        global transparent_gui
+        ID := transparent_gui.ID
+        transparent_gui.destroy()
+        winset, alwaysontop, off, ahk_id %ID%
+        return
+    }
+    transparent_gui_slider(){
+        global transparent_gui
+        transparent_gui.submit("NoHide")
+        value := transparent_gui.Slider.value 
+        ID := transparent_gui.ID
+        winset, transparent, %value%, ahk_id %ID%
+        return
+    }
+    transparent_gui_close(){
+        global transparent_gui
+        ID := transparent_gui.ID
+        winset, transparent, 255, ahk_id %ID%
+        transparent_gui_OK()
+        return
+    }
 ::flaxeditgesture::
 	sleep 400
     configFD.read()
