@@ -43,6 +43,7 @@ SetTitleMatchMode,2
 DefVars:
 {
 	marg := 50
+    C_S_x := False
     KeyGestureBool := False
     MoveFlag := False
 	flaxmoviemode := False
