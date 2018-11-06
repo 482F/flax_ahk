@@ -3001,7 +3001,7 @@ RegisterInput:
 ^#v::
 	ClipboardAlt := ClipboardAll
 	Clipboard := ""
-	ToolTip,^#v
+	ToolTip, input register name
     reg_name := new AInput()
     reg_name.input_mode("on")
     While (reg_name.ErrorLevel != "EndKey:Enter"){
