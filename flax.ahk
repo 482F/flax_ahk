@@ -1358,6 +1358,29 @@ class AGuiControlText extends AGuiControl{
 		base.__New(target_gui, "Text")
 	}
 }
+class AInput{
+    __New(){
+        this.str := ""
+        this.ErrorLevel := ""
+    }
+    input(){
+        this.input_mode("off")
+        Input, pressed_key, L1, {Enter} {Esc} {BackSpace}
+        if (ErrorLevel == "EndKey:Backspace"){
+            str := this.str
+            StringTrimRight, str, str, 1
+            this.str := str
+        }else{
+            this.str .= pressed_key
+        }
+        this.ErrorLevel := ErrorLevel
+        this.input_mode("on")
+        return ErrorLevel
+    }
+    input_mode(mode){
+        BlockInput, %mode%
+    }
+}
 ExecuteTimer:
 	timerFD.execute_next()
 	return
@@ -1365,52 +1388,10 @@ ExecuteTimer:
 ;hotstring
 ;ホットストリング
 ::flaxtest::
-    winset, alwaysontop, on, A
-    winset, Disable
-    msgjoin("A")
-    winset, alwaysontop, off, A
-    winset, Enable
-    return
-	sleep 300
-    Path := "D:\temp\"
-    str := "y\x"
-    NoX := 50
-    NoY := 50
-    Loop, %NoX%
-    {
-        str .= "," . A_Index
+    While (ErrorLevel != "Endkey:Enter"){
+        Input, pressed_key, L1, {Enter} {Esc}
+        msgjoin(ErrorLevel, pressed_key)
     }
-    str .= "`n"
-    Loop, %NoY%
-    {
-        y := A_Index
-        str .= y . ","
-        Loop, %NoX%
-        {
-            param := ""
-            x := A_Index
-            Loop, %x%
-            {
-                param .= "1"
-            }
-            param .= "$"
-            Loop, %y%
-            {
-                param .= "1"
-            }
-            result := CmdRun("python " . Path . "tm.py " . Path . "division.tm " . param, 0)
-            str .= RetAllMatch(result, "(\d+)\ steps")[1][1] . ","
-            sleep 100
-            tooltip, % x . "," . y
-        }
-        str .= "`n"
-    }
-    Clipboard := str
-    log_file := new AFile(Path . "division.log")
-    log_file.text := str
-    log_file.write()
-    tooltip,
-    msgjoin("Done")
 	return
 flaxguitestmethod:
 	msgjoin("A")
@@ -2991,11 +2972,23 @@ MouseGetPos,X,Y
 	GoSub,RegisterInput
 	Return
 RegisterInput:
-	Input,address,I,{Enter}
+    reg_name := new AInput()
+    reg_name.input_mode("on")
+    While (reg_name.ErrorLevel != "Endkey:Enter"){
+        reg_name.input()
+        if (reg_name.ErrorLevel == "EndKey:Escape"){
+            ToolTip,
+            reg_name.input_mode("off")
+            return
+        }
+        ToolTip, % reg_name.str
+    }
+    reg_name.input_mode("off")
+    reg_name := reg_name.str
 	ClipWait, 1
 	Clipboard := RegExReplace(Clipboard, "\r\n", "\flaxnewline")
-	if (address != ""){
-		registerFD.dict[address] := Clipboard
+	if (reg_name != ""){
+		registerFD.dict[reg_name] := Clipboard
 		registerFD.write()
 	}
 	ToolTip,
@@ -3005,10 +2998,32 @@ RegisterInput:
 	ClipboardAlt := ClipboardAll
 	Clipboard := ""
 	ToolTip,^#v
-	Input,address,I,{Enter}
-	if (address != ""){
+    reg_name := new AInput()
+    reg_name.input_mode("on")
+    While (reg_name.ErrorLevel != "EndKey:Enter"){
+        toolstr := ""
+        reg_name.input()
+        if (reg_name.ErrorLevel == "EndKey:Escape"){
+            ToolTip,
+            reg_name.input_mode("off")
+            return
+        }
+        toolstr .= reg_name.str . "`n"
+        for key, value in registerFD.dict{
+            if (InStr(key, reg_name.str) == 1){
+                if (10 < StrLen(value)){
+                    value := SubStr(value, 1, 10) . "..."
+                }
+                toolstr .= key . ": " . value . "`n"
+            }
+        }
+        ToolTip, %toolstr%
+    }
+    reg_name.input_mode("off")
+    reg_name := reg_name.str
+	if (reg_name != ""){
 		registerFD.read()
-		RegValue := registerFD.dict[address]
+		RegValue := registerFD.dict[reg_name]
 		Clipboard := RegExReplace(RegValue, "\\flaxnewline", "`n")
 		send,^v
 	}
@@ -3433,6 +3448,22 @@ MouseGestureExecute:
 		send,s
 		send,{Enter}
 		return
+#IfWinActive, Minecraft ahk_exe javaw.exe
+    +1::
+        send, 6
+        return
+    +2::
+        send, 7
+        return
+    +3::
+        send, 8
+        return
+    +4::
+        send, 9
+        return
+    +5::
+        send, 0
+        return
 #IfWinActive,ahk_exe explorer.exe
 	~^Tab::
 		send, ^]
