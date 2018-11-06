@@ -822,6 +822,10 @@ AGuiContextMenu(GuiHwnd){
     AGui.HwndDict[GuiHwnd].contextmenu()
     return
 }
+testmsg(strs*){
+	Msg := "line: " . A_LineNumber . "`n`n" .  JoinStr(Strs*)
+	Msgbox,% Msg
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
@@ -1388,10 +1392,7 @@ ExecuteTimer:
 ;hotstring
 ;ホットストリング
 ::flaxtest::
-    While (ErrorLevel != "Endkey:Enter"){
-        Input, pressed_key, L1, {Enter} {Esc}
-        msgjoin(ErrorLevel, pressed_key)
-    }
+    testmsg("a")
 	return
 flaxguitestmethod:
 	msgjoin("A")
