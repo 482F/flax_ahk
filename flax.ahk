@@ -2961,13 +2961,13 @@ MouseGetPos,X,Y
 ^#c::
 	ClipboardAlt := ClipboardAll
 	Clipboard := ""
-	ToolTip,^#c
+	ToolTip, input register name
 	send,^c
 	GoSub,RegisterInput
 	return
 ^#x::
 	ClipboardAlt := ClipboardAll
-	ToolTip,^#x
+	ToolTip, input register name
 	send,^x
 	GoSub,RegisterInput
 	Return
@@ -2981,7 +2981,11 @@ RegisterInput:
             reg_name.input_mode("off")
             return
         }
-        ToolTip, % reg_name.str
+        if (reg_name.str == "")
+            str := "input register name"
+        else
+            str := reg_name.str
+        ToolTip, %str%
     }
     reg_name.input_mode("off")
     reg_name := reg_name.str
