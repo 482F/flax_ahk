@@ -5,6 +5,7 @@
 /config/timetable.fd
 /config/config.fd
 /config/timer.fd
+/config/treemenu.fd
 /CreateNew/*
 IDM.ini
 nativelog.txt
