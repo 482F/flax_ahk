@@ -1392,7 +1392,6 @@ ExecuteTimer:
 ;hotstring
 ;ホットストリング
 ::flaxtest::
-    testmsg("a")
 	return
 flaxguitestmethod:
 	msgjoin("A")
@@ -2722,7 +2721,7 @@ MouseGetPos,X,Y
     FilePath := ""
     GoSub, register_launcher
     return
-
+    
 ;hotkey
 ;ホットキー
 +!^W::
@@ -3823,6 +3822,242 @@ MouseGestureExecute:
 #IfWinActive,ahk_exe chrome.exe
  	^+q::return
 	^+w::return
+#IfWinActive, ahk_exe Toukiden2_JA.exe
+    LButton::j
+    RButton::i
+    MButton::
+        send, {l down}
+        send, {i down}
+        sleep, 100
+        send, {i up}
+        send, {l up}
+        return
+    +WheelDown::
+    WheelDown::
+        send, {l down}
+        sleep, 100
+        send, {l up}
+        return
+    XButton1::Left
+    XButton2::Right
+    LCtrl::
+        send, {Space down}
+        send, {j down}
+        return
+    LCtrl up::
+        send, {j up}
+        send, {Space up}
+        return
+    F1::
+    ::flaxtoukiden2::
+        toukiden_flag := True
+        tooltip, start
+        sleep 1000
+        tooltip
+        hdf := False
+        vdf := False
+        MouseMove, 500, 500, 0
+        bmp := Object()
+        bmp.x := 500
+        bmp.y := 500
+        while (toukiden_flag){
+            sleep 10
+            amp := RetMousePos()
+            MouseMove, 500, 500, 0
+            if (abs(bmp.y - amp.y) < abs(bmp.x - amp.x)){
+                toukiden_check_horizon_mouse_move("horizon")
+                toukiden_check_horizon_mouse_move("vertical")
+            }else{
+                toukiden_check_horizon_mouse_move("vertical")
+                toukiden_check_horizon_mouse_move("horizon")
+            }
+        }
+        return
+    ; ::flaxtoukiden2_2::
+    ;     toukiden_flag := True
+    ;     tooltip, start
+    ;     sleep 1000
+    ;     tooltip, 
+    ;     MouseMove, 500, 500, 0
+    ;     time_per_distance := 1
+    ;     bmp := Object()
+    ;     bmp.x := 500
+    ;     bmp.y := 500
+    ;     h_button := ""
+    ;     v_button := ""
+    ;     while (toukiden_flag){
+    ;         sleep 10
+    ;         amp := RetMousePos()
+    ;         MouseMove, 500, 500, 0
+    ;         h_distance := amp.x - bmp.x
+    ;         v_distance := amp.y - bmp.y
+    ;         if (0 < h_distance){
+    ;             h_button := "Right"
+    ;         }else if (h_distance < 0){
+    ;             h_button := "Left"
+    ;         }else{
+    ;             h_button := ""
+    ;         }
+    ;         if (0 < v_distance){
+    ;             v_button := "Down"
+    ;         }else if (v_distance < 0){
+    ;             v_button := "Up"
+    ;         }else{
+    ;             v_button := ""
+    ;         }
+    ;         if (h_distance < v_distance){
+    ;             first_button := h_button
+    ;             second_button := v_button
+    ;             first_slp_time := h_distance
+    ;             first_slp_time := v_distance - h_distance
+    ;         }else{
+    ;             first_button := v_button
+    ;             second_button := h_button
+    ;             first_slp_time := v_distance
+    ;             second_slp_time := h_distance - v_distance
+    ;         }
+    ;         send, {Blind}{%first_button% down}
+    ;         send, {Blind}{%second_slp_time% down}
+    ;         sleep %first_slp_time%
+    ;         send, {Blind}{%first_button% up}
+    ;         sleep %second_slp_time%
+    ;         send, {Blind}{%second_slp_time% up}
+    ;     }
+    ;     return
+    F2::
+        toukiden_flag := False
+        return
+    toukiden_check_horizon_mouse_move(mode){
+        global vdf
+        global hdf
+        global bmp
+        global amp
+        if (mode == "horizon"){
+            if (not vdf){
+                if ((bmp.x < amp.x) and (not hdf)){
+                    send, {Blind}{Right down}
+                    hdf := True
+                }else if ((amp.x < bmp.x) and (not hdf)){
+                    send, {Blind}{Left down}
+                    hdf := True
+                }else if ((amp.x == bmp.x) and (hdf)){
+                    send, {Blind}{Right up}
+                    send, {Blind}{Left up}
+                    hdf := False
+                }
+            }
+        }else if (mode == "vertical"){
+            if (not hdf){
+                if ((bmp.y < amp.y) and (not vdf)){
+                    send, {Blind}{Down down}
+                    vdf := True
+                }else if ((amp.y < bmp.y) and (not vdf)){
+                    send, {Blind}{Up down}
+                    vdf := True
+                }else if ((amp.y == bmp.y) and (vdf)){
+                    send, {Blind}{Down up}
+                    send, {Blind}{Up up}
+                    vdf := False
+                }
+            }
+        }
+        return
+    }
+#IfWinActive ahk_exe Nonogram - The Greatest Painter.exe
+    ^e::
+        msgjoin("Move start pos")
+        MouseGetPos, x_start, y_start
+        msgjoin("Move end pos")
+        MouseGetPos, x_end, y_end
+        configFD.dict.nono_width_of_cell := ((x_end - x_start) + (y_end - y_start)) / (2 * 14)
+        configFD.write()
+        return
+    ^z::
+        nonogram_click("^z")
+        return
+    +^z::
+    ^y::
+        nonogram_click("+^z")
+        return
+    Enter::
+        nonogram_mark("Enter")
+        return
+    \::
+        nonogram_mark("\")
+        return
+    BackSpace::
+        nonogram_mark("BackSpace")
+        return
+    Left::
+    a::
+        nonogram_move_cursor("Left")
+        return
+    Right::
+    d::
+        nonogram_move_cursor("Right")
+        return
+    Up::
+    w::
+        nonogram_move_cursor("Up")
+        return
+    Down::
+    s::
+        nonogram_move_cursor("Down")
+        return
+    nonogram_click(mode){
+        MouseGetPos, dx, dy
+        y := 1017
+        if (mode == "^z")
+            x := 1192
+        else if (mode == "+^z")
+            x := 1134
+        MouseClick, L, %x%, %y%, , 0
+        MouseMove, %dx%, %dy%, 0
+        return
+    }
+    nonogram_mark(Key){
+        if (Key == "Enter")
+            Button := "L"
+        else if (Key == "BackSpace")
+            Button := "R"
+        else if (Key == "\")
+            Button := "M"
+        MouseClick, %Button%, , , , , D
+        KeyWait, %Key%, 
+        MouseClick, %Button%, , , , , U
+    }
+    nonogram_move_cursor(Direction){
+        global configFD
+        configFD.read()
+        PX := 0
+        PY := 0
+        if (Direction == "Up")
+            PY -= configFD.dict.nono_width_of_cell
+        else if (Direction == "Down")
+            PY += configFD.dict.nono_width_of_cell
+        else if (Direction == "Left")
+            PX -= configFD.dict.nono_width_of_cell
+        else if (Direction == "Right")
+            PX += configFD.dict.nono_width_of_cell
+        MouseMove, %PX%, %PY%, 0, R
+        return
+    }
+#IfWinActive 一問一答形式問題画面
+    Left::
+        MouseMove, 464, 562, 0
+        return
+    Right::
+        MouseMove, 559, 567, 0
+        return
+    Enter::
+		if (A_Cursor = "Unknown"){
+            MouseClick, L, , , , 0, , 
+        }else{
+            mp := RetMousePos()
+            MouseClick, L, 913, 1008, 1, 0, , 
+            MouseMove, % mp.x, % mp.y, 0
+        }
+        return
 #IfWinActive
 #If (copymode = "FIFO")
 {
@@ -3847,4 +4082,3 @@ MouseGestureExecute:
 		IoFRP += IoFWP == IoFRP + 1 ? 0 : 1
 		return
 }
-#If
