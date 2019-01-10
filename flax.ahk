@@ -2721,7 +2721,40 @@ MouseGetPos,X,Y
     FilePath := ""
     GoSub, register_launcher
     return
-    
+::flaxsetupmousepad::
+    SetKeyDelay, 100, 10
+    MouseClick, L, 88, 107
+    send, !z
+    MouseClick, L, 74, 124
+    send, !t
+    MouseClick, L, 52, 142
+    MouseClick, L, 74, 159
+    MouseClick, L, 116, 175
+    send, {Tab}{Home}
+    MouseClick, L, 119, 190
+    send, {Tab}{Home}
+    MouseClick, L, 55, 272
+    MouseClick, L, 104, 288
+    send, !l
+    MouseClick, L, 75, 305
+    MouseClick, L, 96, 305
+    send, !e
+    MouseClick, L, 114, 318
+    MouseClick, L, 361, 101
+    MouseClick, L, 144, 336
+    MouseClick, L, 361, 101
+    MouseClick, L, 135, 349
+    MouseClick, L, 348, 129
+    MouseClick, L, 129, 369
+    MouseClick, L, 375, 116
+    MouseClick, L, 147, 382
+    SetKeyDelay, 10, -1
+    send, {Tab}{Right 30}{Down 10}
+    send, {Tab}{Left 30}{Down 10}
+    send, !a
+    send, {Esc}
+    SetKeyDelay, 10, -1
+    return    
 ;hotkey
 ;ホットキー
 +!^W::
@@ -3255,6 +3288,32 @@ MouseGestureExecute:
 		ToolTip,
 		return
 #If
+^!+#F1::
+    ; G3
+    return
+^!+#F2::
+    ; G4
+    return
+^!+#F3::
+    ; G5
+    send, {Silent}^+T
+    return
+^!+#F4::
+    ; G6
+    return
+^!+#F5::
+    ; G7
+    return
+^!+#F6::
+    ; G9
+    return
+^!+#F7::
+    ; G13
+    return
+^!+#F8::
+    ; G2
+    return
+
 
 
 #IfWinActive ahk_exe excel.exe
@@ -4082,3 +4141,4 @@ MouseGestureExecute:
 		IoFRP += IoFWP == IoFRP + 1 ? 0 : 1
 		return
 }
+#If
