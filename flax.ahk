@@ -4101,21 +4101,77 @@ MouseGestureExecute:
         MouseMove, %PX%, %PY%, 0, R
         return
     }
-#IfWinActive 一問一答形式問題画面
+#IfWinActive ahk_exe hanano2.exe
+    ^Left::
+        MouseClick, L, , , , , D
     Left::
-        MouseMove, 464, 562, 0
+        MouseMove, -90, 0, , R
+        MouseClick, L, , , , , U
         return
+    ^Right::
+        MouseClick, R, , , , , D
     Right::
-        MouseMove, 559, 567, 0
+        MouseMove, 90, 0, , R
+        MouseClick, R, , , , , U
+        return
+    ^Up::
+    Up::
+        MouseMove, 0, -90, , R
+        return
+    ^Down::
+    Down::
+        MouseMove, 0, 90, , R
         return
     Enter::
-		if (A_Cursor = "Unknown"){
-            MouseClick, L, , , , 0, , 
-        }else{
-            mp := RetMousePos()
-            MouseClick, L, 913, 1008, 1, 0, , 
-            MouseMove, % mp.x, % mp.y, 0
-        }
+        MouseClick, L
+        return
+    F5::
+        mp := RetMousePos()
+        MouseClick, L, 1011, 901, , , D
+        MouseMove, % mp.x, % mp.y, 
+        MouseClick, L, , , , , U
+        return
+    ^z::
+        mp := RetMousePos()
+        MouseClick, L, 760, 900, , , D
+        MouseMove, % mp.x, % mp.y, 
+        MouseClick, L, , , , , U
+        return
+#IfWinActive ahk_exe jelly.exe
+    ^Left::
+        MouseClick, L, , , , , D
+    Left::
+        MouseMove, -60, 0, , R
+        MouseClick, L, , , , , U
+        return
+    ^Right::
+        MouseClick, R, , , , , D
+    Right::
+        MouseMove, 60, 0, , R
+        MouseClick, R, , , , , U
+        return
+    ^Up::
+    Up::
+        MouseMove, 0, -60, , R
+        return
+    ^Down::
+    Down::
+        MouseMove, 0, 60, , R
+        return
+    Enter::
+        MouseClick, L
+        return
+    F5::
+        mp := RetMousePos()
+        MouseClick, L, 667, 618, , , D
+        MouseMove, % mp.x, % mp.y, 
+        MouseClick, L, , , , , U
+        return
+    ^z::
+        mp := RetMousePos()
+        MouseClick, L, 502, 613, , , D
+        MouseMove, % mp.x, % mp.y, 
+        MouseClick, L, , , , , U
         return
 #IfWinActive
 #If (copymode = "FIFO")
