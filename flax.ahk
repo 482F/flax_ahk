@@ -60,6 +60,8 @@ DefVars:
 	timerFD := new TimerFD("config/timer.fd")
 	MP := Object()
 	global Pi := 3.14159265358979
+    dbd_rapid_space_flag := False
+    rapid_mode := "normal"
 	msgbox,ready
 	return
 }
@@ -1392,7 +1394,6 @@ ExecuteTimer:
 ;hotstring
 ;ホットストリング
 ::flaxtest::
-    testmsg("a")
 	return
 flaxguitestmethod:
 	msgjoin("A")
@@ -1484,9 +1485,6 @@ flaxguitestmethod:
 ::flaxday::
 	FormatTime,Day,,ddd
 	send,% Day
-	return
-~Esc::
-	flaxrapidlbState = 1
 	return
 ::flaxsuspend::
 	Suspend,On
@@ -2722,7 +2720,40 @@ MouseGetPos,X,Y
     FilePath := ""
     GoSub, register_launcher
     return
-
+::flaxsetupmousepad::
+    SetKeyDelay, 100, 10
+    MouseClick, L, 88, 107
+    send, !z
+    MouseClick, L, 74, 124
+    send, !t
+    MouseClick, L, 52, 142
+    MouseClick, L, 74, 159
+    MouseClick, L, 116, 175
+    send, {Tab}{Home}
+    MouseClick, L, 119, 190
+    send, {Tab}{Home}
+    MouseClick, L, 55, 272
+    MouseClick, L, 104, 288
+    send, !l
+    MouseClick, L, 75, 305
+    MouseClick, L, 96, 305
+    send, !e
+    MouseClick, L, 114, 318
+    MouseClick, L, 361, 101
+    MouseClick, L, 144, 336
+    MouseClick, L, 361, 101
+    MouseClick, L, 135, 349
+    MouseClick, L, 348, 129
+    MouseClick, L, 129, 369
+    MouseClick, L, 375, 116
+    MouseClick, L, 147, 382
+    SetKeyDelay, 10, -1
+    send, {Tab}{Right 30}{Down 10}
+    send, {Tab}{Left 30}{Down 10}
+    send, !a
+    send, {Esc}
+    SetKeyDelay, 10, -1
+    return    
 ;hotkey
 ;ホットキー
 +!^W::
@@ -3091,6 +3122,59 @@ vk1D & 2::send,7
 vk1D & 3::send,8
 vk1D & 4::send,9
 vk1D & 5::send,0
+vk1D & r::
+    if (rapid_mode == "normal"){
+        rapid_mode := "rapid"
+        tooltip, mode: rapid
+    }else if (rapid_mode == "rapid"){
+        rapid_mode := "auto_rapid"
+        tooltip, mode: auto rapid
+    }else if (rapid_mode == "auto_rapid"){
+        rapid_mode := "press"
+        tooltip, mode: press
+    }else if (rapid_mode == "press"){
+        rapid_mode := "normal"
+        tooltip, mode: normal
+    }
+    sleep, 500
+    tooltip,
+    return
+#If (rapid_mode != "normal")
+    ~LButton::
+    ~RButton::
+        rapid_flag := False
+        return
+    LButton & RButton::
+        rapid_mouse("R", rapid_mode)
+        return
+    RButton & LButton::
+        rapid_mouse("L", rapid_mode)
+        return
+    ~Esc::
+        rapid_flag := False
+        return
+    LButton & RButton up::
+    RButton & LButton up::
+        if (rapid_mode == "rapid")
+            rapid_flag := False
+        return
+#If
+rapid_mouse(button, mode){
+    global rapid_flag
+    rapid_flag := True
+    if (mode == "press"){
+        click, %button%, , , , , D
+        while (rapid_flag){
+            sleep, 100
+        }
+        click, %button%, , , , , U
+    }else{
+        while (rapid_flag){
+            click, %button%, , , , ,
+        }
+    }
+    return
+}
 vk1D & LButton::
     RapidButton := "LButton"
     GoSub, RapidMouse
@@ -3256,6 +3340,32 @@ MouseGestureExecute:
 		ToolTip,
 		return
 #If
+^!+#F1::
+    ; G3
+    return
+^!+#F2::
+    ; G4
+    return
+^!+#F3::
+    ; G5
+    send, {Silent}^+T
+    return
+^!+#F4::
+    ; G6
+    return
+^!+#F5::
+    ; G7
+    return
+^!+#F6::
+    ; G9
+    return
+^!+#F7::
+    ; G13
+    return
+^!+#F8::
+    ; G2
+    return
+
 
 
 #IfWinActive ahk_exe excel.exe
@@ -3823,6 +3933,309 @@ MouseGestureExecute:
 #IfWinActive,ahk_exe chrome.exe
  	^+q::return
 	^+w::return
+#IfWinActive, ahk_exe DeadByDaylight-Win64-Shipping.exe
+    ^Enter::
+        dbd_rapid_space_flag := True
+        while (dbd_rapid_space_flag){
+            send, {Blind}{Space}
+            sleep 100
+        }
+        return
+    +Enter::
+        dbd_rapid_space_flag := False
+        return
+#IfWinActive, ahk_exe Toukiden2_JA.exe
+    LButton::j
+    RButton::i
+    MButton::
+        send, {l down}
+        send, {i down}
+        sleep, 100
+        send, {i up}
+        send, {l up}
+        return
+    +WheelDown::
+    WheelDown::
+        send, {l down}
+        sleep, 100
+        send, {l up}
+        return
+    XButton1::Left
+    XButton2::Right
+    LCtrl::
+        send, {Space down}
+        send, {j down}
+        return
+    LCtrl up::
+        send, {j up}
+        send, {Space up}
+        return
+    F1::
+    ::flaxtoukiden2::
+        toukiden_flag := True
+        tooltip, start
+        sleep 1000
+        tooltip
+        hdf := False
+        vdf := False
+        MouseMove, 500, 500, 0
+        bmp := Object()
+        bmp.x := 500
+        bmp.y := 500
+        while (toukiden_flag){
+            sleep 10
+            amp := RetMousePos()
+            MouseMove, 500, 500, 0
+            if (abs(bmp.y - amp.y) < abs(bmp.x - amp.x)){
+                toukiden_check_horizon_mouse_move("horizon")
+                toukiden_check_horizon_mouse_move("vertical")
+            }else{
+                toukiden_check_horizon_mouse_move("vertical")
+                toukiden_check_horizon_mouse_move("horizon")
+            }
+        }
+        return
+    ; ::flaxtoukiden2_2::
+    ;     toukiden_flag := True
+    ;     tooltip, start
+    ;     sleep 1000
+    ;     tooltip, 
+    ;     MouseMove, 500, 500, 0
+    ;     time_per_distance := 1
+    ;     bmp := Object()
+    ;     bmp.x := 500
+    ;     bmp.y := 500
+    ;     h_button := ""
+    ;     v_button := ""
+    ;     while (toukiden_flag){
+    ;         sleep 10
+    ;         amp := RetMousePos()
+    ;         MouseMove, 500, 500, 0
+    ;         h_distance := amp.x - bmp.x
+    ;         v_distance := amp.y - bmp.y
+    ;         if (0 < h_distance){
+    ;             h_button := "Right"
+    ;         }else if (h_distance < 0){
+    ;             h_button := "Left"
+    ;         }else{
+    ;             h_button := ""
+    ;         }
+    ;         if (0 < v_distance){
+    ;             v_button := "Down"
+    ;         }else if (v_distance < 0){
+    ;             v_button := "Up"
+    ;         }else{
+    ;             v_button := ""
+    ;         }
+    ;         if (h_distance < v_distance){
+    ;             first_button := h_button
+    ;             second_button := v_button
+    ;             first_slp_time := h_distance
+    ;             first_slp_time := v_distance - h_distance
+    ;         }else{
+    ;             first_button := v_button
+    ;             second_button := h_button
+    ;             first_slp_time := v_distance
+    ;             second_slp_time := h_distance - v_distance
+    ;         }
+    ;         send, {Blind}{%first_button% down}
+    ;         send, {Blind}{%second_slp_time% down}
+    ;         sleep %first_slp_time%
+    ;         send, {Blind}{%first_button% up}
+    ;         sleep %second_slp_time%
+    ;         send, {Blind}{%second_slp_time% up}
+    ;     }
+    ;     return
+    F2::
+        toukiden_flag := False
+        return
+    toukiden_check_horizon_mouse_move(mode){
+        global vdf
+        global hdf
+        global bmp
+        global amp
+        if (mode == "horizon"){
+            if (not vdf){
+                if ((bmp.x < amp.x) and (not hdf)){
+                    send, {Blind}{Right down}
+                    hdf := True
+                }else if ((amp.x < bmp.x) and (not hdf)){
+                    send, {Blind}{Left down}
+                    hdf := True
+                }else if ((amp.x == bmp.x) and (hdf)){
+                    send, {Blind}{Right up}
+                    send, {Blind}{Left up}
+                    hdf := False
+                }
+            }
+        }else if (mode == "vertical"){
+            if (not hdf){
+                if ((bmp.y < amp.y) and (not vdf)){
+                    send, {Blind}{Down down}
+                    vdf := True
+                }else if ((amp.y < bmp.y) and (not vdf)){
+                    send, {Blind}{Up down}
+                    vdf := True
+                }else if ((amp.y == bmp.y) and (vdf)){
+                    send, {Blind}{Down up}
+                    send, {Blind}{Up up}
+                    vdf := False
+                }
+            }
+        }
+        return
+    }
+#IfWinActive ahk_exe Nonogram - The Greatest Painter.exe
+    ^e::
+        msgjoin("Move start pos")
+        MouseGetPos, x_start, y_start
+        msgjoin("Move end pos")
+        MouseGetPos, x_end, y_end
+        configFD.dict.nono_width_of_cell := ((x_end - x_start) + (y_end - y_start)) / (2 * 14)
+        configFD.write()
+        return
+    ^z::
+        nonogram_click("^z")
+        return
+    +^z::
+    ^y::
+        nonogram_click("+^z")
+        return
+    Enter::
+        nonogram_mark("Enter")
+        return
+    \::
+        nonogram_mark("\")
+        return
+    BackSpace::
+        nonogram_mark("BackSpace")
+        return
+    Left::
+    a::
+        nonogram_move_cursor("Left")
+        return
+    Right::
+    d::
+        nonogram_move_cursor("Right")
+        return
+    Up::
+    w::
+        nonogram_move_cursor("Up")
+        return
+    Down::
+    s::
+        nonogram_move_cursor("Down")
+        return
+    nonogram_click(mode){
+        MouseGetPos, dx, dy
+        y := 1017
+        if (mode == "^z")
+            x := 1192
+        else if (mode == "+^z")
+            x := 1134
+        MouseClick, L, %x%, %y%, , 0
+        MouseMove, %dx%, %dy%, 0
+        return
+    }
+    nonogram_mark(Key){
+        if (Key == "Enter")
+            Button := "L"
+        else if (Key == "BackSpace")
+            Button := "R"
+        else if (Key == "\")
+            Button := "M"
+        MouseClick, %Button%, , , , , D
+        KeyWait, %Key%, 
+        MouseClick, %Button%, , , , , U
+    }
+    nonogram_move_cursor(Direction){
+        global configFD
+        configFD.read()
+        PX := 0
+        PY := 0
+        if (Direction == "Up")
+            PY -= configFD.dict.nono_width_of_cell
+        else if (Direction == "Down")
+            PY += configFD.dict.nono_width_of_cell
+        else if (Direction == "Left")
+            PX -= configFD.dict.nono_width_of_cell
+        else if (Direction == "Right")
+            PX += configFD.dict.nono_width_of_cell
+        MouseMove, %PX%, %PY%, 0, R
+        return
+    }
+#IfWinActive ahk_exe hanano2.exe
+    ^Left::
+        MouseClick, L, , , , , D
+    Left::
+        MouseMove, -90, 0, , R
+        MouseClick, L, , , , , U
+        return
+    ^Right::
+        MouseClick, R, , , , , D
+    Right::
+        MouseMove, 90, 0, , R
+        MouseClick, R, , , , , U
+        return
+    ^Up::
+    Up::
+        MouseMove, 0, -90, , R
+        return
+    ^Down::
+    Down::
+        MouseMove, 0, 90, , R
+        return
+    Enter::
+        MouseClick, L
+        return
+    F5::
+        mp := RetMousePos()
+        MouseClick, L, 1011, 901, , , D
+        MouseMove, % mp.x, % mp.y, 
+        MouseClick, L, , , , , U
+        return
+    ^z::
+        mp := RetMousePos()
+        MouseClick, L, 760, 900, , , D
+        MouseMove, % mp.x, % mp.y, 
+        MouseClick, L, , , , , U
+        return
+#IfWinActive ahk_exe jelly.exe
+    ^Left::
+        MouseClick, L, , , , , D
+    Left::
+        MouseMove, -60, 0, , R
+        MouseClick, L, , , , , U
+        return
+    ^Right::
+        MouseClick, R, , , , , D
+    Right::
+        MouseMove, 60, 0, , R
+        MouseClick, R, , , , , U
+        return
+    ^Up::
+    Up::
+        MouseMove, 0, -60, , R
+        return
+    ^Down::
+    Down::
+        MouseMove, 0, 60, , R
+        return
+    Enter::
+        MouseClick, L
+        return
+    F5::
+        mp := RetMousePos()
+        MouseClick, L, 667, 618, , , D
+        MouseMove, % mp.x, % mp.y, 
+        MouseClick, L, , , , , U
+        return
+    ^z::
+        mp := RetMousePos()
+        MouseClick, L, 502, 613, , , D
+        MouseMove, % mp.x, % mp.y, 
+        MouseClick, L, , , , , U
+        return
 #IfWinActive
 #If (copymode = "FIFO")
 {
