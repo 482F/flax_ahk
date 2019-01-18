@@ -60,6 +60,7 @@ DefVars:
 	timerFD := new TimerFD("config/timer.fd")
 	MP := Object()
 	global Pi := 3.14159265358979
+    dbd_rapid_space_flag := False
 	msgbox,ready
 	return
 }
@@ -3881,6 +3882,17 @@ MouseGestureExecute:
 #IfWinActive,ahk_exe chrome.exe
  	^+q::return
 	^+w::return
+#IfWinActive, ahk_exe DeadByDaylight-Win64-Shipping.exe
+    ^Enter::
+        dbd_rapid_space_flag := True
+        while (dbd_rapid_space_flag){
+            send, {Blind}{Space}
+            sleep 100
+        }
+        return
+    +Enter::
+        dbd_rapid_space_flag := False
+        return
 #IfWinActive, ahk_exe Toukiden2_JA.exe
     LButton::j
     RButton::i
