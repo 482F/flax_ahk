@@ -75,6 +75,7 @@
 - アローキー、wasd、hjkl で選択セルを移動
     - 選択セルの初期位置は現在時刻と曜日によって決まる。
     - 現在時刻によるセルの位置決定の基準は config.fd に記述。記述例は config_sample.fd を参照
+- Alt + up, down でプロファイルを変更
 - 左クリックでクリックしたセルの、Enter, Space で選択セルの授業フォルダを開く
 - 右クリックでクリックしたセルの、Ctrl + Enter, Space で選択セルの URL を開く
 - ホットストリング flaxedittimetable で設定
