@@ -827,6 +827,15 @@ testmsg(strs*){
 	Msg := "line: " . A_LineNumber . "`n`n" .  JoinStr(Strs*)
 	Msgbox,% Msg
 }
+tooltip(str, time=1000){
+    tooltip, %str%
+    SetTimer, clear_tooltip, -%time%
+    return
+}
+clear_tooltip(){
+    tooltip, 
+    return
+}
 class FD{
 	__New(FilePath){
 		this.FilePath := FilePath
