@@ -61,6 +61,7 @@ DefVars:
 	MP := Object()
 	global Pi := 3.14159265358979
     dbd_rapid_space_flag := False
+    rapid_mode := "normal"
 	msgbox,ready
 	return
 }
@@ -1484,9 +1485,6 @@ flaxguitestmethod:
 ::flaxday::
 	FormatTime,Day,,ddd
 	send,% Day
-	return
-~Esc::
-	flaxrapidlbState = 1
 	return
 ::flaxsuspend::
 	Suspend,On
@@ -3124,6 +3122,59 @@ vk1D & 2::send,7
 vk1D & 3::send,8
 vk1D & 4::send,9
 vk1D & 5::send,0
+vk1D & r::
+    if (rapid_mode == "normal"){
+        rapid_mode := "rapid"
+        tooltip, mode: rapid
+    }else if (rapid_mode == "rapid"){
+        rapid_mode := "auto_rapid"
+        tooltip, mode: auto rapid
+    }else if (rapid_mode == "auto_rapid"){
+        rapid_mode := "press"
+        tooltip, mode: press
+    }else if (rapid_mode == "press"){
+        rapid_mode := "normal"
+        tooltip, mode: normal
+    }
+    sleep, 500
+    tooltip,
+    return
+#If (rapid_mode != "normal")
+    ~LButton::
+    ~RButton::
+        rapid_flag := False
+        return
+    LButton & RButton::
+        rapid_mouse("R", rapid_mode)
+        return
+    RButton & LButton::
+        rapid_mouse("L", rapid_mode)
+        return
+    ~Esc::
+        rapid_flag := False
+        return
+    LButton & RButton up::
+    RButton & LButton up::
+        if (rapid_mode == "rapid")
+            rapid_flag := False
+        return
+#If
+rapid_mouse(button, mode){
+    global rapid_flag
+    rapid_flag := True
+    if (mode == "press"){
+        click, %button%, , , , , D
+        while (rapid_flag){
+            sleep, 100
+        }
+        click, %button%, , , , , U
+    }else{
+        while (rapid_flag){
+            click, %button%, , , , ,
+        }
+    }
+    return
+}
 vk1D & LButton::
     RapidButton := "LButton"
     GoSub, RapidMouse
