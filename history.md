@@ -1,4 +1,6 @@
 ### 2019/01/22
+- timetable
+    - Alt + up, down で timetable のプロファイルを切り替えられるように
 - rapidmouse
     - 無変換 + クリック系のコマンドを削除
 ### 2019/01/21
