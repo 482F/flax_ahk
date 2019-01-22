@@ -2456,6 +2456,23 @@ MouseGetPos,X,Y
         ^Space::
             timetable_open_URL(timetablePos.r, timetablePos.c)
             return
+        !Up::
+            TimeTable.TimeTableDDLV.add_option("AltSubmit")
+            TimeTable.submit("NoHide")
+            TimeTable.TimeTableDDLV.remove_option("AltSubmit")
+            previous_item_index := TimeTable.TimeTableDDLV.value - 1
+            if (previous_item_index < 1){
+                return
+            }
+            TimeTable.TimeTableDDLV.choose("|" . previous_item_index)
+            return
+        !Down::
+            TimeTable.TimeTableDDLV.add_option("AltSubmit")
+            TimeTable.submit("NoHide")
+            TimeTable.TimeTableDDLV.remove_option("AltSubmit")
+            next_item_index := TimeTable.TimeTableDDLV.value + 1
+            TimeTable.TimeTableDDLV.choose("|" . next_item_index)
+            return
     #IfWinActive
 ::flaxhanoy::
 	sleep 400
@@ -3175,37 +3192,6 @@ rapid_mouse(button, mode){
     }
     return
 }
-vk1D & LButton::
-    RapidButton := "LButton"
-    GoSub, RapidMouse
-    return
-vk1D & RButton::
-    RapidButton := "RButton"
-    GoSub, RapidMouse
-    return
-vk1D & MButton::
-    RapidButton := "MButton"
-    GoSub, RapidMouse
-    return
-RapidMouse:
-    if (RetKeyState("Ctrl")){
-        KeepRapid := True
-    }
-    if (RetKeyState("Shift")){
-        send, {%RapidButton% Down}
-        sleep 100
-        while (not RetKeyState("Esc") and not RetKeyState(RapidButton)){
-            sleep 10
-        }
-        send, {%RapidButton% Up}
-    }else{
-        while ((RetKeyState(RapidButton) and RetKeyState("vk1D")) or (KeepRapid and not RetKeyState("Esc") and not RetKeyState(RapidButton))){
-            sleep 10
-            send, {%RapidButton%}
-        }
-    }
-    KeepRapid := False
-    return
 
 #^l::send,^#{Right}
 #^h::send,^#{Left}
