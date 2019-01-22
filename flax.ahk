@@ -2456,6 +2456,23 @@ MouseGetPos,X,Y
         ^Space::
             timetable_open_URL(timetablePos.r, timetablePos.c)
             return
+        !Up::
+            TimeTable.TimeTableDDLV.add_option("AltSubmit")
+            TimeTable.submit("NoHide")
+            TimeTable.TimeTableDDLV.remove_option("AltSubmit")
+            previous_item_index := TimeTable.TimeTableDDLV.value - 1
+            if (previous_item_index < 1){
+                return
+            }
+            TimeTable.TimeTableDDLV.choose("|" . previous_item_index)
+            return
+        !Down::
+            TimeTable.TimeTableDDLV.add_option("AltSubmit")
+            TimeTable.submit("NoHide")
+            TimeTable.TimeTableDDLV.remove_option("AltSubmit")
+            next_item_index := TimeTable.TimeTableDDLV.value + 1
+            TimeTable.TimeTableDDLV.choose("|" . next_item_index)
+            return
     #IfWinActive
 ::flaxhanoy::
 	sleep 400
