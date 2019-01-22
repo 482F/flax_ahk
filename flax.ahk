@@ -3175,37 +3175,6 @@ rapid_mouse(button, mode){
     }
     return
 }
-vk1D & LButton::
-    RapidButton := "LButton"
-    GoSub, RapidMouse
-    return
-vk1D & RButton::
-    RapidButton := "RButton"
-    GoSub, RapidMouse
-    return
-vk1D & MButton::
-    RapidButton := "MButton"
-    GoSub, RapidMouse
-    return
-RapidMouse:
-    if (RetKeyState("Ctrl")){
-        KeepRapid := True
-    }
-    if (RetKeyState("Shift")){
-        send, {%RapidButton% Down}
-        sleep 100
-        while (not RetKeyState("Esc") and not RetKeyState(RapidButton)){
-            sleep 10
-        }
-        send, {%RapidButton% Up}
-    }else{
-        while ((RetKeyState(RapidButton) and RetKeyState("vk1D")) or (KeepRapid and not RetKeyState("Esc") and not RetKeyState(RapidButton))){
-            sleep 10
-            send, {%RapidButton%}
-        }
-    }
-    KeepRapid := False
-    return
 
 #^l::send,^#{Right}
 #^h::send,^#{Left}
