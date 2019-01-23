@@ -32,6 +32,7 @@
 #KeyHistory 500
 #InstallKeybdHook
 #InstallMouseHook
+#MaxThreadsPerHotkey 10
 #UseHook On
 #NoEnv
 #Warn UseUnsetGlobal
