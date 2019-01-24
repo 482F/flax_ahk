@@ -3171,10 +3171,10 @@ vk1D & r::
         rapid_flag := False
         return
     LButton & RButton::
-        rapid_mouse("R", rapid_mode)
+        rapid_mouse("L", rapid_mode)
         return
     RButton & LButton::
-        rapid_mouse("L", rapid_mode)
+        rapid_mouse("R", rapid_mode)
         return
     ~Esc::
         rapid_flag := False
