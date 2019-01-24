@@ -32,6 +32,7 @@
 #KeyHistory 500
 #InstallKeybdHook
 #InstallMouseHook
+#MaxThreadsPerHotkey 10
 #UseHook On
 #NoEnv
 #Warn UseUnsetGlobal
@@ -826,6 +827,15 @@ AGuiContextMenu(GuiHwnd){
 testmsg(strs*){
 	Msg := "line: " . A_LineNumber . "`n`n" .  JoinStr(Strs*)
 	Msgbox,% Msg
+}
+tooltip(str, time=1000){
+    tooltip, %str%
+    SetTimer, clear_tooltip, -%time%
+    return
+}
+clear_tooltip(){
+    tooltip, 
+    return
 }
 class FD{
 	__New(FilePath){
@@ -3139,21 +3149,21 @@ vk1D & 3::send,8
 vk1D & 4::send,9
 vk1D & 5::send,0
 vk1D & r::
+    str := "mode: "
     if (rapid_mode == "normal"){
         rapid_mode := "rapid"
-        tooltip, mode: rapid
+        str .= "rapid"
     }else if (rapid_mode == "rapid"){
         rapid_mode := "auto_rapid"
-        tooltip, mode: auto rapid
+        str .= "auto rapid"
     }else if (rapid_mode == "auto_rapid"){
         rapid_mode := "press"
-        tooltip, mode: press
+        str .= "press"
     }else if (rapid_mode == "press"){
         rapid_mode := "normal"
-        tooltip, mode: normal
+        str .= "normal"
     }
-    sleep, 500
-    tooltip,
+    tooltip(str, 500)
     return
 #If (rapid_mode != "normal")
     ~LButton::
