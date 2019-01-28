@@ -2365,7 +2365,7 @@ MouseGetPos,X,Y
                     Text .= "`n" timetableFD.dict[term][R][C][L]
                 }
                 TimeTable.add_agc("Text", "TimeTableCell" . R . C, "w" . TTCellWidth . " h" . TTCellHeight . " x" . x . " y" . y . " Border Center", Text)
-                TimeTable["TimeTableCell" . R . C].method := "OpenClassFolder"
+                TimeTable["TimeTableCell" . R . C].method := "ClickClassCell"
             }
         }
         return
@@ -2388,8 +2388,9 @@ MouseGetPos,X,Y
         sterm := term
         term := TimeTable.TimeTableDDLV.value
         GoSub, TimeTableChangeText
-        term := sterm
         return
+    ClickClassCell:
+        ClassName := ""
 	OpenClassFolder:
         if (ClassName == ""){
             GuiControlGet, ClassName, , %A_GuiControl%
