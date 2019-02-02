@@ -4240,6 +4240,23 @@ MouseGestureExecute:
         MouseMove, % mp.x, % mp.y, 
         MouseClick, L, , , , , U
         return
+#IfWinActive ahk_exe Infiroad.exe
+    ^Enter::
+        Infiroad_flag := True
+        while (Infiroad_flag){
+            MouseClick, L, 175, 102, 1, , , 
+            sleep 1000
+            MouseClick, L, 493, 652, 1, , ,
+            sleep 1000
+            MouseClick, L, 660, 891, 1, , ,
+            sleep 5000
+            send, qwertyuiopasdfghjkl;:d123456
+            sleep 300000
+        }
+        return
+    ~Esc::
+        Infiroad_flag := False
+        return
 #IfWinActive
 #If (copymode = "FIFO")
 {
