@@ -4090,7 +4090,12 @@ MouseGestureExecute:
         MouseGetPos, x_start, y_start
         msgjoin("Move end pos")
         MouseGetPos, x_end, y_end
-        configFD.dict.nono_width_of_cell := ((x_end - x_start) + (y_end - y_start)) / (2 * 14)
+        inputbox, NoX, , x
+        inputbox, NoY, , y
+        NoX := NoX - 1
+        NoY := NoY - 1
+        width := ((x_end - x_start) / NoX + (y_end - y_start) / NoY) / 2
+        configFD.dict.nono_width_of_cell := width
         configFD.write()
         return
     ^z::
