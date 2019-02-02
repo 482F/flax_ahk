@@ -3191,8 +3191,10 @@ rapid_mouse(button, mode){
     global rapid_flag
     rapid_flag := True
     if (mode == "press"){
+        tooltip, start
         KeyWait, LButton, 
         KeyWait, RButton, 
+        tooltip, 
         click, %button%, , , , , D
         while (rapid_flag){
             sleep, 100
