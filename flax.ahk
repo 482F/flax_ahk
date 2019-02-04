@@ -3368,11 +3368,11 @@ MouseGestureExecute:
         return
     nonogram_click(mode){
         MouseGetPos, dx, dy
-        y := 1017
+        y := 706
         if (mode == "^z")
-            x := 1192
-        else if (mode == "+^z")
             x := 1134
+        else if (mode == "+^z")
+            x := 1192
         MouseClick, L, %x%, %y%, , 0
         MouseMove, %dx%, %dy%, 0
         return
