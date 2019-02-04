@@ -558,5 +558,8 @@ class AInput{
     }
 }
 
+ExecuteTimer:
+	timerFD.execute_next()
+	return
 
 
