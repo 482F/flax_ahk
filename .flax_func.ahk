@@ -1,4 +1,4 @@
-RevStr(Str){
+﻿RevStr(Str){
     RetStr := ""
 	Loop,Parse,Str
 	{
@@ -764,4 +764,5 @@ clear_tooltip(){
     tooltip, 
     return
 }
+
 
