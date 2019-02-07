@@ -3493,6 +3493,19 @@ MouseGestureExecute:
     ~Esc::
         Infiroad_flag := False
         return
+#IfWinActive くじ引きサイクル
+    ^Enter::
+        kujibiki_cycle_flag := True
+        while (kujibiki_cycle_flag){
+            MouseMove, 371, 260, 2
+            MouseMove, 847, 260, 2
+            MouseMove, 847, 604, 2
+            MouseMove, 371, 604, 2
+        }
+        return
+    ~Esc::
+        kujibiki_cycle_flag := False
+        return
 #IfWinActive
 #If (copymode = "FIFO")
 {
