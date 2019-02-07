@@ -72,9 +72,6 @@ return
 #Include .flax_func.ahk
 #Include .flax_class.ahk
 
-ExecuteTimer:
-	timerFD.execute_next()
-	return
 
 ;hotstring
 ;ホットストリング
