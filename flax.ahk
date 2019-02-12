@@ -1684,7 +1684,7 @@ MouseGetPos,X,Y
 !+M::
 ^Volume_Mute::
     process_name := GetProcessName()
-    CmdRun("nircmd.exe muteappvolume """ . process_name . """ 2")
+    nircmd_mute(process_name, 2)
 	return
 ^#c::
 	ClipboardAlt := ClipboardAll
