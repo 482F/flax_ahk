@@ -765,7 +765,7 @@ clear_tooltip(){
     return
 }
 nircmd_mute(process_name, mode){
-    CmdRun("nircmd.exe muteappvolume """ . process_name . """ " . mode)
+    CmdRun("nircmd.exe muteappvolume """ . process_name . """ " . mode, 0)
     return
 }
 
