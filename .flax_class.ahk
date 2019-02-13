@@ -238,6 +238,10 @@ class TimerFD extends FD_for_EC{
 class AFile{
 	__New(FilePath, Encoding="CP65001"){
 		SplitPath, FilePath, FileName, Dir, Extension, NameNoExt, DriveLetter
+        if (DriveLetter == ""){
+            FilePath := this.SolveRelativePath(FilePath)
+            SplitPath, FilePath, FileName, Dir, Extension, NameNoExt, DriveLetter
+        }
 		this.FilePath := FilePath
 		this.FileName := FileName
 		this.Dir := Dir
@@ -247,6 +251,10 @@ class AFile{
 		this.Encoding := Encoding
 		this.Read()
 	}
+    SolveRelativePath(RelativePath){
+        AbsolutePath := A_WorkingDir . "\" . Relativepath
+        return AbsolutePath
+    }
 	EvalDestPath(DestPath){
 		SplitPath, DestPath, FileName, Dir
 		if (FileName == "")
