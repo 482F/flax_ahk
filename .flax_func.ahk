@@ -208,43 +208,15 @@ proofreadingratwikireg(Text,Rule){
 	}
 	return
 }
-screenshot(SX,SY,EX,EY,destination,Flag=2){
-	while True
-	{
-		send,{Ctrl down}{Shift down}{F12 down}
-		sleep 500
-		send,{F12 up}{Shift up}{Ctrl up}
-		WinGetPos,X,Y,W,H,A
-		if (X = "" and Y = "")
-			break
-	}
-	CoordMode,Mouse,Screen
-	MouseClickDrag,L,%SX%,%SY%,%EX%,%EY%
-	sleep 100
-	MouseClick,L,% EX - 15,% EY + 25
-	CoordMode,Mouse,Relative
-	PictName = %A_Now%%A_TickCount%.png
-	WinWaitActive,ahk_exe SnapCrab.exe
-	while True
-	{
-		send,!n
-		sleep 100
-		sendraw,%PictName%
-		sleep 200
-		ControlGetText,NamedName,Edit1,ahk_exe SnapCrab.exe
-		if (NamedName = PictName)
-			break
-	}
-	send,!s
-	while True
-	{
-		IfExist,% pathFD.dict["screenshot"] . PictName
-			break
-		sleep 300
-	}
-	PictPath := pathFD.dict["screenshot"] . PictName
-	FileMove,%PictPath%,%destination%,%Flag%
-	return
+screenshot_full(dest_path){
+    screenshot(dest_path, 0, 0, A_ScreenWidth, A_ScreenHeight)
+    return
+}
+screenshot(dest_path, sx, sy, ex, ey){
+    w := ex - sx
+    h := ey - sy
+    CmdRun("nircmd.exe savescreenshot """ . dest_path . """ " . sx . " " . sy . " " . w . " " . h, 0)
+    return
 }
 NumToAlp(Num){
 	if (26 < Num)
