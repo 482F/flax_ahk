@@ -1686,6 +1686,14 @@ MouseGetPos,X,Y
     process_name := GetProcessName()
     nircmd_mute(process_name, 2)
 	return
+!Volume_Up::
+    process_name := GetProcessName()
+    nircmd_mute(process_name, 0)
+    return
+!Volume_Down::
+    process_name := GetProcessName()
+    nircmd_mute(process_name, 1)
+    return
 ^#c::
 	ClipboardAlt := ClipboardAll
 	Clipboard := ""
