@@ -1683,13 +1683,17 @@ MouseGetPos,X,Y
 	return
 !+M::
 ^Volume_Mute::
-	WinGetActiveTitle,ATitle
-	Run,C:\Windows\System32\SndVol.exe,,Min,VolID
-	WinWait,ahk_exe SndVol.exe
-	ControlGet,TagCont,Hwnd,,%ATitle% のミュート,ahk_exe SndVol.exe
-	ControlClick,,ahk_id %TagCont%,,LEFT,1,NA
-	Process,Close,SndVol.exe
+    process_name := GetProcessName()
+    nircmd_mute(process_name, 2)
 	return
+!Volume_Up::
+    process_name := GetProcessName()
+    nircmd_mute(process_name, 0)
+    return
+!Volume_Down::
+    process_name := GetProcessName()
+    nircmd_mute(process_name, 1)
+    return
 ^#c::
 	ClipboardAlt := ClipboardAll
 	Clipboard := ""
