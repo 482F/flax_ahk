@@ -159,7 +159,11 @@ ChangeHotKey=[
 - Ctrl + Shift + Enter
 	- 上に空行を挿入して移動。所構わず起動するので若干使いづらい。
 - Ctrl + Alt + m
-	- アクティブウィンドウをミュート
+	- アクティブウィンドウのミュート、アンミュートを切り替え
+- Alt + Volume_Up
+    - アクティブウィンドウをアンミュート
+- Alt + Volume_Down
+    - アクティブウィンドウをミュート
 - Ctrl + Win + c, x
 	- レジスタにコピー, 切り取り
 - Ctrl + Win + v
