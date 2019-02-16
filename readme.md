@@ -174,6 +174,8 @@ ChangeHotKey=[
 	- Enter
 - 無変換 + 1, 2, 3, 4, 5
 	- 6, 7, 8, 9, 0
+- 無変換 + PrintScreen
+    - screenshot ディレクトリにスクリーンショットを保存
 - Ctrl + Win + h, l
 	- 仮想デスクトップの移動
 - Win + (修飾キー) + マウスクリック
