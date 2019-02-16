@@ -2043,6 +2043,10 @@ MouseGestureExecute:
 ^!+#F8::
     ; G2
     return
+vk1D & PrintScreen::
+    name := "screenshot\" . A_Now . A_TickCount . ".png"
+    screenshot_full(name)
+    return
 
 
 
