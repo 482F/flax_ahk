@@ -743,5 +743,76 @@ nircmd_mute(process_name, mode){
     CmdRun("nircmd.exe muteappvolume """ . process_name . """ " . mode, 0)
     return
 }
+reg_test(){
+    global configFD
+    global reg_test_gui
+    configFD.read()
+    reg_test_gui := new AGui()
+    reg_test_gui.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
+    reg_test_gui.add_agc("Text", "target_text", "section", "target")
+    reg_test_gui.add_agc("Edit", "target", "multi w300 r10")
+    reg_test_gui.add_agc("Text", "pattern_text", , "pattern")
+    reg_test_gui.add_agc("Edit", "pattern", "multi w300 r10")
+    reg_test_gui.add_agc("Text", "replacement_text", , "replacement")
+    reg_test_gui.add_agc("Edit", "replacement", "multi w300 r10")
+    reg_test_gui.add_agc("Text", "startingpos_text", , "startingpos")
+    reg_test_gui.add_agc("Edit", "startingpos")
+    reg_test_gui.add_agc("Text", "limit_text", , "limit")
+    reg_test_gui.add_agc("Edit", "limit")
+    
+    reg_test_gui.add_agc("Text", "rem_ret_text", "section ys xs+310", "RegExMatch return value")
+    reg_test_gui.add_agc("Edit", "rem_ret", "multi w300 r10")
+    reg_test_gui.add_agc("Text", "rem_opv_text", , "RegExMatch OutputVar")
+    reg_test_gui.add_agc("Edit", "rem_opv", "multi w300 r10")
+    reg_test_gui.add_agc("Text", "rem_err_text", , "RegExMatch ErrorLevel")
+    reg_test_gui.add_agc("Edit", "rem_err", "multi w300 r10")
+    reg_test_gui.add_agc("Text", "rer_ret_text", "section ys xs+310", "RegExReplace return value")
+    reg_test_gui.add_agc("Edit", "rer_ret", "multi w300 r10")
+    reg_test_gui.add_agc("Text", "rer_opv_text", , "RegExReplace OutputVarCount")
+    reg_test_gui.add_agc("Edit", "rer_opv", "multi w300 r10")
+    reg_test_gui.add_agc("Text", "rer_err_text", , "RegExReplace ErrorLevel")
+    reg_test_gui.add_agc("Edit", "rer_err", "multi w300 r10")
+    reg_test_gui.add_agc("Text", "ram_ret_text", "ys xs+310", "RetAllMatch return value")
+    reg_test_gui.add_agc("Edit", "ram_ret", "multi w300 r10")
+
+    reg_test_gui.target.method := "reg_test_edit_changed"
+    reg_test_gui.pattern.method := "reg_test_edit_changed"
+    reg_test_gui.replacement.method := "reg_test_edit_changed"
+    reg_test_gui.startingpos.method := "reg_test_edit_changed"
+    reg_test_gui.limit.method := "reg_test_edit_changed"
+    reg_test_gui.show("autosize")
+    return
+}
+reg_test_edit_changed(){
+    global reg_test_gui
+    reg_test_gui.submit("nohide")
+    target := reg_test_gui.target.value
+    pattern := reg_test_gui.pattern.value
+    replacement := reg_test_gui.replacement.value
+    startingpos := reg_test_gui.startingpos.value
+    if (startingpos == ""){
+        startingpos := 1
+    }
+    limit := reg_test_gui.limit.value
+    if (limit == ""){
+        limit := -1
+    }
+    rer_opv := ""
+    rem_opv := ""
+    rer_ret := RegExReplace(target, pattern, replacement, rer_opv, limit, startingpos)
+    rer_err := ErrorLevel
+    rem_ret := RegExMatch(target, pattern, rem_opv, startingpos)
+    rem_err := ErrorLevel
+    ram_ret := ""
+    ram_ret := joinobj(RetAllMatch(target, pattern))
+    reg_test_gui.rer_ret.Text(rer_ret)
+    reg_test_gui.rer_opv.Text(rer_opv)
+    reg_test_gui.rer_err.Text(rer_err)
+    reg_test_gui.rem_ret.Text(rem_ret)
+    reg_test_gui.rem_opv.Text(rem_opv)
+    reg_test_gui.rem_err.Text(rem_err)
+    reg_test_gui.ram_ret.Text(ram_ret)
+    return
+}
 
 
