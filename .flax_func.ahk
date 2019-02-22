@@ -490,6 +490,9 @@ RetAllMatch(Target, Pattern){
             Match%A_Index% := ""
         }
 		Pos := RegExMatch(Target, Pattern, Match)
+        if (ErrorLevel != 0 or Match == ""){
+            break
+        }
 		if (Pos == 0)
 			break
 		while (Match%A_Index% != ""){
