@@ -2781,6 +2781,12 @@ vk1D & PrintScreen::
         configFD.dict.nono_width_of_cell := width
         configFD.write()
         return
+    ^r::
+        msgjoin("Move back pos")
+        MouseGetPos, x_back, y_back
+        msgjoin("Move bb pos")
+        MouseGetPos, x_bb, y_bb
+        return
     ^z::
         nonogram_click("^z")
         return
@@ -2813,13 +2819,26 @@ vk1D & PrintScreen::
     s::
         nonogram_move_cursor("Down")
         return
+    !Up::
+        send, {Blind}{LButton down}
+        nonogram_move_cursor("Up")
+        send, {Blind}{LButton up}
+        nonogram_move_cursor("Down")
+        return
+    !Down::
+        send, {Blind}{LButton down}
+        nonogram_move_cursor("Down")
+        send, {Blind}{LButton up}
+        nonogram_move_cursor("Up")
+        return
     nonogram_click(mode){
+        global y_bb, x_back, x_bb
         MouseGetPos, dx, dy
-        y := 706
+        y := y_bb
         if (mode == "^z")
-            x := 1134
+            x := x_back
         else if (mode == "+^z")
-            x := 1192
+            x := x_bb
         MouseClick, L, %x%, %y%, , 0
         MouseMove, %dx%, %dy%, 0
         return
