@@ -730,13 +730,25 @@ testmsg(strs*){
 	Msg := "line: " . A_LineNumber . "`n`n" .  JoinStr(Strs*)
 	Msgbox,% Msg
 }
-tooltip(str, time=1000){
-    tooltip, %str%
-    SetTimer, clear_tooltip, -%time%
+tooltip(str, num, x="", y="", time=0){
+    if (x == "" and y == ""){
+        tooltip, %str%, , , %num%
+    }else if (x == ""){
+        tooltip, %str%, , %y%, %num%
+    }else if (y == ""){
+        tooltip, %str%, %x%, , %num%
+    }else{
+        tooltip, %str%, %x%, %y%, %num%
+    }
+    if (time != 0){
+        ct_func := Func("clear_tooltip")
+        ct_func := ct_func.bind(num)
+        SetTimer, %ct_func%, -%time%
+    }
     return
 }
-clear_tooltip(){
-    tooltip, 
+clear_tooltip(num){
+    tooltip, , , , %num%
     return
 }
 nircmd_mute(process_name, mode){
