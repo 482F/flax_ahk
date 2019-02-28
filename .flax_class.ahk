@@ -570,4 +570,29 @@ ExecuteTimer:
 	timerFD.execute_next()
 	return
 
-
+class ATooltip{
+    static tool_num := Object()
+    __New(str="", x="", y="", time=0){
+        this.str := str
+        this.num := ""
+        Loop, 20{
+            if (ATooltip.tool_num[A_Index] != True){
+                ATooltip.tool_num[A_Index] := True
+                this.num := A_Index
+                break
+            }
+        }
+        if (this.num == ""){
+            return "Error"
+        }
+        this.x := x
+        this.y := y
+        this.time := time
+    }
+    display(){
+        tooltip(this.str, this.num, this.x, this.y, this.time)
+    }
+    __delete(){
+        ATooltip.tool_num.Delete(this.num)
+    }
+}
