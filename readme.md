@@ -151,6 +151,8 @@ ChangeHotKey=[
 	- ジェスチャー設定 GUI。使い方はメイン機能の項を参照。
 - flaxedittimetable
 	- 時間割設定 GUI。使い方はメイン機能の項を参照。
+- flaxregtest
+    - 正規表現の挙動を確認できる GUI を表示。autohotkey の正規表現なので他と仕様が異なる部分があるため注意。
 ## ホットキー
 - Ctrl + Alt + Shift + w
 	- ランチャーを起動。使い方はメイン機能の項を参照。
