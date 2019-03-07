@@ -63,6 +63,15 @@ DefVars:
 	global Pi := 3.14159265358979
     dbd_rapid_space_flag := False
     rapid_mode := "normal"
+    nonogram_sign_key_dict := Object()
+    nonogram_sign_key_dict["sign", "Right"] := 1
+    nonogram_sign_key_dict["sign", "Down"] := 1
+    nonogram_sign_key_dict["sign", "Left"] := -1
+    nonogram_sign_key_dict["sign", "Up"] := -1
+    nonogram_sign_key_dict["key", "Right"] := "x"
+    nonogram_sign_key_dict["key", "Down"] := "y"
+    nonogram_sign_key_dict["key", "Left"] := "x"
+    nonogram_sign_key_dict["key", "Up"] := "y"
 	msgbox,ready
 	return
 }
@@ -2049,7 +2058,6 @@ vk1D & PrintScreen::
     return
 
 
-
 #IfWinActive ahk_exe excel.exe
 	^Tab::
 		send,^{PgDn}
@@ -2261,6 +2269,7 @@ vk1D & PrintScreen::
     +5::
         send, 0
         return
+    XButton2::j
 #IfWinActive,ahk_exe explorer.exe
 	~^Tab::
 		send, ^]
@@ -2677,57 +2686,6 @@ vk1D & PrintScreen::
             }
         }
         return
-    ; ::flaxtoukiden2_2::
-    ;     toukiden_flag := True
-    ;     tooltip, start
-    ;     sleep 1000
-    ;     tooltip, 
-    ;     MouseMove, 500, 500, 0
-    ;     time_per_distance := 1
-    ;     bmp := Object()
-    ;     bmp.x := 500
-    ;     bmp.y := 500
-    ;     h_button := ""
-    ;     v_button := ""
-    ;     while (toukiden_flag){
-    ;         sleep 10
-    ;         amp := RetMousePos()
-    ;         MouseMove, 500, 500, 0
-    ;         h_distance := amp.x - bmp.x
-    ;         v_distance := amp.y - bmp.y
-    ;         if (0 < h_distance){
-    ;             h_button := "Right"
-    ;         }else if (h_distance < 0){
-    ;             h_button := "Left"
-    ;         }else{
-    ;             h_button := ""
-    ;         }
-    ;         if (0 < v_distance){
-    ;             v_button := "Down"
-    ;         }else if (v_distance < 0){
-    ;             v_button := "Up"
-    ;         }else{
-    ;             v_button := ""
-    ;         }
-    ;         if (h_distance < v_distance){
-    ;             first_button := h_button
-    ;             second_button := v_button
-    ;             first_slp_time := h_distance
-    ;             first_slp_time := v_distance - h_distance
-    ;         }else{
-    ;             first_button := v_button
-    ;             second_button := h_button
-    ;             first_slp_time := v_distance
-    ;             second_slp_time := h_distance - v_distance
-    ;         }
-    ;         send, {Blind}{%first_button% down}
-    ;         send, {Blind}{%second_slp_time% down}
-    ;         sleep %first_slp_time%
-    ;         send, {Blind}{%first_button% up}
-    ;         sleep %second_slp_time%
-    ;         send, {Blind}{%second_slp_time% up}
-    ;     }
-    ;     return
     F2::
         toukiden_flag := False
         return
@@ -2778,8 +2736,14 @@ vk1D & PrintScreen::
         NoX := NoX - 1
         NoY := NoY - 1
         width := ((x_end - x_start) / NoX + (y_end - y_start) / NoY) / 2
-        configFD.dict.nono_width_of_cell := width
-        configFD.write()
+        nonogram_move := Object()
+        nonogram_move.width := width
+        nonogram_move.count := Object()
+        nonogram_move.sum := Object()
+        nonogram_move.count.x := 0
+        nonogram_move.count.y := 0
+        nonogram_move.sum.x := 0
+        nonogram_move.sum.y := 0
         return
     ^r::
         msgjoin("Move back pos")
@@ -2794,6 +2758,7 @@ vk1D & PrintScreen::
     ^y::
         nonogram_click("+^z")
         return
+    !Enter::
     Enter::
         nonogram_mark("Enter")
         return
@@ -2803,33 +2768,25 @@ vk1D & PrintScreen::
     BackSpace::
         nonogram_mark("BackSpace")
         return
+    !Left::
     Left::
     a::
         nonogram_move_cursor("Left")
         return
+    !Right::
     Right::
     d::
         nonogram_move_cursor("Right")
         return
+    !Up::
     Up::
     w::
         nonogram_move_cursor("Up")
         return
+    !Down::
     Down::
     s::
         nonogram_move_cursor("Down")
-        return
-    !Up::
-        send, {Blind}{LButton down}
-        nonogram_move_cursor("Up")
-        send, {Blind}{LButton up}
-        nonogram_move_cursor("Down")
-        return
-    !Down::
-        send, {Blind}{LButton down}
-        nonogram_move_cursor("Down")
-        send, {Blind}{LButton up}
-        nonogram_move_cursor("Up")
         return
     nonogram_click(mode){
         global y_bb, x_back, x_bb
@@ -2839,7 +2796,7 @@ vk1D & PrintScreen::
             x := x_back
         else if (mode == "+^z")
             x := x_bb
-        MouseClick, L, %x%, %y%, , 0
+        MouseClick, L, %x%, %y%, , 1
         MouseMove, %dx%, %dy%, 0
         return
     }
@@ -2855,19 +2812,37 @@ vk1D & PrintScreen::
         MouseClick, %Button%, , , , , U
     }
     nonogram_move_cursor(Direction){
-        global configFD
-        configFD.read()
-        PX := 0
-        PY := 0
-        if (Direction == "Up")
-            PY -= configFD.dict.nono_width_of_cell
-        else if (Direction == "Down")
-            PY += configFD.dict.nono_width_of_cell
-        else if (Direction == "Left")
-            PX -= configFD.dict.nono_width_of_cell
-        else if (Direction == "Right")
-            PX += configFD.dict.nono_width_of_cell
+        P := nonogram_calculate_move_distance(direction)
+        PY := P.y
+        PX := P.x
         MouseMove, %PX%, %PY%, 0, R
+        return
+    }
+    nonogram_calculate_move_distance(direction){
+        global nonogram_move
+        global nonogram_sign_key_dict
+        width := nonogram_move.width
+        sign := nonogram_sign_key_dict["sign", direction]
+        key := nonogram_sign_key_dict["key", direction]
+        return_value := Object("x", 0, "y", 0)
+
+        width := width * sign
+        nonogram_move.count[key] += 1 * sign
+        c_width := ceil(width)
+        f_width := floor(width)
+        upper_ave := (nonogram_move.sum[key] + c_width) / nonogram_move.count[key]
+        lower_ave := (nonogram_move.sum[key] + f_width) / nonogram_move.count[key]
+        upper_diff := abs(upper_ave - abs(width))
+        lower_diff := abs(lower_ave - abs(width))
+        if (upper_diff <= lower_diff){
+            nonogram_move.sum[key] += c_width
+            return_value[key] := c_width
+            return return_value
+        }else{
+            nonogram_move.sum[key] += f_width
+            return_value[key] := f_width
+            return return_value
+        }
         return
     }
 #IfWinActive ahk_exe hanano2.exe
