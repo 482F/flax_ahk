@@ -1464,6 +1464,9 @@ MouseGetPos,X,Y
     send, {Esc}
     SetKeyDelay, 10, -1
     return    
+::flaxregtest::
+    reg_test()
+    return
 ;hotkey
 ;ホットキー
 +!^W::
