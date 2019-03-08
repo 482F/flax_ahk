@@ -180,8 +180,7 @@ flaxguitestmethod:
 ::flaxgetprocessname::
 	sleep 100
 	clipboard := GetProcessName()
-    process_name_tt := new ATooltip(Clipboard, , , 1000)
-    process_name_tt.display()
+    ATooltip.display(Clipboard, , , 1000)
 	return
 ::flaxmonitoroff::
 	sleep 100
@@ -850,8 +849,7 @@ MouseGetPos,X,Y
 	IoFWP := 0
 	IoFRP := 0
 	copymode := copymode == "FIFO" ? "normal" : "FIFO"
-    copymode_tt := new ATooltip("copymode: " . copymode, , , 1000)
-    copymode_tt.display()
+    ATooltip.display("copymode: " . copymode, , , 1000)
 	return
 ::flaxcomputername::
 	send,% A_ComputerName
@@ -1411,8 +1409,7 @@ MouseGetPos,X,Y
 ::flaxgetprocesspath::
 	sleep 100
 	clipboard := GetProcessPath()
-    process_path_tt := new ATooltip(Clipboard, , , 1000)
-    process_path_tt.display()
+    ATooltip.display(Clipboard, , , 1000)
 	return
 ::flaxregisterlauncher::
     FilePath := ""
@@ -1521,8 +1518,7 @@ MouseGetPos,X,Y
 		ID := launcherFD.dict[ItemName]
 		if (PathParam){
 			Clipboard := ID["command"]
-            path_tt := new ATooltip(Clipboard, , , 1000)
-            path_tt.display()
+            ATooltip.display(Clipboard, , , 1000)
 			return
 		}
 		if ((ItemCommand := ID["command"]) == ""){
@@ -2605,8 +2601,7 @@ vk1D & PrintScreen::
                 EditMP3Tags.submit()
                 EditMP3Tags.destroy()
 				EditMP3TagsFunc(FilePath, EditMP3Tags.ETitle.value, EditMP3Tags.EArtist.value, EditMP3Tags.EAlbam.value, EditMP3Tags.ENewName.value)
-                mp3tags_tt := new ATooltip("Done", , , 1000)
-                mp3tags_tt.display()
+                ATooltip.display("Done", , , 1000)
 				return
 #IfWinActive,ahk_exe chrome.exe
  	^+q::return
