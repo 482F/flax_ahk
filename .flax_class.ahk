@@ -588,8 +588,10 @@ class ATooltip{
         this.x := x
         this.y := y
         this.time := time
+        this.function := Func("ATooltip.__clear_tooltip")
+        this.function := this.function.bind(ATooltip, this.num)
     }
-    display(str="", x="", y="", time="", num=""){
+    display(str="", x="", y="", time="", num="", function=""){
         if (str == ""){
             str := this.str
         }
@@ -605,12 +607,35 @@ class ATooltip{
         if (num == ""){
             num := this.num
         }
-        tooltip(str, num, x, y, time)
+        if (function == ""){
+            function := this.function
+        }
+        ATooltip.__tooltip(str, num, x, y, time, function)
     }
     hide(){
-        tooltip("", this.num)
+        ATooltip.__tooltip("", this.num)
     }
     __delete(){
         ATooltip.tool_num.Delete(this.num)
+    }
+    __tooltip(str, num, x="", y="", time=0, function=""){
+        if (x == "" and y == ""){
+            tooltip, %str%, , , %num%
+        }else if (x == ""){
+            tooltip, %str%, , %y%, %num%
+        }else if (y == ""){
+            tooltip, %str%, %x%, , %num%
+        }else{
+            tooltip, %str%, %x%, %y%, %num%
+        }
+        if (time != 0){
+            SetTimer, %function%, Off
+            SetTimer, %function%, -%time%
+        }
+        return
+    }
+    __clear_tooltip(num){
+        tooltip, , , , %num%
+        return
     }
 }
