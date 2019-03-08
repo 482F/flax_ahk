@@ -592,6 +592,9 @@ class ATooltip{
     display(){
         tooltip(this.str, this.num, this.x, this.y, this.time)
     }
+    hide(){
+        tooltip("", this.num)
+    }
     __delete(){
         ATooltip.tool_num.Delete(this.num)
     }
