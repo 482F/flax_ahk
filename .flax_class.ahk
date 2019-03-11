@@ -589,8 +589,23 @@ class ATooltip{
         this.y := y
         this.time := time
     }
-    display(){
-        tooltip(this.str, this.num, this.x, this.y, this.time)
+    display(str="", x="", y="", time="", num=""){
+        if (str == ""){
+            str := this.str
+        }
+        if (x == ""){
+            x := this.x
+        }
+        if (y == ""){
+            y := this.y
+        }
+        if (time == ""){
+            time := this.time
+        }
+        if (num == ""){
+            num := this.num
+        }
+        tooltip(str, num, x, y, time)
     }
     hide(){
         tooltip("", this.num)
