@@ -62,6 +62,7 @@ DefVars:
 	MP := Object()
 	global Pi := 3.14159265358979
     rapid_mode := "normal"
+    rapid_mode_tt := new ATooltip(, , , 500)
 	msgbox,ready
 	return
 }
@@ -179,9 +180,8 @@ flaxguitestmethod:
 ::flaxgetprocessname::
 	sleep 100
 	clipboard := GetProcessName()
-	ToolTip,% Clipboard
-	sleep 1000
-	ToolTip,
+    process_name_tt := new ATooltip(Clipboard, , , 1000)
+    process_name_tt.display()
 	return
 ::flaxmonitoroff::
 	sleep 100
@@ -850,9 +850,8 @@ MouseGetPos,X,Y
 	IoFWP := 0
 	IoFRP := 0
 	copymode := copymode == "FIFO" ? "normal" : "FIFO"
-	ToolTip,% "copymode : " . copymode
-	sleep 1000
-	ToolTip,
+    copymode_tt := new ATooltip("copymode: " . copymode, , , 1000)
+    copymode_tt.display()
 	return
 ::flaxcomputername::
 	send,% A_ComputerName
@@ -1412,9 +1411,8 @@ MouseGetPos,X,Y
 ::flaxgetprocesspath::
 	sleep 100
 	clipboard := GetProcessPath()
-	ToolTip,% Clipboard
-	sleep 1000
-	ToolTip,
+    process_path_tt := new ATooltip(Clipboard, , , 1000)
+    process_path_tt.display()
 	return
 ::flaxregisterlauncher::
     FilePath := ""
@@ -1523,9 +1521,8 @@ MouseGetPos,X,Y
 		ID := launcherFD.dict[ItemName]
 		if (PathParam){
 			Clipboard := ID["command"]
-			ToolTip, %Clipboard%
-			Sleep 1000
-			ToolTip,
+            path_tt := new ATooltip(Clipboard, , , 1000)
+            path_tt.display()
 			return
 		}
 		if ((ItemCommand := ID["command"]) == ""){
@@ -1700,13 +1697,15 @@ MouseGetPos,X,Y
 ^#c::
 	ClipboardAlt := ClipboardAll
 	Clipboard := ""
-	ToolTip, input register name
+    register_name_tt := new ATooltip("input register name")
+    register_name_tt.display()
 	send,^c
 	GoSub,RegisterInput
 	return
 ^#x::
 	ClipboardAlt := ClipboardAll
-	ToolTip, input register name
+    register_name_tt := new ATooltip("input register name")
+    register_name_tt.display()
 	send,^x
 	GoSub,RegisterInput
 	Return
@@ -1716,7 +1715,7 @@ RegisterInput:
     While (reg_name.ErrorLevel != "Endkey:Enter"){
         reg_name.input()
         if (reg_name.ErrorLevel == "EndKey:Escape"){
-            ToolTip,
+            register_name_tt.hide()
             reg_name.input_mode("off")
             return
         }
@@ -1724,7 +1723,8 @@ RegisterInput:
             str := "input register name"
         else
             str := reg_name.str
-        ToolTip, %str%
+        register_name_tt.str := str
+        register_name_tt.display()
     }
     reg_name.input_mode("off")
     reg_name := reg_name.str
@@ -1734,20 +1734,21 @@ RegisterInput:
 		registerFD.dict[reg_name] := Clipboard
 		registerFD.write()
 	}
-	ToolTip,
+    register_name_tt.hide()
 	Clipboard := ClipboardAlt
 	return
 ^#v::
+    register_name_tt := new ATooltip("input register name")
 	ClipboardAlt := ClipboardAll
 	Clipboard := ""
-	ToolTip, input register name
+    register_name_tt.display()
     reg_name := new AInput()
     reg_name.input_mode("on")
     While (reg_name.ErrorLevel != "EndKey:Enter"){
         toolstr := ""
         reg_name.input()
         if (reg_name.ErrorLevel == "EndKey:Escape"){
-            ToolTip,
+            register_name_tt.hide()
             reg_name.input_mode("off")
             return
         }
@@ -1760,7 +1761,8 @@ RegisterInput:
                 toolstr .= key . ": " . value . "`n"
             }
         }
-        ToolTip, %toolstr%
+        register_name_tt.str := toolstr
+        register_name_tt.display()
     }
     reg_name.input_mode("off")
     reg_name := reg_name.str
@@ -1770,7 +1772,7 @@ RegisterInput:
 		Clipboard := RegExReplace(RegValue, "\\flaxnewline", "`n")
 		send,^v
 	}
-	ToolTip,
+    register_name_tt.hide()
 	sleep 200
 	Clipboard := ClipboardAlt
 	return
@@ -1788,6 +1790,7 @@ RegisterInput:
 		return
 +#m::
 	MoveFlag := True
+    movemode_tt := new ATooltip("MoveMode")
 	WinGetActiveStats, Title, Width, Height, X, Y
 	CoordMode, Mouse, Screen
 	MouseMove, % X + Width / 2, % Y - 10
@@ -1795,10 +1798,10 @@ RegisterInput:
 		MouseGetPos, MX, MY
 		WinMove, %Title%, , % MX - Width / 2, % MY - 10, %Width%, %Height%
 		sleep 100
-		tooltip, MoveMode
+        movemode_tt.display()
 	}
 	CoordMode, Mouse, Relativem
-	tooltip,
+    movemode_tt.hide()
 	return
 #If (MoveFlag)
 	Right::
@@ -1844,7 +1847,8 @@ vk1D & r::
         rapid_mode := "normal"
         str .= "normal"
     }
-    tooltip(str, 500)
+    rapid_mode_tt.str := str
+    rapid_mode_tt.display()
     return
 #If (rapid_mode != "normal")
     ~LButton::
@@ -1870,10 +1874,11 @@ rapid_mouse(button, mode){
     global rapid_flag
     rapid_flag := True
     if (mode == "press"){
-        tooltip, start
+        rapid_mouse_press_tt := new ATooltip("start")
+        rapid_mouse_press_tt.display()
         KeyWait, LButton, 
         KeyWait, RButton, 
-        tooltip, 
+        rapid_mouse_press_tt.hide()
         click, %button%, , , , , D
         while (rapid_flag){
             sleep, 100
@@ -1906,6 +1911,7 @@ rapid_mouse(button, mode){
 	return
 MouseGestureCheck:
 	gestureFD.read()
+    gesture_tt := new ATooltip()
 	CommandCandidate := ""
 	if (RetKeyState("LCtrl"))
 		Prefix .= "^"
@@ -1914,11 +1920,13 @@ MouseGestureCheck:
 	if (RetKeyState("LShift"))
 		Prefix .= "+"
 	MR := new MouseRoute(Prefix)
-	ToolTip, % GestureCandidate(MR, gestureFD)
+    gesture_tt.str := GestureCandidate(MR, gestureFD)
+    gesture_tt.display()
 	while (RetKeyState(Button) and RetKeyState("LWin")){
 		sleep 100
 		if (MR.check()){
-			ToolTip, % GestureCandidate(MR, gestureFD)
+			gesture_tt.str := GestureCandidate(MR, gestureFD)
+            gesture_tt.display()
 		}
 	}
 	route := MR.route
@@ -1926,7 +1934,7 @@ MouseGestureExecute:
 	GestureName := route
 	GestureType := gestureFD.dict[GestureName]["type"]
 	GestureCommand := gestureFD.dict[GestureName]["command"]
-	ToolTip,
+    gesture_tt.hide()
 	if (GestureType == "label")
 		GoSub,%GestureCommand%
 	else if (GestureType == "LocalPath")
@@ -1977,7 +1985,9 @@ MouseGestureExecute:
 	KeyGestureBool := True
 	LPT := 0
 	KR := new KeyRoute("LB")
-	ToolTip, % GestureCandidate(KR, gestureFD)
+    gesture_tt := new ATooltip()
+	gesture_tt.str := GestureCandidate(KR, gestureFD)
+    gesture_tt.display()
 	return
 #If (KeyGestureBool)
 	Left::
@@ -2006,18 +2016,19 @@ MouseGestureExecute:
 		return
 	KeyGestureCheck:
 		KR.check(Key)
-		ToolTip, % GestureCandidate(KR, gestureFD)
+		gesture_tt.str := GestureCandidate(KR, gestureFD)
+        gesture_tt.display()
 		return
 	Enter::
     Space::
 		KeyGestureBool := False
 		route := KR.route
-		ToolTip,
+        gesture_tt.hide()
 		GoSub, MouseGestureExecute
 		return
 	Esc::
 		KeyGestureBool := False
-		ToolTip,
+        gesture_tt.hide()
 		return
 #If
 ^!+#F1::
@@ -2594,9 +2605,8 @@ vk1D & PrintScreen::
                 EditMP3Tags.submit()
                 EditMP3Tags.destroy()
 				EditMP3TagsFunc(FilePath, EditMP3Tags.ETitle.value, EditMP3Tags.EArtist.value, EditMP3Tags.EAlbam.value, EditMP3Tags.ENewName.value)
-				ToolTip, Done
-				sleep 1000
-				ToolTip,
+                mp3tags_tt := new ATooltip("Done", , , 1000)
+                mp3tags_tt.display()
 				return
 #IfWinActive,ahk_exe chrome.exe
  	^+q::return
