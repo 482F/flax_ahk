@@ -2950,6 +2950,18 @@ vk1D & PrintScreen::
     ~Esc::
         kujibiki_cycle_flag := False
         return
+#IfWinActive ahk_exe DeSmuME_0.9.11_x64.exe
+    Left::
+        MouseClick, L, 472, 316, 1, 0, D, 
+        KeyWait, Left, 
+        if (RetKeyState("Right")){
+            MouseMove, 717, 316, 1, 
+            MouseClick, L, , , , , U,
+        }else{
+            MouseMove, 472, 316, 1, 
+            MouseClick, L, , , , , U,
+        }
+        return
 #IfWinActive
 #If (copymode = "FIFO")
 {
