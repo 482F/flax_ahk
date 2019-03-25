@@ -592,6 +592,9 @@ class ATooltip{
         this.function := this.function.bind(ATooltip, this.num)
     }
     display(str="", x="", y="", time="", num="", function=""){
+        if (this.num == ""){
+            this.__New()
+        }
         if (str == ""){
             str := this.str
         }
