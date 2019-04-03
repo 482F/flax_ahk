@@ -1734,6 +1734,7 @@ RegisterInput:
 	Clipboard := ClipboardAlt
 	return
 ^#v::
+    registerFD.read()
     register_name_tt := new ATooltip("input register name")
 	ClipboardAlt := ClipboardAll
 	Clipboard := ""
@@ -1763,7 +1764,6 @@ RegisterInput:
     reg_name.input_mode("off")
     reg_name := reg_name.str
 	if (reg_name != ""){
-		registerFD.read()
 		RegValue := registerFD.dict[reg_name]
 		Clipboard := RegExReplace(RegValue, "\\flaxnewline", "`n")
 		send,^v
