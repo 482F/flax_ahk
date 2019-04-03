@@ -2733,7 +2733,7 @@ vk1D & PrintScreen::
         }
         return
     }
-#IfWinActive ahk_exe Nonogram - The Greatest Painter.exe
+#IfWinActive ahk_exe Nonogram - The Greatest Painter.exe ahk_exe Upleftout.exe
     ^e::
         msgjoin("Move start pos")
         MouseGetPos, x_start, y_start
@@ -2965,6 +2965,35 @@ vk1D & PrintScreen::
         }else{
             MouseMove, 472, 316, 1, 
             MouseClick, L, , , , , U,
+        }
+        return
+#IfWinActive ahk_exe Bayonetta.exe
+    vk1D & c::
+        while (RetKeyState("c")){
+            sendinput, {blind}{w down}
+            sleep, 10
+            sendinput, {blind}{w up}
+            sleep, 10
+        }
+        return
+    vk1D & e::
+        while (RetKeyState("e")){
+            sendinput, {blind}{e down}
+            sleep, 10
+            sendinput, {blind}{e up}
+            sleep, 10
+        }
+        return
+    vk1D & LButton::
+        while (RetKeyState("LButton")){
+            send, {blind}{LButton}
+            sleep, 10
+        }
+        return
+    vk1D & RButton::
+        while (RetKeyState("RButton")){
+            send, {blind}{RButton}
+            sleep, 10
         }
         return
 #IfWinActive
