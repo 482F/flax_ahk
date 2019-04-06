@@ -2325,10 +2325,18 @@ vk1D & PrintScreen::
                 swp := LoopField
                 LoopField := DestPath
                 DestPath := swp
+                overwrite_flag = 0
+                if (fileexist(LoopField) != ""){
+                    msgbox, 4, , 同名のファイルが存在します。`nファイルを置き換えますか？
+                    IfMsgBox, Yes
+                    {
+                        overwrite_flag = 1
+                    }
+                }
                 if (target_path_is_dir){
-                    FileMoveDir, %DestPath%, %LoopField%
+                    FileMoveDir, %DestPath%, %LoopField%, %overwrite_flag%
                 }else{
-                    FileMove, %DestPath%, %LoopField%
+                    FileMove, %DestPath%, %LoopField%, %overwrite_flag%
                 }
             }
             if (mode = "sym"){
