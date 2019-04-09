@@ -928,11 +928,18 @@ MouseGetPos,X,Y
         }
     }
     VirtualFolderSize(){
-        global
-        return
+        global VirtualFolder
 		w := A_GuiWidth - 20
-		h := A_GuiHeight - 20
+		h := A_GuiHeight - 100
         VirtualFolder.ListView.Move("w" . w . " h" . h)
+        VirtualFolder.DropDownList.Move("y" . A_GuiHeight - 80)
+        VirtualFolder.DPathLabel.Move("x" . A_GuiWidth - 400 . " y" . A_GuiHeight - 80)
+        VirtualFolder.PatternLabel.Move("x" . A_GuiWidth - 400 . " y" . A_GuiHeight - 80)
+        VirtualFolder.ReplacementLabel.Move("x" . A_GuiWidth - 400 . " y" . A_GuiHeight - 50)
+        VirtualFolder.DPathEdit.Move("x" . A_GuiWidth - 320 . " y" . A_GuiHeight - 80)
+        VirtualFolder.PatternEdit.Move("x" . A_GuiWidth - 320 . " y" . A_GuiHeight - 80)
+        VirtualFolder.ReplacementEdit.Move("x" . A_GuiWidth - 320 . " y" . A_GuiHeight - 50)
+        VirtualFolder.Confirm.Move("x" . A_GuiWidth - 100 . " y" . A_GuiHeight - 25)
 		return
     }
 	VirtualFolderDropDownListChanged:
