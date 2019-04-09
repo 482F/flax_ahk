@@ -1032,10 +1032,15 @@ MouseGetPos,X,Y
         if (VirtualFolder.DropDownList.value == "Rename"){
             Loop, % count
             {
-                name := VirtualFolder.ListView.LV_GetText(A_Index, 2)
-                VirtualFolder.ListView.LV_Modify(A_Index, , , , name)
+                name := SolvePath(VirtualFolder.ListView.LV_GetText(A_Index, 1))["Name"]
+                VirtualFolder.ListView.LV_Modify(A_Index, , , name, name)
             }
         }else if (VirtualFolder.DropDownList.value == "Make Link"){
+            Loop, % count
+            {
+                name := SolvePath(VirtualFolder.ListView.LV_GetText(A_Index, 1))["Name"]
+                VirtualFolder.ListView.LV_Modify(A_Index, , , name, name)
+            }
         }else if (VirtualFolder.DropDownList.value == "Modify Shortcut"){
             Loop, % count
             {
