@@ -877,7 +877,7 @@ MouseGetPos,X,Y
     VirtualFolder.add_agc("DropDownList", "DropDownList", , "Make Link||Rename")
     VirtualFolder.DropDownList.method := "VirtualFolderDropDownListChanged"
     VirtualFolder.add_agc("Text", "DPathLabel", "yp+0 x+50 Section", "Dist Path")
-	VirtualFolder.add_agc("Text", "RuleLabel", "xs ys hidden", "Rule")
+	VirtualFolder.add_agc("Text", "PatternLabel", "xs ys hidden", "Rule")
     VirtualFolder.add_agc("Text", "ReplacementLabel", "xs ys+30 hidden", "Replacement")
 	VirtualFolder.add_agc("Edit", "DPathEdit", "ys xs+80 w300")
 	VirtualFolder.add_agc("Edit", "PatternEdit", "ys+0 xs+80 hidden w300")
@@ -886,7 +886,6 @@ MouseGetPos,X,Y
     VirtualFolder.PatternEdit.method := "VirtualFolderRenameEdited"
 	VirtualFolder.add_agc("Button", "Confirm", , "&Confirm")
     VirtualFolder.Confirm.method := "VirtualFolderConfirmPressed"
-	VirtualFolderFileList := ""
     VirtualFolder.show("AutoSize", "VirtualFolder")
 	return
 	VirtualFolderListViewEdited:
@@ -898,15 +897,15 @@ MouseGetPos,X,Y
 		return
     VirtualFolderDropFiles(){
         global VirtualFolder
-        global VirtualFolderFileList
         VirtualFolder.submit("NoHide")
 		Loop,Parse,A_GuiEvent,`n
 		{
-			if (InStr(VirtualFolderFileList, A_LoopField) == 0){
-				VirtualFolderFileList .= A_LoopField . "`n"
-				Path := SolvePath(Follow_a_Link(A_LoopField))
-				LV_Add(, Path["Name"], Path["Path"])
-			}
+            Path := SolvePath(Follow_a_Link(A_LoopField))
+            if (VirtualFolder.DropDownList.value == "Rename"){
+                LV_Add(, Path["Name"], RegExReplace(Path["Name"], VirtualFolder.PatternEdit.value, VirtualFolder.ReplacementEdit.value))
+            }else if (VirtualFolder.DropDownList.value == "Make Link"){
+                LV_Add(, Path["Name"], Path["Path"])
+            }
 		}
 		return
     }
@@ -933,14 +932,17 @@ MouseGetPos,X,Y
 		If (VirtualFolder.DropDownList.value == "Rename"){
             VirtualFolder.DPathLabel.Hide()
 			VirtualFolder.DPathEdit.Hide()
-            VirtualFolder.RuleLabel.Show()
+            VirtualFolder.PatternLabel.Show()
             VirtualFolder.PatternEdit.Show()
             VirtualFolder.ReplacementLabel.Show()
             VirtualFolder.ReplacementEdit.Show()
             LV_ModifyCol(1, , "CurrentName")
             LV_ModifyCol(2, , "ChangedName")
 		}else If (VirtualFolder.DropDownList.value == "Make Link"){
-            VirtualFolder.RuleLabel.Hide()
+            VirtualFolder.PatternLabel.Hide()
+            VirtualFolder.PatternEdit.Hide()
+            VirtualFolder.ReplacementLabel.Hide()
+            VirtualFolder.ReplacementEdit.Hide()
             VirtualFolder.DPathLabel.Show()
 			VirtualFolder.DPathEdit.Show()
             LV_ModifyCol(1, , "Title")
