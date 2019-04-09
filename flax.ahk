@@ -974,7 +974,11 @@ MouseGetPos,X,Y
                 Path := VirtualFolder.ListView.LV_GetText(A_Index, 1)
                 new_name := VirtualFolder.ListView.LV_GetText(A_Index, 3)
                 DPath := SolvePath(Path)["Path"] . new_name
-                FileMove, %Path%, %DPath%
+                if (judgedir(Path)){
+                    FileMoveDir, %Path%, %DPath%
+                }else{
+                    FileMove, %Path%, %DPath%
+                }
             }
 		}else If (VirtualFolder.DropDownList.value == "Make Link"){
 			If (JudgePath(VirtualFolder.DPathEdit.value) != 0){
