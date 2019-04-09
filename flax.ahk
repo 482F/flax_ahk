@@ -940,6 +940,8 @@ MouseGetPos,X,Y
 		If (VirtualFolder.DropDownList.value == "Rename"){
             VirtualFolder.DPathLabel.Hide()
 			VirtualFolder.DPathEdit.Hide()
+            VirtualFolder.PatternEdit.value := ""
+            VirtualFolder.ReplacementEdit.value := ""
             VirtualFolder.PatternLabel.Show()
             VirtualFolder.PatternEdit.Show()
             VirtualFolder.ReplacementLabel.Show()
@@ -949,11 +951,13 @@ MouseGetPos,X,Y
             }
             VirtualFolder.ListView.LV_ModifyCol(2, 300, "CurrentName")
             VirtualFolder.ListView.LV_InsertCol(3, "AutoHdr", "ChangedName")
+            VirtualFolderRefreshList()
 		}else If (VirtualFolder.DropDownList.value == "Make Link"){
             VirtualFolder.PatternLabel.Hide()
             VirtualFolder.PatternEdit.Hide()
             VirtualFolder.ReplacementLabel.Hide()
             VirtualFolder.ReplacementEdit.Hide()
+            VirtualFolder.DPathEdit.value := ""
             VirtualFolder.DPathLabel.Show()
 			VirtualFolder.DPathEdit.Show()
             while (VirtualFolder.ListView.LV_DeleteCol(3)){
@@ -981,6 +985,18 @@ MouseGetPos,X,Y
 		}
 		msgbox,done
 		return
+    VirtualFolderRefreshList(){
+        global VirtualFolder
+        count := VirtualFolder.ListView.LV_GetCount()
+        if (VirtualFolder.DropDownList.value == "Rename"){
+            Loop, % count
+            {
+                name := VirtualFolder.ListView.LV_GetText(A_Index, 2)
+                VirtualFolder.ListView.LV_Modify(A_Index, , , , name)
+            }
+        }else if (VirtualFolder.DropDownList.value == "Make Link"){
+        }
+    }
 ::flaxconnectratwifi::
 	msgjoin(CmdRun("netsh wlan connect name=RAT-WIRELESS-A", 0))
 	return
