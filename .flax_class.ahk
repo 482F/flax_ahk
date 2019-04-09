@@ -511,6 +511,9 @@ class AGuiControl{
     }
     LV_ModifyCol(ColumnNumber="", Options="", ColumnTitle=""){
         this.LV_Default()
+        if (ColumnTitle == ""){
+            return LV_ModifyCol(ColumnNumber, Options)
+        }
         return LV_ModifyCol(ColumnNumber, Options, ColumnTitle)
     }
     LV_InsertCol(ColumnNumber, Options="", ColumnTitle=""){
@@ -539,6 +542,9 @@ class AGuiControl{
     }
     LV_GetCount(Type=""){
         this.LV_Default()
+        if (Type == ""){
+            return LV_GetCount()
+        }
         return LV_GetCount(Type)
     }
     LV_GetNext(StartingRowNumber, Type=""){
@@ -547,6 +553,10 @@ class AGuiControl{
     }
     LV_GetText(RowNumber, ColumnNumber=""){
         this.LV_Default()
+        tmp := ""
+        if (ColumnNumber == ""){
+            LV_GetText(tmp, RowNumber)
+        }
         LV_GetText(tmp, RowNumber, ColumnNumber)
         return tmp
     }
