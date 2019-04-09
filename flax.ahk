@@ -874,8 +874,9 @@ MouseGetPos,X,Y
     VirtualFolder.ListView.method := "VirtualFolderListViewEdited"
 	VirtualFolder.ListView.LV_ModifyCol(1,0)
 	VirtualFolder.ListView.LV_ModifyCol(2,"AutoHdr")
-    VirtualFolder.add_agc("DropDownList", "DropDownList", , "Make Link||Rename")
+    VirtualFolder.add_agc("DropDownList", "DropDownList", , "Make Link||Rename|Modify Shortcut")
     VirtualFolder.DropDownList.method := "VirtualFolderDropDownListChanged"
+    VirtualFolder.DropDownList.choose("|3")
     VirtualFolder.add_agc("Text", "DPathLabel", "yp+0 x+50 Section", "Dist Path")
 	VirtualFolder.add_agc("Text", "PatternLabel", "xs ys hidden", "Rule")
     VirtualFolder.add_agc("Text", "ReplacementLabel", "xs ys+30 hidden", "Replacement")
@@ -913,6 +914,9 @@ MouseGetPos,X,Y
                 LV_Add(, A_LoopField, Path["Name"], RegExReplace(Path["Name"], VirtualFolder.PatternEdit.value, VirtualFolder.ReplacementEdit.value))
             }else if (VirtualFolder.DropDownList.value == "Make Link"){
                 LV_Add(, A_LoopField, Path["Name"])
+            }else if (VirtualFolder.DropDownList.value == "Modify Shortcut"){
+                FileGetShortcut, %A_LoopField%, ctarget
+                LV_Add(, A_LoopField, ctarget, ctarget)
             }
 		}
 		return
@@ -942,9 +946,13 @@ MouseGetPos,X,Y
         VirtualFolder.Confirm.Move("x" . A_GuiWidth - 100 . " y" . A_GuiHeight - 25)
 		return
     }
-	VirtualFolderDropDownListChanged:
-        VirtualFolder.submit("NoHide")
-		If (VirtualFolder.DropDownList.value == "Rename"){
+	VirtualFolderDropDownListChanged(_, mode){
+        global VirtualFolder
+        if (mode == "Normal"){
+            VirtualFolder.submit("NoHide")
+            mode := VirtualFolder.DropDownList.value
+        }
+		If (mode == "Rename"){
             VirtualFolder.DPathLabel.Hide()
 			VirtualFolder.DPathEdit.Hide()
             VirtualFolder.PatternEdit.value := ""
@@ -959,7 +967,7 @@ MouseGetPos,X,Y
             VirtualFolder.ListView.LV_ModifyCol(2, 300, "CurrentName")
             VirtualFolder.ListView.LV_InsertCol(3, "AutoHdr", "ChangedName")
             VirtualFolderRefreshList()
-		}else If (VirtualFolder.DropDownList.value == "Make Link"){
+		}else If (mode == "Make Link"){
             VirtualFolder.PatternLabel.Hide()
             VirtualFolder.PatternEdit.Hide()
             VirtualFolder.ReplacementLabel.Hide()
@@ -971,8 +979,14 @@ MouseGetPos,X,Y
                 sleep, 10
             }
             VirtualFolder.ListView.LV_ModifyCol(2, "AutoHdr", "Name")
-		}
+		}else if (mode == "Modify Shortcut"){
+            VirtualFolderDropDownListChanged("", "Rename")
+            VirtualFolder.ListView.LV_ModifyCol(2, , "CurrentTarget")
+            VirtualFolder.ListView.LV_ModifyCol(3, , "ChangedTarget")
+            VirtualFolderRefreshList()
+        }
 		return
+    }
 	VirtualFolderConfirmPressed:
         VirtualFolder.submit("NoHide")
 		If (VirtualFolder.DropDownList.value == "Rename"){
@@ -987,8 +1001,8 @@ MouseGetPos,X,Y
                     FileMove, %Path%, %DPath%
                 }
                 VirtualFolder.ListView.LV_Modify(A_Index, , DPath, new_name, new_name)
-                VirtualFolderRenameEdited()
             }
+            VirtualFolderRenameEdited()
 		}else If (VirtualFolder.DropDownList.value == "Make Link"){
 			If (JudgePath(VirtualFolder.DPathEdit.value) != 0){
 				FileCreateDir, %VirtualFolderDPathEdit%
@@ -1000,7 +1014,16 @@ MouseGetPos,X,Y
 					FileCreateShortcut,%Path%, %DPath%
 				}
 			}
-		}
+		}else if (VirtualFolder.DropDownList.value == "Modify Shortcut"){
+            Loop,% LV_GetCount()
+            {
+                path := VirtualFolder.ListView.LV_GetText(A_Index, 1)
+                etarget := VirtualFolder.ListView.LV_GetText(A_Index, 3)
+                FileCreateShortcut, %etarget%, %path%
+                VirtualFolder.ListView.LV_Modify(A_Index, path, etarget, etarget)
+            }
+            VirtualFolderRenameEdited()
+        }
 		msgbox,done
 		return
     VirtualFolderRefreshList(){
@@ -1009,10 +1032,22 @@ MouseGetPos,X,Y
         if (VirtualFolder.DropDownList.value == "Rename"){
             Loop, % count
             {
-                name := VirtualFolder.ListView.LV_GetText(A_Index, 2)
-                VirtualFolder.ListView.LV_Modify(A_Index, , , , name)
+                name := SolvePath(VirtualFolder.ListView.LV_GetText(A_Index, 1))["Name"]
+                VirtualFolder.ListView.LV_Modify(A_Index, , , name, name)
             }
         }else if (VirtualFolder.DropDownList.value == "Make Link"){
+            Loop, % count
+            {
+                name := SolvePath(VirtualFolder.ListView.LV_GetText(A_Index, 1))["Name"]
+                VirtualFolder.ListView.LV_Modify(A_Index, , , name, name)
+            }
+        }else if (VirtualFolder.DropDownList.value == "Modify Shortcut"){
+            Loop, % count
+            {
+                path := VirtualFolder.ListView.LV_GetText(A_Index, 1)
+                FileGetShortcut, %path%, ctarget
+                VirtualFolder.ListView.LV_Modify(A_Index, , , ctarget, ctarget)
+            }
         }
     }
 ::flaxconnectratwifi::
