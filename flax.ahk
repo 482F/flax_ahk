@@ -870,10 +870,10 @@ MouseGetPos,X,Y
 	VirtualFolder.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
 	VirtualFolder.add_option("Resize")
 	VirtualFolder.Margin("10", "10")
-	VirtualFolder.add_agc("ListView", "ListView", "AltSubmit w600 h300", "Title|Path")
+	VirtualFolder.add_agc("ListView", "ListView", "AltSubmit w600 h300", "path|name")
     VirtualFolder.ListView.method := "VirtualFolderListViewEdited"
-	LV_ModifyCol(1,300)
-	LV_ModifyCol(2,"AutoHdr")
+	VirtualFolder.ListView.LV_ModifyCol(1,0)
+	VirtualFolder.ListView.LV_ModifyCol(2,"AutoHdr")
     VirtualFolder.add_agc("DropDownList", "DropDownList", , "Make Link||Rename")
     VirtualFolder.DropDownList.method := "VirtualFolderDropDownListChanged"
     VirtualFolder.add_agc("Text", "DPathLabel", "yp+0 x+50 Section", "Dist Path")
@@ -898,13 +898,21 @@ MouseGetPos,X,Y
     VirtualFolderDropFiles(){
         global VirtualFolder
         VirtualFolder.submit("NoHide")
+        files_list := ""
+        Loop, % VirtualFolder.ListView.LV_GetCount()
+        {
+            files_list .= VirtualFolder.ListView.LV_GetText(A_Index) . "`n"
+        }
 		Loop,Parse,A_GuiEvent,`n
 		{
+            if (InStr(files_list, A_LoopField) != 0){
+                continue
+            }
             Path := SolvePath(Follow_a_Link(A_LoopField))
             if (VirtualFolder.DropDownList.value == "Rename"){
-                LV_Add(, Path["Name"], RegExReplace(Path["Name"], VirtualFolder.PatternEdit.value, VirtualFolder.ReplacementEdit.value))
+                LV_Add(, A_LoopField, Path["Name"], RegExReplace(Path["Name"], VirtualFolder.PatternEdit.value, VirtualFolder.ReplacementEdit.value))
             }else if (VirtualFolder.DropDownList.value == "Make Link"){
-                LV_Add(, Path["Name"], Path["Path"])
+                LV_Add(, A_LoopField, Path["Name"])
             }
 		}
 		return
@@ -914,9 +922,9 @@ MouseGetPos,X,Y
         VirtualFolder.submit("NoHide")
         Loop,% LV_GetCount()
         {
-            LV_GetText(cname, A_Index, 1)
+            LV_GetText(cname, A_Index, 2)
             ename := RegExReplace(cname, VirtualFolder.PatternEdit.value, VirtualFolder.ReplacementEdit.value)
-            LV_Modify(A_Index, , , ename)
+            LV_Modify(A_Index, , , , ename)
         }
     }
     VirtualFolderSize(){
@@ -936,8 +944,11 @@ MouseGetPos,X,Y
             VirtualFolder.PatternEdit.Show()
             VirtualFolder.ReplacementLabel.Show()
             VirtualFolder.ReplacementEdit.Show()
-            LV_ModifyCol(1, , "CurrentName")
-            LV_ModifyCol(2, , "ChangedName")
+            while (VirtualFolder.ListView.LV_DeleteCol(3)){
+                sleep, 10
+            }
+            VirtualFolder.ListView.LV_ModifyCol(2, 300, "CurrentName")
+            VirtualFolder.ListView.LV_InsertCol(3, "AutoHdr", "ChangedName")
 		}else If (VirtualFolder.DropDownList.value == "Make Link"){
             VirtualFolder.PatternLabel.Hide()
             VirtualFolder.PatternEdit.Hide()
@@ -945,8 +956,10 @@ MouseGetPos,X,Y
             VirtualFolder.ReplacementEdit.Hide()
             VirtualFolder.DPathLabel.Show()
 			VirtualFolder.DPathEdit.Show()
-            LV_ModifyCol(1, , "Title")
-            LV_ModifyCol(2, , "Path")
+            while (VirtualFolder.ListView.LV_DeleteCol(3)){
+                sleep, 10
+            }
+            VirtualFolder.ListView.LV_ModifyCol(2, "AutoHdr", "Name")
 		}
 		return
 	VirtualFolderConfirmPressed:
@@ -958,8 +971,8 @@ MouseGetPos,X,Y
 				FileCreateDir, %VirtualFolderDPathEdit%
 				Loop,% LV_GetCount()
 				{
-					LV_GetText(Name, A_Index, 1)
-					LV_GetText(Path, A_Index, 2)
+					LV_GetText(Name, A_Index, 2)
+					LV_GetText(Path, A_Index, 1)
 					Path .= Name
 					DPath := VirtualFolder.DPathEdit.value . "\" . Name . ".lnk"
 					FileCreateShortcut,%Path%, %DPath%
