@@ -979,6 +979,8 @@ MouseGetPos,X,Y
                 }else{
                     FileMove, %Path%, %DPath%
                 }
+                VirtualFolder.ListView.LV_Modify(A_Index, , DPath, new_name, new_name)
+                VirtualFolderRenameEdited()
             }
 		}else If (VirtualFolder.DropDownList.value == "Make Link"){
 			If (JudgePath(VirtualFolder.DPathEdit.value) != 0){
