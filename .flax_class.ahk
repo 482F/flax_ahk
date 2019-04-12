@@ -436,6 +436,7 @@ class AGuiControl{
 			name := ""
 		target_gui.add(type, "v" . name . " " . param, text)
 		this.gui := target_gui
+        this.type := type
 		this.name := name
 	}
 	__Set(name, value){
@@ -451,6 +452,7 @@ class AGuiControl{
 		}
 	}
 	__Get(name){
+        Object :=
 		if (name = "value"){
 			name := this.name
 			value := %name%
@@ -506,6 +508,18 @@ class AGuiControl{
 	}
     LV_Default(){
         this.gui.do("ListView", this.name)
+    }
+    LV_ModifyCol(ColumnNumber="", Options="", ColumnTitle=""){
+        this.LV_Default()
+        return LV_ModifyCol(ColumnNumber, Options, ColumnTitle)
+    }
+    LV_InsertCol(ColumnNumber, Options="", ColumnTitle=""){
+        this.LV_Default()
+        return LV_InsertCol(ColumnNumber, Options, ColumnTitle)
+    }
+    LV_DeleteCol(ColumnNumber){
+        this.LV_Default()
+        return LV_DeleteCol(ColumnNumber)
     }
     LV_Add(options="", Col*){
         this.LV_Default()
