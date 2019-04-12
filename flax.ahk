@@ -969,7 +969,13 @@ MouseGetPos,X,Y
 	VirtualFolderConfirmPressed:
         VirtualFolder.submit("NoHide")
 		If (VirtualFolder.DropDownList.value == "Rename"){
-
+            Loop, % VirtualFolder.ListView.LV_GetCount()
+            {
+                Path := VirtualFolder.ListView.LV_GetText(A_Index, 1)
+                new_name := VirtualFolder.ListView.LV_GetText(A_Index, 3)
+                DPath := SolvePath(Path)["Path"] . new_name
+                FileMove, %Path%, %DPath%
+            }
 		}else If (VirtualFolder.DropDownList.value == "Make Link"){
 			If (JudgePath(VirtualFolder.DPathEdit.value) != 0){
 				FileCreateDir, %VirtualFolderDPathEdit%
@@ -977,7 +983,6 @@ MouseGetPos,X,Y
 				{
 					LV_GetText(Name, A_Index, 2)
 					LV_GetText(Path, A_Index, 1)
-					Path .= Name
 					DPath := VirtualFolder.DPathEdit.value . "\" . Name . ".lnk"
 					FileCreateShortcut,%Path%, %DPath%
 				}
