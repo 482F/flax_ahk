@@ -876,7 +876,6 @@ MouseGetPos,X,Y
 	VirtualFolder.ListView.LV_ModifyCol(2,"AutoHdr")
     VirtualFolder.add_agc("DropDownList", "DropDownList", , "Make Link||Rename|Modify Shortcut")
     VirtualFolder.DropDownList.method := "VirtualFolderDropDownListChanged"
-    VirtualFolder.DropDownList.choose("|3")
     VirtualFolder.add_agc("Text", "DPathLabel", "yp+0 x+50 Section", "Dist Path")
 	VirtualFolder.add_agc("Text", "PatternLabel", "xs ys hidden", "Rule")
     VirtualFolder.add_agc("Text", "ReplacementLabel", "xs ys+30 hidden", "Replacement")
