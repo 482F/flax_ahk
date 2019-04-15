@@ -1838,10 +1838,21 @@ RegisterInput:
 	Clipboard := ClipboardAlt
 	return
 ^#v::
-    registerFD.read()
-    register_name_tt := new ATooltip("input register name")
+    reg_value := input_reg_name()
 	ClipboardAlt := ClipboardAll
 	Clipboard := ""
+    Clipboard := reg_value
+    send,^v
+	Clipboard := ClipboardAlt
+    return
+^#r::
+    reg_value := input_reg_name()
+    Clipboard := reg_value
+    return
+input_reg_name(){
+    global registerFD
+    registerFD.read()
+    register_name_tt := new ATooltip("input register name")
     register_name_tt.display()
     reg_name := new AInput()
     reg_name.input_mode("on")
@@ -1867,15 +1878,11 @@ RegisterInput:
     }
     reg_name.input_mode("off")
     reg_name := reg_name.str
-	if (reg_name != ""){
-		RegValue := registerFD.dict[reg_name]
-		Clipboard := RegExReplace(RegValue, "\\flaxnewline", "`n")
-		send,^v
-	}
+    reg_value := registerFD.dict[reg_name]
+    reg_value := RegExReplace(reg_value, "\\flaxnewline", "`n")
     register_name_tt.hide()
-	sleep 200
-	Clipboard := ClipboardAlt
-	return
+	return reg_value
+}
 +#Space::
 	Menu, WindowResizer, Add, 1280x720, Resize
 	Menu, WindowResizer, Add, 1160x800, Resize
