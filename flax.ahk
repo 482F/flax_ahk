@@ -1809,6 +1809,12 @@ MouseGetPos,X,Y
 	send,^x
 	GoSub,RegisterInput
 	Return
+^#e::
+	ClipboardAlt := ClipboardAll
+    register_name_tt := new ATooltip("input register name")
+    register_name_tt.display()
+	GoSub, RegisterInput
+    return
 RegisterInput:
     reg_name := new AInput()
     reg_name.input_mode("on")
