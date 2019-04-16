@@ -805,5 +805,11 @@ reg_test_edit_changed(){
     reg_test_gui.ram_ret.Text(ram_ret)
     return
 }
+push_key(key, time=100){
+    send, {%key% down}
+    sleep, %time%
+    send, {%key% up}
+    return
+}
 
 
