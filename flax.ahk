@@ -3008,6 +3008,13 @@ vkF4::return
             sleep, 10
         }
         return
+#IfWinActive ahk_exe PPSSPPWindows64.exe
+    vk1D & z::
+        while (RetKeyState("z")){
+            send, z
+            sleep, 200
+        }
+        return
 #IfWinActive
 #If (copymode = "FIFO")
 {
