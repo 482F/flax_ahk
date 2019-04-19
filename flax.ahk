@@ -3015,6 +3015,73 @@ vkF4::return
             sleep, 200
         }
         return
+    ^+!Enter::
+        ATooltip.display("no need fifty", , , 1000)
+        hunt_rainbow(False)
+        return
+    ^+Enter::
+        ATooltip.display("need fifty", , , 1000)
+        hunt_rainbow(True)
+        return
+    hunt_rainbow(need_fifty=False){
+        global rainbow_flag
+        rainbow_flag := True
+        rainbow_tip := new ATooltip(0, 100, 100)
+        rainbow_tip.display()
+        is_fifty := True
+        while (rainbow_flag){
+            if (need_fifty){
+                send, {F1 down}
+                sleep, 100
+                send, {F1 up}
+                sleep, 2000
+            }
+            send, {z down}
+            sleep, 100
+            send, {z up}
+            while (True){
+                PixelGetColor, col, 393, 702, RGB
+                R := substr(col, 3, 1)
+                G := substr(col, 5, 1)
+                if ((R == "F" and G != "F") or 2000 <= A_Index){
+                    break
+                }
+            }
+            send, {z down}
+            sleep, 100
+            send, {z up}
+            sleep, 5000
+            send, {z down}
+            sleep, 100
+            send, {z up}
+            sleep, 2000
+            if (need_fifty){
+                is_fifty := False
+                PixelGetColor, col, 539, 699, RGB
+                R := substr(col, 3, 1)
+                if (R == "F" or R == "E" or R == "D"){
+                    is_fifty := True
+                }
+            }
+            if (is_fifty){
+                send, {z down}
+                sleep, 100
+                send, {z up}
+                rainbow_tip.str += 1
+                rainbow_tip.display()
+            }else{
+                send, {F2 down}
+                sleep, 100
+                send, {F2 up}
+                sleep, 1000
+            }
+            sleep, 2000
+        }
+        return
+    }
+    ~Esc::
+        rainbow_flag := False
+        return
 #IfWinActive
 #If (copymode = "FIFO")
 {
