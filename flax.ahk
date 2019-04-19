@@ -880,19 +880,22 @@ MouseGetPos,X,Y
 	VirtualFolder.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
 	VirtualFolder.add_option("Resize")
 	VirtualFolder.Margin("10", "10")
-	VirtualFolder.add_agc("ListView", "ListView", "AltSubmit w600 h300", "Title|Path")
+	VirtualFolder.add_agc("ListView", "ListView", "AltSubmit w600 h300", "path|name")
     VirtualFolder.ListView.method := "VirtualFolderListViewEdited"
-	LV_ModifyCol(1,300)
-	LV_ModifyCol(2,"AutoHdr")
-    VirtualFolder.add_agc("DropDownList", "DropDownList", , "Make Link||Rename")
+	VirtualFolder.ListView.LV_ModifyCol(1,0)
+	VirtualFolder.ListView.LV_ModifyCol(2,"AutoHdr")
+    VirtualFolder.add_agc("DropDownList", "DropDownList", , "Make Link||Rename|Modify Shortcut")
     VirtualFolder.DropDownList.method := "VirtualFolderDropDownListChanged"
     VirtualFolder.add_agc("Text", "DPathLabel", "yp+0 x+50 Section", "Dist Path")
-	VirtualFolder.add_agc("Text", "RuleLabel", "xs ys hidden", "Rule")
+	VirtualFolder.add_agc("Text", "PatternLabel", "xs ys hidden", "Rule")
+    VirtualFolder.add_agc("Text", "ReplacementLabel", "xs ys+30 hidden", "Replacement")
 	VirtualFolder.add_agc("Edit", "DPathEdit", "ys xs+80 w300")
-	VirtualFolder.add_agc("Edit", "RuleEdit", "ys+0 xs+80 hidden w300")
+	VirtualFolder.add_agc("Edit", "PatternEdit", "ys+0 xs+80 hidden w300")
+    VirtualFolder.add_agc("Edit", "ReplacementEdit", "ys+30 xs+80 hidden w300")
+    VirtualFolder.ReplacementEdit.method := "VirtualFolderRenameEdited"
+    VirtualFolder.PatternEdit.method := "VirtualFolderRenameEdited"
 	VirtualFolder.add_agc("Button", "Confirm", , "&Confirm")
     VirtualFolder.Confirm.method := "VirtualFolderConfirmPressed"
-	VirtualFolderFileList := ""
     VirtualFolder.show("AutoSize", "VirtualFolder")
 	return
 	VirtualFolderListViewEdited:
@@ -903,58 +906,159 @@ MouseGetPos,X,Y
 		}
 		return
     VirtualFolderDropFiles(){
-        global
+        global VirtualFolder
+        VirtualFolder.submit("NoHide")
+        files_list := ""
+        Loop, % VirtualFolder.ListView.LV_GetCount()
+        {
+            files_list .= VirtualFolder.ListView.LV_GetText(A_Index) . "`n"
+        }
 		Loop,Parse,A_GuiEvent,`n
 		{
-			if (InStr(VirtualFolderFileList, A_LoopField) == 0){
-				VirtualFolderFileList .= A_LoopField . "`n"
-				Path := SolvePath(Follow_a_Link(A_LoopField))
-				LV_Add(, Path["Name"], Path["Path"])
-			}
+            if (InStr(files_list, A_LoopField) != 0){
+                continue
+            }
+            Path := SolvePath(Follow_a_Link(A_LoopField))
+            if (VirtualFolder.DropDownList.value == "Rename"){
+                LV_Add(, A_LoopField, Path["Name"], RegExReplace(Path["Name"], VirtualFolder.PatternEdit.value, VirtualFolder.ReplacementEdit.value))
+            }else if (VirtualFolder.DropDownList.value == "Make Link"){
+                LV_Add(, A_LoopField, Path["Name"])
+            }else if (VirtualFolder.DropDownList.value == "Modify Shortcut"){
+                FileGetShortcut, %A_LoopField%, ctarget
+                LV_Add(, A_LoopField, ctarget, ctarget)
+            }
 		}
 		return
+    }
+    VirtualFolderRenameEdited(){
+        global VirtualFolder
+        VirtualFolder.submit("NoHide")
+        Loop,% LV_GetCount()
+        {
+            LV_GetText(cname, A_Index, 2)
+            ename := RegExReplace(cname, VirtualFolder.PatternEdit.value, VirtualFolder.ReplacementEdit.value)
+            LV_Modify(A_Index, , , , ename)
+        }
     }
     VirtualFolderSize(){
-        global
-        return
+        global VirtualFolder
 		w := A_GuiWidth - 20
-		h := A_GuiHeight - 20
+		h := A_GuiHeight - 100
         VirtualFolder.ListView.Move("w" . w . " h" . h)
+        VirtualFolder.DropDownList.Move("y" . A_GuiHeight - 80)
+        VirtualFolder.DPathLabel.Move("x" . A_GuiWidth - 400 . " y" . A_GuiHeight - 80)
+        VirtualFolder.PatternLabel.Move("x" . A_GuiWidth - 400 . " y" . A_GuiHeight - 80)
+        VirtualFolder.ReplacementLabel.Move("x" . A_GuiWidth - 400 . " y" . A_GuiHeight - 50)
+        VirtualFolder.DPathEdit.Move("x" . A_GuiWidth - 320 . " y" . A_GuiHeight - 80)
+        VirtualFolder.PatternEdit.Move("x" . A_GuiWidth - 320 . " y" . A_GuiHeight - 80)
+        VirtualFolder.ReplacementEdit.Move("x" . A_GuiWidth - 320 . " y" . A_GuiHeight - 50)
+        VirtualFolder.Confirm.Move("x" . A_GuiWidth - 100 . " y" . A_GuiHeight - 25)
 		return
     }
-	VirtualFolderDropDownListChanged:
-        VirtualFolder.submit("NoHide")
-		If (VirtualFolder.DropDownList.value == "Rename"){
-            VirtualFolder.DPathText.Hide()
+	VirtualFolderDropDownListChanged(_, mode){
+        global VirtualFolder
+        if (mode == "Normal"){
+            VirtualFolder.submit("NoHide")
+            mode := VirtualFolder.DropDownList.value
+        }
+		If (mode == "Rename"){
+            VirtualFolder.DPathLabel.Hide()
 			VirtualFolder.DPathEdit.Hide()
-            VirtualFolder.RuleText.Show()
-            VirtualFolder.RuleEdit.Show()
-		}else If (VirtualFolder.DropDownList.value == "Make Link"){
-            VirtualFolder.RuleText.Hide()
-            VirtualFolder.RuleEdit.Hide()
-            VirtualFolder.DPathText.Show()
+            VirtualFolder.PatternEdit.value := ""
+            VirtualFolder.ReplacementEdit.value := ""
+            VirtualFolder.PatternLabel.Show()
+            VirtualFolder.PatternEdit.Show()
+            VirtualFolder.ReplacementLabel.Show()
+            VirtualFolder.ReplacementEdit.Show()
+            while (VirtualFolder.ListView.LV_DeleteCol(3)){
+                sleep, 10
+            }
+            VirtualFolder.ListView.LV_ModifyCol(2, 300, "CurrentName")
+            VirtualFolder.ListView.LV_InsertCol(3, "AutoHdr", "ChangedName")
+            VirtualFolderRefreshList()
+		}else If (mode == "Make Link"){
+            VirtualFolder.PatternLabel.Hide()
+            VirtualFolder.PatternEdit.Hide()
+            VirtualFolder.ReplacementLabel.Hide()
+            VirtualFolder.ReplacementEdit.Hide()
+            VirtualFolder.DPathEdit.value := ""
+            VirtualFolder.DPathLabel.Show()
 			VirtualFolder.DPathEdit.Show()
-		}
+            while (VirtualFolder.ListView.LV_DeleteCol(3)){
+                sleep, 10
+            }
+            VirtualFolder.ListView.LV_ModifyCol(2, "AutoHdr", "Name")
+		}else if (mode == "Modify Shortcut"){
+            VirtualFolderDropDownListChanged("", "Rename")
+            VirtualFolder.ListView.LV_ModifyCol(2, , "CurrentTarget")
+            VirtualFolder.ListView.LV_ModifyCol(3, , "ChangedTarget")
+            VirtualFolderRefreshList()
+        }
 		return
+    }
 	VirtualFolderConfirmPressed:
         VirtualFolder.submit("NoHide")
 		If (VirtualFolder.DropDownList.value == "Rename"){
-
+            Loop, % VirtualFolder.ListView.LV_GetCount()
+            {
+                Path := VirtualFolder.ListView.LV_GetText(A_Index, 1)
+                new_name := VirtualFolder.ListView.LV_GetText(A_Index, 3)
+                DPath := SolvePath(Path)["Path"] . new_name
+                if (judgedir(Path)){
+                    FileMoveDir, %Path%, %DPath%
+                }else{
+                    FileMove, %Path%, %DPath%
+                }
+                VirtualFolder.ListView.LV_Modify(A_Index, , DPath, new_name, new_name)
+            }
+            VirtualFolderRenameEdited()
 		}else If (VirtualFolder.DropDownList.value == "Make Link"){
 			If (JudgePath(VirtualFolder.DPathEdit.value) != 0){
 				FileCreateDir, %VirtualFolderDPathEdit%
 				Loop,% LV_GetCount()
 				{
-					LV_GetText(Name, A_Index, 1)
-					LV_GetText(Path, A_Index, 2)
-					Path .= Name
+					LV_GetText(Name, A_Index, 2)
+					LV_GetText(Path, A_Index, 1)
 					DPath := VirtualFolder.DPathEdit.value . "\" . Name . ".lnk"
 					FileCreateShortcut,%Path%, %DPath%
 				}
 			}
-		}
+		}else if (VirtualFolder.DropDownList.value == "Modify Shortcut"){
+            Loop,% LV_GetCount()
+            {
+                path := VirtualFolder.ListView.LV_GetText(A_Index, 1)
+                etarget := VirtualFolder.ListView.LV_GetText(A_Index, 3)
+                FileCreateShortcut, %etarget%, %path%
+                VirtualFolder.ListView.LV_Modify(A_Index, path, etarget, etarget)
+            }
+            VirtualFolderRenameEdited()
+        }
 		msgbox,done
 		return
+    VirtualFolderRefreshList(){
+        global VirtualFolder
+        count := VirtualFolder.ListView.LV_GetCount()
+        if (VirtualFolder.DropDownList.value == "Rename"){
+            Loop, % count
+            {
+                name := SolvePath(VirtualFolder.ListView.LV_GetText(A_Index, 1))["Name"]
+                VirtualFolder.ListView.LV_Modify(A_Index, , , name, name)
+            }
+        }else if (VirtualFolder.DropDownList.value == "Make Link"){
+            Loop, % count
+            {
+                name := SolvePath(VirtualFolder.ListView.LV_GetText(A_Index, 1))["Name"]
+                VirtualFolder.ListView.LV_Modify(A_Index, , , name, name)
+            }
+        }else if (VirtualFolder.DropDownList.value == "Modify Shortcut"){
+            Loop, % count
+            {
+                path := VirtualFolder.ListView.LV_GetText(A_Index, 1)
+                FileGetShortcut, %path%, ctarget
+                VirtualFolder.ListView.LV_Modify(A_Index, , , ctarget, ctarget)
+            }
+        }
+    }
 ::flaxconnectratwifi::
 	msgjoin(CmdRun("netsh wlan connect name=RAT-WIRELESS-A", 0))
 	return
@@ -1715,6 +1819,12 @@ MouseGetPos,X,Y
 	send,^x
 	GoSub,RegisterInput
 	Return
+^#e::
+	ClipboardAlt := ClipboardAll
+    register_name_tt := new ATooltip("input register name")
+    register_name_tt.display()
+	GoSub, RegisterInput
+    return
 RegisterInput:
     reg_name := new AInput()
     reg_name.input_mode("on")
@@ -1744,10 +1854,21 @@ RegisterInput:
 	Clipboard := ClipboardAlt
 	return
 ^#v::
-    registerFD.read()
-    register_name_tt := new ATooltip("input register name")
+    reg_value := input_reg_name()
 	ClipboardAlt := ClipboardAll
 	Clipboard := ""
+    Clipboard := reg_value
+    send,^v
+	Clipboard := ClipboardAlt
+    return
+^#r::
+    reg_value := input_reg_name()
+    Clipboard := reg_value
+    return
+input_reg_name(){
+    global registerFD
+    registerFD.read()
+    register_name_tt := new ATooltip("input register name")
     register_name_tt.display()
     reg_name := new AInput()
     reg_name.input_mode("on")
@@ -1773,15 +1894,11 @@ RegisterInput:
     }
     reg_name.input_mode("off")
     reg_name := reg_name.str
-	if (reg_name != ""){
-		RegValue := registerFD.dict[reg_name]
-		Clipboard := RegExReplace(RegValue, "\\flaxnewline", "`n")
-		send,^v
-	}
+    reg_value := registerFD.dict[reg_name]
+    reg_value := RegExReplace(reg_value, "\\flaxnewline", "`n")
     register_name_tt.hide()
-	sleep 200
-	Clipboard := ClipboardAlt
-	return
+	return reg_value
+}
 +#Space::
 	Menu, WindowResizer, Add, 1280x720, Resize
 	Menu, WindowResizer, Add, 1160x800, Resize

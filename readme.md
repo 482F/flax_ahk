@@ -70,6 +70,8 @@
 ## レジスタ
 - Win + c, x -> キーワード入力で選択範囲をキーワードと紐付ける
 - Win + v -> キーワードでキーワードと紐付けられている文字列をペースト
+- Win + e -> キーワード入力でクリップボード内の値とキーワードを紐づける
+- Win + r -> キーワードでキーワードと紐づけられている文字列をクリップボードに
 ## 時間割表示
 - ホットストリング flaxtimetable で起動
 - アローキー、wasd、hjkl で選択セルを移動
@@ -140,7 +142,10 @@ ChangeHotKey=[
 - flaxfifo
 	- コピーペーストを FIFO にする。トグル式。
 - flaxvirtualfolder
-	- 仮想フォルダが表示される。ファイルをドラッグアンドドロップして、Dist Path にパスを入力、Confirm でドロップされたファイルフォルダのショートカットが Dist Path 下に作られる。Rename は未実装。
+	- 仮想フォルダが表示される
+        - Make Link モードではファイルをドラッグアンドドロップして、Dist Path にパスを入力、Confirm でドロップされたファイルフォルダのショートカットが Dist Path 下に作られる
+        - Rename モードでは Rule に正規表現のパターン、Replacement に置換後の文字を入れることでファイル/ディレクトリの名前を一括で置換できる
+        - Modify Shortcut モードでは Rule に正規表現のパターン、Replacement に置換後の文字を入れることでショートカットの参照先を一括で置換できる
 - flaxconnectratwifi
 	- RAT-WIRELESS-A に接続される。
 - flaxtimetable
