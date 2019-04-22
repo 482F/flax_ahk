@@ -1848,6 +1848,7 @@ RegisterInput:
 	ClipboardAlt := ClipboardAll
 	Clipboard := ""
     Clipboard := reg_value
+    Clipwait
     send,^v
 	Clipboard := ClipboardAlt
     return
