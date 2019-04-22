@@ -2507,6 +2507,15 @@ vk1D & PrintScreen::
 		}
 		Menu, ExpMenu, Add, Launcher に登録(&R), register_launcher
 		Menu, ExpMenu, Add, プログラムから開く(&P), open_with
+        name := solvepath(filepath).name
+        if (regexmatch(name, "\d{4}_\d{2}_\d{2}(\..*)?")){
+            ext := retallmatch(name, "(\..*)")[1][1]
+            name := regexreplace(name, "_|\..*$")
+            EnvAdd, name, 7, Days
+            name := SubStr(name, 1, 8)
+            name := SubStr(name, 1, 4) . "_" . SubStr(name, 5, 2) . "_" . SubStr(name, 7, 2) . ext
+            Menu, ExpMenu, Add, %name% にコピーする (&D), copy_after_seven_days
+        }
         if (InStr(FileExist(FilePath), "D") != 0){
             Menu, ExpMenu, add, フォルダ内の MP3 のタグを編集(&M), editmp3stags
         }else if (SubStr(FilePath, StrLen(FilePath) - 3, 4) == ".mp3"){
@@ -2729,6 +2738,16 @@ vk1D & PrintScreen::
 				EditMP3TagsFunc(FilePath, EditMP3Tags.ETitle.value, EditMP3Tags.EArtist.value, EditMP3Tags.EAlbam.value, EditMP3Tags.ENewName.value)
                 ATooltip.display("Done", , , 1000)
 				return
+        copy_after_seven_days:
+            solved_path := solvepath(FilePath)
+            path := solved_path.path
+            msgjoin(path . "\" . name)
+            if (InStr(FileExist(FilePath), "D") != 0){
+                FileCopyDir, %FilePath%, %path%%name%
+            }else{
+                FileCopy, %FilePath%, %path%%name%
+            }
+            return
 #IfWinActive,ahk_exe chrome.exe
  	^+q::return
 	^+w::return
