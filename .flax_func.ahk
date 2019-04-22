@@ -811,5 +811,3 @@ push_key(key, time=100){
     send, {%key% up}
     return
 }
-
-
