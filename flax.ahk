@@ -2183,8 +2183,6 @@ vk1D & PrintScreen::
     name := "screenshot\" . A_Now . A_TickCount . ".png"
     screenshot_full(name)
     return
-vkF3::return
-vkF4::return
 
 
 
