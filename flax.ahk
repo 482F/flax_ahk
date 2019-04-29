@@ -3217,6 +3217,9 @@ vk1D & PrintScreen::
     ~Esc::
         rainbow_flag := False
         return
+#IfWinActive ahk_exe discord.exe
+    Enter::send, +{Enter}
+    ^Enter::send, {Enter}
 ; #IfWinActive ahk_exe anki.exe
 ;     F9::
 ;         while (True){
