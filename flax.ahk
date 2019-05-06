@@ -3258,6 +3258,11 @@ vk1D & PrintScreen::
 ;             sleep, 100
 ;         }
 ;         return
+#IfWinActive ahk_exe DllHost.exe
+    Up::return
+    Down::return
+    WheelRight::Right
+    WheelLeft::Left
 #IfWinActive
 #If (copymode = "FIFO")
 {
