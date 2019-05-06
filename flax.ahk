@@ -1585,6 +1585,35 @@ MouseGetPos,X,Y
         Clipboard := otp_pass
         return
     }
+::flaxregisteronetimepass::
+    configFD.read()
+    otp_register := new AGui(, "otp_register")
+    otp_register.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
+    otp_register.add_agc("text", "name_label", "", "名前")
+    otp_register.add_agc("edit", "name", "w100")
+    otp_register.add_agc("text", "key_label", "", "シークレット キー")
+    otp_register.add_agc("edit", "key", "w100 Password*")
+    otp_register.add_agc("text", "password_label", "", "パスワード")
+    otp_register.add_agc("edit", "password", "w100 Password*")
+	otp_register.add_agc("Button", "OK", "Hidden Default")
+	otp_register.OK.method := "otp_register_ok"
+    otp_register.show("AutoSize")
+    return
+    otp_register_ok(){
+        global otp_register
+        global configFD
+        configFD.read()
+        otp_register.submit("NoHide")
+        if (otp_register.name.value == "" or otp_register.key.value == ""){
+            msgjoin("Invalid name or key.")
+            return
+        }
+        otp_ckey := MakeCodeFUnc("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", otp_register.key.value, otp_register.password.value)
+        configFD.dict["onetime_password"][otp_register.name.value] := otp_ckey
+        otp_register.destroy()
+        configFD.write()
+        return
+    }
 ;hotkey
 ;ホットキー
 +!^W::
