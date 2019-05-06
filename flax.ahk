@@ -1556,6 +1556,35 @@ MouseGetPos,X,Y
 ::flaxregtest::
     reg_test()
     return
+::flaxmakeonetimepass::
+    configFD.read()
+    otp_input := new AGui(, "otp_input")
+    otp_input.Font("S" . configFD.dict["Font"]["Size"], configFD.dict["Font"]["Name"])
+    otp_input.add_agc("text", "name_label", "", "名前")
+    otp_input.add_agc("edit", "name", "w100")
+    otp_input.add_agc("text", "password_label", "", "パスワード")
+    otp_input.add_agc("edit", "password", "w100 Password*")
+	otp_input.add_agc("Button", "OK", "Hidden Default")
+	otp_input.OK.method := "otp_input_ok"
+    otp_input.show("AutoSize")
+    return
+    otp_input_ok(){
+        global configFD
+        global otp_input
+        configFD.read()
+        otp_input.submit("NoHide")
+        otp_keys := configFD.dict["onetime_password"]
+        otp_key := otp_keys[otp_input.name.value]
+        if (otp_key == ""){
+            msgjoin("Invalid name.")
+            return
+        }
+        otp_pkey := MakeCodeFunc("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", otp_key, otp_input.password.value)
+        otp_input.destroy()
+        otp_pass := CmdRun("wsl oathtool --totp -d 6 --time-step-size=30s --base32 " . otp_pkey)
+        Clipboard := otp_pass
+        return
+    }
 ;hotkey
 ;ホットキー
 +!^W::
