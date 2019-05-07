@@ -1,10 +1,30 @@
 package main
 import (
     id3 "github.com/mikkyang/id3-go"
+    "golang.org/x/text/encoding/japanese"
+    "golang.org/x/text/transform"
+    "strings"
+    "io/ioutil"
     "log"
     "fmt"
     "flag"
 )
+
+func utf8_to_sjis(str string) (string, error) {
+        ret, err := ioutil.ReadAll(transform.NewReader(strings.NewReader(str), japanese.ShiftJIS.NewEncoder()))
+        if err != nil {
+                return "", err
+        }
+        return string(ret), err
+}
+
+func sjis_to_utf8(str string) (string, error) {
+        ret, err := ioutil.ReadAll(transform.NewReader(strings.NewReader(str), japanese.ShiftJIS.NewDecoder()))
+        if err != nil {
+                return "", err
+        }
+        return string(ret), err
+}
 
 func main(){
     flag.Parse()
@@ -25,9 +45,24 @@ func main(){
 
     switch mode{
     case "get":
-        fmt.Println(mp3File.Title())
-        fmt.Println(mp3File.Artist())
-        fmt.Printf(mp3File.Album())
+        title := mp3File.Title()
+        title, err = utf8_to_sjis(title)
+        if err != nil{
+            log.Fatal(err)
+        }
+        artist := mp3File.Artist()
+        artist, err = utf8_to_sjis(artist)
+        if err != nil{
+            log.Fatal(err)
+        }
+        album := mp3File.Album()
+        album, err = utf8_to_sjis(album)
+        if err != nil{
+            log.Fatal(err)
+        }
+        fmt.Println(title)
+        fmt.Println(artist)
+        fmt.Printf(album)
     case "set":
         for index := 2; index < len(args); index += 1 {
             if (len(args) < index + 2){
