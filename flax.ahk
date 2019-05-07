@@ -2603,7 +2603,7 @@ vk1D & PrintScreen::
             EditMP3sTags.add_agc("ListView", "Al_ListView", "Grid w200 h500 x+0 NoSortHdr gMP3sLV AltSubmit")
             EditMP3sTags.Al_ListView.remove_option("ReadOnly")
             EditMP3sTags.Al_ListView.remove_option("HScroll")
-            LV_InsertCol(1, 197, "Albam")
+            LV_InsertCol(1, 197, "Album")
             EditMP3sTags.add_agc("Button", "OKButton", "Default Hidden gEditMP3sOK")
             EditMP3sTags.dict := Object()
             EditMP3sTags.add_agc("Progress", "Progress", "Backgroundwhite x20 y515 w200 h20 border")
@@ -2615,18 +2615,18 @@ vk1D & PrintScreen::
                 Tags := GetMP3TagsFunc(Path)
                 Title := Tags[1]
                 Artist := Tags[2]
-                Albam := Tags[3]
+                Album := Tags[3]
                 EditMP3sTags.dict[A_Index, "Name"] := Name
                 EditMP3sTags.dict[A_Index, "Path"] := Path
                 EditMP3sTags.dict[A_Index, "Title"] := Title
                 EditMP3sTags.dict[A_Index, "Artist"] := Artist
-                EditMP3sTags.dict[A_Index, "Albam"] := Albam
+                EditMP3sTags.dict[A_Index, "Album"] := Album
                 ifWinNotExist, EditMP3sTags
                     break
                 EditMP3sTags.Na_ListView.LV_Add(, Name)
                 EditMP3sTags.Ti_ListView.LV_Add(, Title)
                 EditMP3sTags.Ar_ListView.LV_Add(, Artist)
-                EditMP3sTags.Al_ListView.LV_Add(, Albam)
+                EditMP3sTags.Al_ListView.LV_Add(, Album)
             }
             return
             EditMP3sOK(){
@@ -2639,27 +2639,33 @@ vk1D & PrintScreen::
                     n_Name := EditMP3sTags.Na_ListView.LV_GetText(A_Index, 1)
                     n_Title := EditMP3sTags.Ti_ListView.LV_GetText(A_Index, 1)
                     n_Artist := EditMP3sTags.Ar_ListView.LV_GetText(A_Index, 1)
-                    n_Albam := EditMP3sTags.Al_ListView.LV_GetText(A_Index, 1)
+                    n_Album := EditMP3sTags.Al_ListView.LV_GetText(A_Index, 1)
                     Name := EditMP3sTags.dict[A_Index]["Name"]
                     Path := EditMP3sTags.dict[A_Index]["Path"]
                     Title := EditMP3sTags.dict[A_Index]["Title"]
                     Artist := EditMP3sTags.dict[A_Index]["Artist"]
-                    Albam := EditMP3sTags.dict[A_Index]["Albam"]
+                    Album := EditMP3sTags.dict[A_Index]["Album"]
                     EditMP3sTags.dict[A_Index]["Name"] := n_Name
                     EditMP3sTags.dict[A_Index]["Title"] := n_Title
                     EditMP3sTags.dict[A_Index]["Artist"] := n_Artist
-                    EditMP3sTags.dict[A_Index]["Albam"] := n_Albam
-                    if (n_Name == Name and n_Title == Title and n_Artist == Artist and n_Albam == Albam)
+                    EditMP3sTags.dict[A_Index]["Album"] := n_Album
+                    if (n_Name == Name and n_Title == Title and n_Artist == Artist and n_Album == Album)
                         continue
                     NoEM += 1
                     MD[NoEM, "Name"] := n_Name . ".mp3"
                     MD[NoEM, "Path"] := Path
-                    MD[NoEM, "Title"] := n_Title
-                    MD[NoEM, "Artist"] := n_Artist
-                    MD[NoEM, "Albam"] := n_Albam
+                    MD[NoEM, "title"] := n_Title
+                    MD[NoEM, "artist"] := n_Artist
+                    MD[NoEM, "album"] := n_Album
                 }
                 For Key, Value in MD{
-                    EditMP3TagsFunc(Value["Path"], Value["Title"], Value["Artist"], Value["Albam"], Value["Name"])
+                    result := EditMP3TagsFunc(Value["Path"], Value, Value["Name"])
+                    if (result != ""){
+                        msgjoin("Error", result)
+                        return
+                    }
+                    SplitPath, % Value["Path"], FileName, FileDir
+                    EditMP3sTags.dict[Key]["Path"] := FileDir . "\" . Value["Name"]
                     EditMP3sTags.Progress.do(, (A_Index / NoEM) * 100)
                 }
                 msgjoin("Done")
@@ -2777,8 +2783,8 @@ vk1D & PrintScreen::
 			EditMP3Tags.add_agc("Edit", "ETitle", "w800", Tags[1])
 			EditMP3Tags.add_agc("Text", "ArtistLabel", , "&Artist")
 			EditMP3Tags.add_agc("Edit", "EArtist", "w800", Tags[2])
-			EditMP3Tags.add_agc("Text", "AlbamLabel", , "&Albam")
-			EditMP3Tags.add_agc("Edit", "EAlbam", "w800", Tags[3])
+			EditMP3Tags.add_agc("Text", "AlbumLabel", , "&Album")
+			EditMP3Tags.add_agc("Edit", "EAlbum", "w800", Tags[3])
 			EditMP3Tags.add_agc("Button", "OK", "Default", "&OK")
             EditMP3Tags.OK.method := "EditMP3TagsOK"
             EditMP3Tags.remove_option("Resize")
@@ -2793,7 +2799,11 @@ vk1D & PrintScreen::
 			EditMP3TagsOK:
                 EditMP3Tags.submit()
                 EditMP3Tags.destroy()
-				EditMP3TagsFunc(FilePath, EditMP3Tags.ETitle.value, EditMP3Tags.EArtist.value, EditMP3Tags.EAlbam.value, EditMP3Tags.ENewName.value)
+                dict := Object()
+                dict["title"] := EditMP3Tags.ETitle.value
+                dict["artist"] := EditMP3Tags.EArtist.value
+                dict["album"] := EditMP3Tags.EAlbum.value
+				EditMP3TagsFunc(FilePath, dict, EditMP3Tags.ENewName.value)
                 ATooltip.display("Done", , , 1000)
 				return
         copy_after_seven_days:

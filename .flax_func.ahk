@@ -665,19 +665,30 @@ EvalConfig(cFD){
 	return
 }
 GetMP3TagsFunc(FilePath){
-	PreCommand := "Python """ . A_ScriptDir . "\mp3_tags.py"" """ . FilePath . """"
-	Tags := CmdRun(PreCommand . " get title artist album")
+	command := """""" . A_ScriptDir . "\go_id3.exe"" get """ . FilePath . """"""
+	Tags := CmdRun(command)
     StringReplace, Tags, Tags, `r, , A
 	Tags := StrSplit(Tags, "`n")
 	return Tags
 }
-EditMP3TagsFunc(FilePath, Title, Artist, Albam, NewName){
+EditMP3TagsFunc(FilePath, data_dict, new_name){
 	SplitPath, FilePath, FileName, FileDir
-	PreCommand := "Python """ . A_ScriptDir . "\mp3_tags.py"" """ . FilePath . """"
-	Command := PreCommand . " edit """ . Title . """ """ . Artist . """ """ . Albam . """"
-	CmdRun(Command)
-	FileMove, %FilePath%, %FileDir%\%NewName%
-	return
+	command := """""" . A_ScriptDir . "\go_id3.exe"" set """ . FilePath . """ "
+    ntags := GetMP3TagsFunc(FilePath)
+    tags := Object()
+    tags["title"] := ntags[1]
+    tags["artist"] := ntags[2]
+    tags["album"] := ntags[3]
+    for key, value in data_dict{
+        if ((key != "title" and key != "album" and key != "artist") or tags[key] == value){
+            continue
+        }
+        command .= key . " """ . value . """ "
+    }
+    command .= """"
+	result := CmdRun(command)
+	FileMove, %FilePath%, %FileDir%\%new_name%
+	return result
 }
 GetLastUpdate(FilePath){
 	FileGetTime, LU, %FilePath%, M
