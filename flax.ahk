@@ -3331,7 +3331,39 @@ vk1D & PrintScreen::
     Down::return
     WheelRight::Right
     WheelLeft::Left
+#IfWinActive ahk_exe MonsterHunterWorld.exe
+    +^Enter::
+        mhw_flag := True
+        while (mhw_flag){
+            send, {Enter down}
+            sleep, 5
+            send, {Enter up}
+            sleep, 5
+            while (mhw_flag and A_Index < 1200){
+                send, {Right down}
+                sleep, 5
+                send, {Right up}
+                sleep, 5
+            }
+            send, {Enter down}
+            sleep, 5
+            send, {Enter up}
+            sleep, 1000
+            send, {Enter down}
+            sleep, 5
+            send, {Enter up}
+            sleep, 1000
+            send, {Down down}
+            sleep, 5
+            send, {Down up}
+            sleep, 1000
+        }
+        return
+    ~Esc::
+        mhw_flag := False
+        return
 #IfWinActive
+
 #If (copymode = "FIFO")
 {
 	^c::
