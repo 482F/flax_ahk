@@ -9,6 +9,10 @@
 
 - Ctrl + Alt + Shift + w で起動
 	- 設定は config/launcher.fd に記述
+    - 表示位置の設定は config/config.fd に記述
+        - launcher.pos を center にすると画面中央に表示される
+        - launcher.pos.x, launcher.pos.y を数値にするとその x, y 座標に表示される
+        - それ以外の場合は画面右下に表示される
 	- エクスプローラ上で Ctrl + r -> [Launcher に登録 (R)] を選択で登録 GUI が起動
 		- Name
 			- そのままの意味。キーワード。
