@@ -822,3 +822,12 @@ push_key(key, time=100){
     send, {%key% up}
     return
 }
+read_font_from_config(name=""){
+    global configFD
+    configFD.read()
+    font := configFD.dict["Font"]
+    if (name != "" and configFD.dict.haskey(name)){
+        font := configFD.dict[name, "Font"]
+    }
+    return font
+}
