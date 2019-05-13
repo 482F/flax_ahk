@@ -426,6 +426,10 @@ class AGui{
 		AGui.HwndDict.Delete(Hwnd)
 		return
 	}
+    read_font(name){
+        font := read_font_from_config(name)
+        this.Font("S" . font.size, font.name)
+    }
 }
 class AGuiControl{
 	__New(target_gui, type, name="", param="", text=""){

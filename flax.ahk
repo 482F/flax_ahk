@@ -226,8 +226,7 @@ flaxguitestmethod:
 	sleep 100
     configFD.read()
 	FlaxCode_Maker := new AGui(, "FlaxCode_Maker")
-    font := read_font_from_config("makecodegui")
-	FlaxCode_Maker.Font("S" . font.size, font.name)
+    FlaxCode_Maker.read_font("makecodegui")
 	FlaxCode_Maker.Margin(10, 10)
 	FlaxCode_Maker.add_agc("Text", "", , "&Clear Text")
 	FlaxCode_Maker.add_agc("Edit", "CText", "W500 Multi Password*")
@@ -869,8 +868,7 @@ MouseGetPos,X,Y
     VirtualFolder := new AGui(, "VirtualFolder")
     VirtualFolder.dropfiles := Func("VirtualFolderDropFiles")
     VirtualFolder.size := Func("VirtualFolderSize")
-    font := read_font_from_config("virtualfolder")
-	VirtualFolder.Font("S" . font.size, font.name)
+    VirtualFolder.read_font("virtualfolder")
 	VirtualFolder.add_option("Resize")
 	VirtualFolder.Margin("10", "10")
 	VirtualFolder.add_agc("ListView", "ListView", "AltSubmit w600 h300", "path|name")
@@ -1064,8 +1062,7 @@ MouseGetPos,X,Y
 	TTCellHeight = 100
     TimeTable := new AGui(, "TimeTable")
     TimeTable.contextmenu := Func("timetable_open_URL")
-    font := read_font_from_config("timetable")
-    TimeTable.Font("S" . font.size, font.name)
+    TimeTable.read_font("timetable")
     TimeTable.Margin("50", "50")
     TimeTable.add_option("AlwaysOnTop")
     TimeTable.remove_option("Border")
@@ -1319,8 +1316,7 @@ MouseGetPos,X,Y
     gestureFD.read()
     EditGesture := new AGui(, "EditGesture")
     EditGesture.escape := Func("EditGestureEscape")
-    font := read_font_from_config("editgesture")
-    EditGesture.Font("S" . font.size, font.name)
+    EditGesture.read_font("editgesture")
     EditGesture.Margin("10", "10")
     EditGesture.add_agc("Text", "GestureLabel", , "&Gesture")
     EditGesture.add_agc("Edit", "EGesture", "w400")
@@ -1417,8 +1413,7 @@ MouseGetPos,X,Y
 	TTCellWidth = 100
 	TTCellHeight = 100
     EditTimeTable := new AGui(, "EditTimeTable")
-    font := read_font_from_config("edittimetable")
-    EditTimeTable.Font("S" . font.size, font.name)
+    EditTimeTable.read_font("edittimetable")
     EditTimeTable.Margin("50", "50")
 	x := marg
 	y := marg
@@ -1565,8 +1560,7 @@ MouseGetPos,X,Y
 ::flaxmakeonetimepass::
     configFD.read()
     otp_input := new AGui(, "otp_input")
-    font := read_font_from_config("makeonetimepass")
-    otp_input.Font("S" . font.size, font.name)
+    otp_input.read_font("makeonetimepass")
     otp_input.add_agc("text", "name_label", "", "名前")
     otp_input.add_agc("edit", "name", "w100")
     otp_input.add_agc("text", "password_label", "", "パスワード")
@@ -1595,8 +1589,7 @@ MouseGetPos,X,Y
 ::flaxregisteronetimepass::
     configFD.read()
     otp_register := new AGui(, "otp_register")
-    font := read_font_from_config("registeronetimepass")
-    otp_register.Font("S" . font.size, font.name)
+    otp_register.read_font("registeronetimepass")
     otp_register.add_agc("text", "name_label", "", "名前")
     otp_register.add_agc("edit", "name", "w100")
     otp_register.add_agc("text", "key_label", "", "シークレット キー")
@@ -1674,8 +1667,7 @@ MouseGetPos,X,Y
 	return
 ::flaxregisterremotedesktop::
     rrd_gui := new AGui(, "register remotedesktop")
-    font := read_font_from_config("registerremotedesktop")
-    rrd_gui.Font("S" . font.size, font.name)
+    rrd_gui.read_font("registerremotedesktop")
     rrd_gui.Margin("10", "10")
     rrd_gui.add_agc("Text", "NameLabel", , "&Name (ex. my_desktop)")
     rrd_gui.add_agc("Edit", "ename", "w800")
@@ -1748,8 +1740,7 @@ MouseGetPos,X,Y
         return
     }
 	FlaxLauncher := new AGui(, "FlaxLauncher")
-    font := read_font_from_config("launcher")
-    FlaxLauncher.Font("S" . font.size, font.name)
+    FlaxLauncher.read_font("launcher")
 	launcherFD.read()
 	Sleep 100
 	NoDI := 5
@@ -2702,8 +2693,7 @@ vk1D & PrintScreen::
             EditMP3sTags := new AGui(, "EditMP3sTags")
             configFD.read()
             EditMP3sTags.Editing := False
-            font := read_font_from_config("editmp3stags")
-            EditMP3sTags.font(font.size, font.name)
+            EditMP3sTags.read_font("editmp3stags")
             EditMP3sTags.add_option("Resize")
             EditMP3sTags.add_agc("ListView", "Na_ListView", "Grid w300 h500 NoSortHdr gMP3sLV AltSubmit")
             EditMP3sTags.Na_ListView.remove_option("ReadOnly")
@@ -2838,8 +2828,7 @@ vk1D & PrintScreen::
 			}
 			sleep 100
             RegisterLauncher := new AGui(, "RegisterLauncher")
-            font := read_font_from_config("registerlauncher")
-            RegisterLauncher.Font("S" . font.size, font.name)
+            RegisterLauncher.read_font("registerlauncher")
             RegisterLauncher.Margin("10", "10")
             RegisterLauncher.add_agc("Text", "NameLabel", , "&Name")
 			SplitPath, FilePath, FileName, FileDir
@@ -2889,8 +2878,7 @@ vk1D & PrintScreen::
 		editmp3tags:
             configFD.read()
             EditMP3Tags := new AGui(, "EditMp3Tags")
-            font := read_font_from_config("editmp3tags")
-            EditMP3Tags.Font("S" . font.size, font.name)
+            EditMP3Tags.read_font("editmp3tags")
             EditMP3Tags.Margin("10", "10")
 			EditMP3Tags.remove_option("Border")
 			EditMP3Tags.add_agc("Text", "NewNameLabel", , "&NewName")
