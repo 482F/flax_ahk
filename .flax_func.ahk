@@ -826,8 +826,8 @@ read_font_from_config(name=""){
     global configFD
     configFD.read()
     font := configFD.dict["Font"]
-    if (name != "" and configFD.dict.haskey(name)){
-        font := configFD.dict[name, "Font"]
+    if (name != "" and configFD.dict.font.haskey(name)){
+        font := configFD.dict["Font", name]
     }
     return font
 }
