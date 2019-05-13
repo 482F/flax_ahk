@@ -1738,6 +1738,15 @@ MouseGetPos,X,Y
 ;ホットキー
 +!^W::
     configFD.read()
+    search_method := configFD.dict["launcher", "search_method"]
+    if (search_method == "prefix"){
+        search_method := Func("is_zero")
+    }else if (search_method == "partial"){
+        search_method := Func("is_not_minus_one")
+    }else{
+        msgjoin("launcher.search_method in config.fd is invalid.")
+        return
+    }
 	FlaxLauncher := new AGui(, "FlaxLauncher")
     font := read_font_from_config("launcher")
     FlaxLauncher.Font("S" . font.size, font.name)
@@ -1869,9 +1878,10 @@ MouseGetPos,X,Y
 		For Key, Value in launcherFD.dict{
 			StringGetPos, IP, Key, % FlaxLauncher.ItemName.value
 			command := ""
-			if (IP == 0)
-				command := launcherFD.dict[Key]["command"]
-			if (command != ""){
+            if (search_method.call(IP)){
+                command := launcherFD.dict[Key]["command"]
+			}
+            if (command != ""){
 				candidate .= "|" . Key
 				NoI += 1
 			}
