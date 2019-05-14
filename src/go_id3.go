@@ -3,6 +3,7 @@ import (
     id3 "github.com/mikkyang/id3-go"
     "golang.org/x/text/encoding/japanese"
     "golang.org/x/text/transform"
+    "golang.org/x/text/encoding"
     "strings"
     "io/ioutil"
     "log"
@@ -11,15 +12,11 @@ import (
 )
 
 func utf8_to_sjis(str string) (string, error) {
-        ret, err := ioutil.ReadAll(transform.NewReader(strings.NewReader(str), japanese.ShiftJIS.NewEncoder()))
-        if err != nil {
-                return "", err
-        }
-        return string(ret), err
-}
-
-func sjis_to_utf8(str string) (string, error) {
-        ret, err := ioutil.ReadAll(transform.NewReader(strings.NewReader(str), japanese.ShiftJIS.NewDecoder()))
+        str_reader := strings.NewReader(str)
+        sjis_encoder := japanese.ShiftJIS.NewEncoder()
+        sjis_encoder = encoding.ReplaceUnsupported(sjis_encoder)
+        trs_reader := transform.NewReader(str_reader, sjis_encoder)
+        ret, err := ioutil.ReadAll(trs_reader)
         if err != nil {
                 return "", err
         }
