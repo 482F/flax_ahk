@@ -71,8 +71,8 @@ GoSub,DefVars
 
 return
 
-#Include .flax_func.ahk
-#Include .flax_class.ahk
+#Include includes\.flax_func.ahk
+#Include includes\.flax_class.ahk
 
 
 ;hotstring
@@ -176,7 +176,7 @@ flaxguitestmethod:
 	return
 ::flaxspy::
 	sleep 100
-	Run,.\AU3_Spy.exe
+	Run,.\tools\AU3_Spy.exe
 	return
 ::flaxgetprocessname::
 	sleep 100
@@ -251,7 +251,7 @@ flaxguitestmethod:
 		UpperCase = ABCDEFGHIJKLMNOPQRSTUVWXYZ
 		LowerCase = abcdefghijklmnopqrstuvwxyz
 		NumberChar = 0123456789
-		FileRead,JapaneseChar,JapaneseChars.txt
+		FileRead,JapaneseChar, includes\JapaneseChars.txt
         CText := FlaxCode_Maker.CText.value
 		Loop,Parse,CText
 		{
@@ -859,7 +859,7 @@ MouseGetPos,X,Y
 	AF := "True"
 ::flaxminesweeper::
 	sleep 400
-	PythonRun("minesweeper.py", AF)
+	PythonRun("tools\minesweeper.py", AF)
 	AF := "False"
 	return
 ::flaxvirtualfolder::
@@ -1261,7 +1261,7 @@ MouseGetPos,X,Y
     #IfWinActive
 ::flaxhanoy::
 	sleep 400
-	CmdRun(pathFD.dict["python"] . " Hanoy.py ")
+	CmdRun(pathFD.dict["python"] . " tools\Hanoy.py ")
 	return
 ::flaxtransparent::
 	sleep 400
