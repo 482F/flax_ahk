@@ -1423,12 +1423,13 @@ MouseGetPos,X,Y
 			R := A_Index - 1
 			x := marg + C * TTCellWidth
 			y := marg + R * TTCellHeight
-			Text := timetableFD.dict[term][R][C]["URL"]
+			Text := ""
 			Loop, 4{
 				L := A_Index - 1
 				Text .= "`n" timetableFD.dict[term][R][C][L]
 			}
-            EditTimeTable.add_agc("Edit", "E" . R . C, "w" . TTCellWidth . " h" . TTCellHeight . " x" . x . " y" . y . " Border Center -VScroll", Text)
+            EditTimeTable.add_agc("Text", "T" . R . C, "w" . TTCellWidth . " h" . TTCellHeight . " x" . x . " y" . y . " Border Center", Text)
+            EditTimeTable["T" . R . C].method := "ett_cell_clicked"
 		}
 	}
     DropDownText := "new|"
@@ -1440,23 +1441,105 @@ MouseGetPos,X,Y
     }
     EditTimeTable.add_agc("DropDownList", "ETimeTableDDLV", "Sort xp-40 y+10", DropDownText)
     EditTimeTable.ETimeTableDDLV.method := "ETimeTableChanged"
-    EditTimeTable.add_agc("Button", "EditTimeTableOK", "Default y+10", "OK")
+    EditTimeTable.add_agc("Button", "EditTimeTableOK", "y+10", "OK")
     EditTimeTable.EditTimeTableOK.method := "EditTimeTableOK"
     EditTimeTable.add_agc("Button", "EditTimeTableDelete","y+10" , "Delete")
     EditTimeTable.EditTimeTableDelete.method := "EditTimeTableDelete"
+    EditTimeTable.add_agc("groupbox", "groupbox", "w0 h0")
+
+    x := marg * 2 + TTCellWidth * 7
+    y := marg
+
+    EditTimeTable.add_agc("text", "tfil", "x" . x . " y" . y . " section", "1st line")
+    EditTimeTable.add_agc("edit", "efil", "xs+100 ys+0")
+    EditTimeTable.add_agc("text", "tsel", "xs+0 ys+30 section", "2nd line")
+    EditTimeTable.add_agc("edit", "esel", "xs+100 ys+0")
+    EditTimeTable.add_agc("text", "tthl", "xs+0 ys+30 section", "3rd line")
+    EditTimeTable.add_agc("edit", "ethl", "xs+100 ys+0")
+    EditTimeTable.add_agc("text", "tfol", "xs+0 ys+30 section", "4th line")
+    EditTimeTable.add_agc("edit", "efol", "xs+100 ys+0")
+    EditTimeTable.add_agc("text", "turl", "xs+0 ys+30 section", "url")
+    EditTimeTable.add_agc("edit", "eurl", "xs+100 ys+0")
+
+    EditTimeTable.efil.method := "ett_edit_edited"
+    EditTimeTable.esel.method := "ett_edit_edited"
+    EditTimeTable.ethl.method := "ett_edit_edited"
+    EditTimeTable.efol.method := "ett_edit_edited"
+
+    EditTimeTable.current_cell := Object()
+    EditTimeTable.current_cell.r := 0
+    EditTimeTable.current_cell.c := 0
+    ett_move_groupbox(EditTimeTable.current_cell)
     EditTimeTable.Show("", "FlaxEditTimeTable")
 	return
+    ett_edit_edited(){
+        global EditTimeTable
+        global timetableFD
+        EditTimeTable.submit("nohide")
+        term := EditTimeTable.ETimeTableDDLV.value
+        fil := EditTimeTable.efil.value
+        sel := EditTimeTable.esel.value
+        thl := EditTimeTable.ethl.value
+        fol := EditTimeTable.efol.value
+        url := EditTimeTable.eurl.value
+        r := EditTimeTable.current_cell.r
+        c := EditTimeTable.current_cell.c
+        timetableFD.dict[term, r, c, 0] := fil
+        timetableFD.dict[term, r, c, 1] := sel
+        timetableFD.dict[term, r, c, 2] := thl
+        timetableFD.dict[term, r, c, 3] := fol
+        timetableFD.dict[term, r, c, URL] := url
+
+        text := "`n" . fil . "`n" . sel . "`n" . thl . "`n" . fol
+
+        EditTimeTable["T" . r . c].value := text
+        ett_move_groupbox(EditTimeTable.current_cell)
+    }
+    ett_cell_clicked(varname=""){
+        global EditTimeTable
+        global timetableFD
+        EditTimeTable.submit("nohide")
+        if (RegExMatch(varname, "^T\d\d$") != 1){
+            varname := substr(a_guicontrol, 16, 3)
+        }
+        r := substr(varname, 2, 1)
+        c := substr(varname, 3, 1)
+        target_cell := EditTimeTable[varname]
+        term := EditTimeTable.ETimeTableDDLV.value
+        EditTimeTable.current_cell.r := r
+        EditTimeTable.current_cell.c := c
+        values := timetableFD.dict[term, r, c]
+
+        EditTimeTable.efil.value := values[0]
+        EditTimeTable.esel.value := values[1]
+        EditTimeTable.ethl.value := values[2]
+        EditTimeTable.efol.value := values[3]
+        EditTimeTable.eurl.value := values[4]
+
+        ett_move_groupbox(EditTimeTable.current_cell)
+        return
+    }
+    ett_move_groupbox(Pos){
+        global EditTimeTable
+        global TTCellWidth
+        global TTCellHeight
+        global marg
+        x := marg + Pos.c * TTCellWidth + 5
+        y := marg + Pos.r * TTCellHeight
+        EditTimeTable.GroupBox.movedraw("x" . x . " y" . y . " h" . TTCellHeight - 3 . " w" . TTCellWidth - 8)
+        return
+    }
     ETimeTableChangeText:
         Loop, 7{
             C := A_Index - 1
             Loop, 6{
                 R := A_Index - 1
-                Text := timetableFD.dict[term][R][C]["URL"]
+                Text := ""
                 Loop, 4{
                     L := A_Index - 1
                     Text .= "`n" . timetableFD.dict[term][R][C][L]
                 }
-                EditTimeTable["E" . R . C].value := Text
+                EditTimeTable["T" . R . C].value := Text
             }
         }
         return
@@ -1482,18 +1565,6 @@ MouseGetPos,X,Y
         EditTimeTable.Submit()
         sterm := term
         term := EditTimeTable.ETimeTableDDLV.value
-		Loop, 7{
-			C := A_Index - 1
-			Loop, 6{
-				R := A_Index - 1
-				Text := EditTimeTable["E" . R . C].value
-				Text := StrSplit(Text, "`n")
-                timetableFD.dict[term, R, C, "URL"] := Text[1]
-				Loop, 4{
-					timetableFD.dict[term, R, C, A_Index - 1] := Text[A_Index + 1]
-				}
-			}
-		}
         configFD.read()
         if (term == "template")
             term := sterm
@@ -1511,6 +1582,32 @@ MouseGetPos,X,Y
             EditTimeTable.Destroy()
         }
         return
+    #IfWinActive FlaxEditTimeTable
+        ^Up::
+            if (0 < EditTimeTable.current_cell.r){
+                EditTimeTable.current_cell.r -= 1
+                ett_cell_clicked("T" . EditTimeTable.current_cell.r . EditTimeTable.current_cell.c)
+            }
+            return
+        ^Down::
+            if (EditTimeTable.current_cell.r < 5){
+                EditTimeTable.current_cell.r += 1
+                ett_cell_clicked("T" . EditTimeTable.current_cell.r . EditTimeTable.current_cell.c)
+            }
+            return
+        ^Right::
+            if (EditTimeTable.current_cell.c < 6){
+                EditTimeTable.current_cell.c += 1
+                ett_cell_clicked("T" . EditTimeTable.current_cell.r . EditTimeTable.current_cell.c)
+            }
+            return
+        ^Left::
+            if (0 < EditTimeTable.current_cell.c){
+                EditTimeTable.current_cell.c -= 1
+                ett_cell_clicked("T" . EditTimeTable.current_cell.r . EditTimeTable.current_cell.c)
+            }
+            return
+    #IfWinActive 
 ::flaxgetprocesspath::
 	sleep 100
 	clipboard := GetProcessPath()
