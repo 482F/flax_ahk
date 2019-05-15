@@ -73,6 +73,7 @@ DefVars:
     nonogram_sign_key_dict["key", "Left"] := "x"
     nonogram_sign_key_dict["key", "Up"] := "y"
     rapid_mode_tt := new ATooltip(, , , 500)
+    eov_obj := Object()
 	msgbox,ready
 	return
 }
@@ -3361,6 +3362,91 @@ vk1D & PrintScreen::
         return
     ~Esc::
         mhw_flag := False
+        return
+#IfWinActive ahk_exe citra-qt.exe
+    ^+!r::
+        eov_obj := Object()
+        eov_obj["keyboard", "left"] := 643
+        eov_obj["keyboard", "up"] := 736
+        eov_obj["keyboard", "right"] := 1219
+        eov_obj["keyboard", "down"] := 959
+        eov_obj["keyboard", "width"] := eov_obj["keyboard", "right"] - eov_obj["keyboard", "left"]
+        eov_obj["keyboard", "height"] := eov_obj["keyboard", "down"] - eov_obj["keyboard", "up"]
+        eov_obj["keylist"] := strsplit("@[""NN``|y<>ol.;{789!?jn]/mfv2^-ui1,kqazwsxdrpctgh:b3e456}~++*")
+        ; | := "を"
+        ; N := "Null"
+        ; ~ := "BackSpace"
+        ; + := "Enter"
+        ; * := "Space"
+        ; } := "伸ばし棒"
+        ; { := "ろ"
+        ; `` := "わ"
+        for key, value in eov_obj["keylist"]{
+            eov_obj["keymap", value, "y"] := mod(A_Index - 1, 5) * eov_obj["keyboard", "height"] / 4 + eov_obj["keyboard", "up"]
+            eov_obj["keymap", value, "x"] := ((A_Index - 1) // 5) * eov_obj["keyboard", "width"] / 11 + eov_obj["keyboard", "left"]
+        }
+        eov_obj["keymap", "conv", "y"] := 686
+        eov_obj["keymap", "conv", "x"] := 1207
+        ATooltip.display("eov setup complete", , , 1000)
+        return
+    eov_sendkey(keyname){
+        global eov_obj
+        pos := eov_obj["keymap", keyname]
+        x := pos.x
+        y := pos.y
+        MouseClick, , x, y, , , D
+        sleep, 10
+        MouseClick, , x, y, , , U
+        return
+    }
+    ^+!i::
+        ATooltip.display("input mode on", , , 1000)
+        key := new AInput()
+        key.input_mode("on")
+        eov_obj["is_inputmode"] := True
+        While (key.ErrorLevel != "Endkey:Escape"){
+            key.input()
+            el := key.ErrorLevel
+            if (el == "EndKey:Escape"){
+                break
+            }else if (el == "EndKey:Backspace"){
+                key.str := "~"
+            }else if (el == "EndKey:Enter"){
+                key.str := "+"
+            }else if (el == "EndKey:Space"){
+                key.str := "*"
+            }
+            eov_sendkey(key.str)
+            key.str := ""
+        }
+        key.input_mode("off")
+        eov_obj["is_inputmode"] := False
+        ATooltip.display("input mode off", , , 1000)
+        return
+    vkDC::
+        if (eov_obj["is_inputmode"]){
+            eov_sendkey("}")
+        }
+        return
+    vkE2::
+        if (eov_obj["is_inputmode"]){
+            eov_sendkey("{")
+        }
+        return
+    +vk30::
+        if (eov_obj["is_inputmode"]){
+            eov_sendkey("|")
+        }
+        return
+    vk30::
+        if (eov_obj["is_inputmode"]){
+            eov_sendkey("``")
+        }
+        return
+    vk1C::
+        if (eov_obj["is_inputmode"]){
+            eov_sendkey("conv")
+        }
         return
 #IfWinActive
 
