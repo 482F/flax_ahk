@@ -1658,10 +1658,18 @@ MouseGetPos,X,Y
 	FlaxLauncher.add_agc("Button", "OK", "Hidden Default")
 	FlaxLauncher.OK.method := "LauncherOK"
 	FlaxLauncher.Show("Hide")
+    pos := configFD.dict["launcher", "pos"]
 	WinGetPos,,,w,h
-	w := MonitorSizeX - marg - w
-	h := MonitorSizeY - marg - h
-	FlaxLauncher.Show("x" . w . " y" . h . " Hide", "FlaxProgramLauncher")
+    x := MonitorSizeX - marg - w
+    y := MonitorSizeY - marg - h
+    if (pos == "center"){
+        x := (MonitorSizeX - w) / 2
+        y := (MonitorSizeY - h) / 2
+    }else if (pos.x != "" and pos.y != ""){
+        x := pos.x
+        y := pos.y
+    }
+	FlaxLauncher.Show("x" . x . " y" . y . " Hide", "FlaxProgramLauncher")
 	FlaxLauncher.Show("Autosize")
 	WinWaitNotActive,FlaxProgramLauncher
 	FlaxLauncher.Destroy()
