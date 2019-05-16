@@ -209,7 +209,7 @@ ChangeHotKey=[
 		- タブを移動
 	- F5
 		- Alt + r -> s -> Enter
--explorer.exe
+- explorer.exe
 	- Ctrl + Shift + c
 		- ファイルのパスをコピー
 	- Ctrl + c -> Ctrl + Shift + v
@@ -220,3 +220,29 @@ ChangeHotKey=[
 		- CreateNew フォルダ内のファイルに即した新規ファイルを作成。サンプル作成予定。
 	- Ctrl + r
 		- メニュー表示。プログラムから開くは未実装。Launcher に登録についてはメイン機能の項を参照。
+## config.fd
+- Font
+
+```
+Font=[
+    Name=ＭＳ　ゴシック
+    Size=10
+    launcher=[
+        Name=Meiryo UI
+        Size=15
+    ]
+]
+```
+
+    - 上記の設定をすると GUI のデフォルトフォントを ＭＳ　ゴシックのサイズ 10、launcher のフォントのみ Meiryo UI のサイズ 20 に変更できる。変更用の名前は以下の通り
+        - ホットキー ^+!W (ランチャー): launcher
+        - ホットストリング flaxmakecodegui: makecodegui
+        - ホットストリング flaxvirtualfolder: virtualfolder
+        - ホットストリング flaxtimetable: timetable
+        - ホットストリング flaxeditgesture: editgesture
+        - ホットストリング flaxedittimetable: edittimetable
+        - ホットストリング flaxmakeonetimepass: makeonetimepass
+        - ホットストリング flaxregisteronetimepass: registeronetimepass
+        - ホットストリング flaxregisterlauncher: registerlauncher
+        - エクスプローラメニューの `フォルダ内の MP3 のタグを編集`: editmp3stags
+        - エクスプローラメニューの `MP3 のタグを編集`:editmp3tags
