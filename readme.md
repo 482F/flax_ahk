@@ -162,6 +162,15 @@ ChangeHotKey=[
 	- 時間割設定 GUI。使い方はメイン機能の項を参照。
 - flaxregtest
     - 正規表現の挙動を確認できる GUI を表示。autohotkey の正規表現なので他と仕様が異なる部分があるため注意。
+- flaxremotedesktop
+    - リモートデスクトップを設定に基づいて行うホットストリング
+    - 起動後、プロファイル名を入力し Enter で登録されたコマンドを実行し、リモートデスクトップで接続する
+    - flaxregisterremotedesktop でプロファイルの設定ができる
+        - name: プロファイル名。好きなものを入力
+        - target: リモートデスクトップで接続するアドレスとポート
+        - command mode: command がどの種類かを設定する
+        - command: コマンドプロンプトのコマンドや、wsl の .ssh/config で設定されたホスト名、putty のセッション名などを記入
+        - computer: 対象コンピュータの設定
 ## ホットキー
 - Ctrl + Alt + Shift + w
 	- ランチャーを起動。使い方はメイン機能の項を参照。
