@@ -59,6 +59,7 @@ DefVars:
 	configFD := new FD("config/config.fd")
 	EvalConfig(configFD)
 	timerFD := new TimerFD("config/timer.fd")
+    remotedesktopFD := new FD_for_EC("config/remotedesktop.fd")
 	MP := Object()
 	global Pi := 3.14159265358979
     dbd_rapid_space_flag := False
@@ -1632,6 +1633,118 @@ MouseGetPos,X,Y
         configFD.write()
         return
     }
+::flaxremotedesktop::
+    global remotedesktopFD
+    global pathFD
+    remotedesktopFD.read()
+    pathFD.read()
+    target_tt := new ATooltip("input target name")
+    target_tt.display()
+    target_name := new AInput()
+    target_name.input_mode("on")
+    While (target_name.ErrorLevel != "EndKey:Enter"){
+        toolstr := ""
+        target_name.input()
+        if (target_name.ErrorLevel == "EndKey:Escape"){
+            target_tt.hide()
+            target_name.input_mode("off")
+            return
+        }
+        toolstr .= target_name.str . "`n"
+        for key, value in remotedesktopFD.dict{
+            if (InStr(key, target_name.str) == 1 and value.haskey("target")){
+                toolstr .= key . "`n"
+            }
+        }
+        target_tt.str := toolstr
+        target_tt.display()
+    }
+    target_name.input_mode("off")
+    target_name := target_name.str
+    target := remotedesktopFD.dict[target_name]
+    target_tt.hide()
+    if (target == ""){
+        return
+    }
+    if (target.command.mode != ""){
+        if (target.command.mode == "wsl"){
+            command := "cmd.exe /c wsl bash --login -c ""ssh " . target.command.main . " & read"""
+        }else if (target.command.mode == "putty"){
+            putty_path := pathFD.dict["putty"]
+            if (putty_path == ""){
+                msgjoin("Please set putty path in path.fd")
+                return
+            }
+            command := putty_path . " -load """ . target.command.main . """"
+        }else{
+            command := target.command.main
+        }
+        run, %command%
+    }
+    run, % "mstsc /v:" .  target.target
+	return
+::flaxregisterremotedesktop::
+    rrd_gui := new AGui(, "register remotedesktop")
+    font := read_font_from_config("registerremotedesktop")
+    rrd_gui.Font("S" . font.size, font.name)
+    rrd_gui.Margin("10", "10")
+    rrd_gui.add_agc("Text", "NameLabel", , "&Name (ex. my_desktop)")
+    rrd_gui.add_agc("Edit", "ename", "w800")
+    rrd_gui.add_agc("Text", "TargetLabel", , "&Target (ex. localhost:13389)")
+    rrd_gui.add_agc("Edit", "etarget", "w800")
+    rrd_gui.add_agc("Text", "CMLabel", , "command mode")
+    rrd_gui.add_agc("Radio", "Rcommand", "Checked", "&cmd")
+    rrd_gui.add_agc("Radio", "Rputty", , "&Putty")
+    rrd_gui.add_agc("Radio", "Rwsl", , "&WSL")
+    rrd_gui.Rcommand.method := "rrd_gui_radio_method"
+    rrd_gui.Rputty.method := "rrd_gui_radio_method"
+    rrd_gui.Rwsl.method := "rrd_gui_radio_method"
+    rrd_gui.add_agc("Text", "CommandLabel", , "&Command (ex. ssh -L 13389:localhost:3389 192.168.1.2)")
+    rrd_gui.add_agc("Edit", "ecommand", "w800")
+    rrd_gui.add_agc("Text", "ComputerLabel", , "Computer")
+    rrd_gui.add_agc("Radio", "RThi", "Checked", "&ThisComputer")
+    rrd_gui.add_agc("Radio", "RAll", , "&AllComputer")
+    rrd_gui.add_agc("Button", "OK", "Default", "&OK")
+    rrd_gui.OK.method := "rrd_guiOK"
+    rrd_gui.remove_option("Resize")
+    rrd_gui.show("Autosize", "register remotedesktop")
+    return
+    rrd_gui_radio_method:
+        rrd_gui.submit("nohide")
+        text := "&Command (ex. "
+        if (rrd_gui.rcommand.value == 1){
+            text .= "ssh -L 13389:localhost:3389 192.168.1.2)"
+        }else if (rrd_gui.rputty.value == 1){
+            text .= "putty's session name)"
+        }else if (rrd_gui.rwsl.value == 1){
+            text .= "hostname in wsl .ssh/config)"
+        }
+        rrd_gui.commandlabel.value := text
+        return
+    rrd_guiOK:
+        rrd_gui.Submit()
+        B_ComputerName := ""
+        mode := ""
+        if (rrd_gui.RThi.value = 1)
+            B_ComputerName := A_ComputerName
+        else if (rrd_gui.RAll.value = 1)
+            B_ComputerName := "default"
+        if (rrd_gui.rcommand.value == 1){
+            mode := ""
+        }else if (rrd_gui.rputty.value == 1){
+            mode .= "putty"
+        }else if (rrd_gui.rwsl.value == 1){
+            mode .= "wsl"
+        }
+        EName := rrd_gui.EName.value
+        remotedesktopFD.fdict[EName, B_ComputerName, "command", "main"] := rrd_gui.ECommand.value
+        remotedesktopFD.fdict[EName, B_ComputerName, "command", "mode"] := mode
+        remotedesktopFD.fdict[EName, B_ComputerName, "target"] := rrd_gui.Etarget.value
+        remotedesktopFD.write()
+        rrd_gui.Destroy()
+        return
+
+    return
 ;hotkey
 ;ホットキー
 +!^W::
