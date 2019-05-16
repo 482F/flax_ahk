@@ -1935,29 +1935,6 @@ MouseGetPos,X,Y
 		send,{End}
 		Return
 #IfWinActive
-~^Enter::
-	K := IME_GetConvMode()
-	IfWinActive,ahk_exe gvim.exe
-		return
-	IfWinActive,ahk_exe mattermost.exe
-		return
-	if (K <> 0)
-	{
-		Send,{End}
-		sleep 100
-		send,{Enter}
-	}
-	return
-~^+Enter::
-	K := IME_GetConvMode()
-	if (K <> 0)
-	{
-		Send,{Home}
-		sleep 100
-		send,{Enter}
-		send,{Up}
-	}
-	return
 +Volume_Down::
 	SoundGet,CVol
 	CVol := CVol - 1
