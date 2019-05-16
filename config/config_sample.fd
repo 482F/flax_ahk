@@ -17,6 +17,10 @@ ChangeHotKey=[
 Font=[
     Name=ＭＳ　ゴシック
     Size=10
+    launcher=[
+        Name=Meiryo UI
+        Size=15
+    ]
 ]
 ClassTime=[
     1=0900
