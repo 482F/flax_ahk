@@ -831,3 +831,9 @@ read_font_from_config(name=""){
     }
     return font
 }
+is_zero(target){
+    return True ? target == 0 : False
+}
+is_not_minus_one(target){
+    return True ? target != -1 : False
+}

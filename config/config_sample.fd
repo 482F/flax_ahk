@@ -31,4 +31,5 @@ ClassTime=[
 ]
 launcher=[
     pos=default
+    search_method=prefix
 ]

@@ -13,6 +13,8 @@
         - launcher.pos を center にすると画面中央に表示される
         - launcher.pos.x, launcher.pos.y を数値にするとその x, y 座標に表示される
         - それ以外の場合は画面右下に表示される
+    - 候補検索方法の設定は config/config.fd に記述
+        - launcher.search_method を変更。prefix で前方一致。partial で部分一致
 	- エクスプローラ上で Ctrl + r -> [Launcher に登録 (R)] を選択で登録 GUI が起動
 		- Name
 			- そのままの意味。キーワード。
