@@ -144,36 +144,6 @@ EvalForm(Formula,mode="normal"){
 	}
 	return
 }
-IME_GetConvMode(WinTitle="A"){
-	ControlGet,hwnd,HWND,,,%WinTitle%
-	if	(WinActive(WinTitle))	{
-		ptrSize := !A_PtrSize ? 4 : A_PtrSize
-			VarSetCapacity(stGTI, cbSize:=4+4+(PtrSize*6)+16, 0)
-			NumPut(cbSize, stGTI,  0, "UInt")   ;	DWORD   cbSize;
-		hwnd := DllCall("GetGUIThreadInfo", Uint,0, Uint,&stGTI)
-							 ? NumGet(stGTI,8+PtrSize,"UInt") : hwnd
-	}
-		return DllCall("SendMessage"
-					, UInt, DllCall("imm32\ImmGetDefaultIMEWnd", Uint,hwnd)
-					, UInt, 0x0283  ;Message : WM_IME_CONTROL
-					,  Int, 0x001   ;wParam  : IMC_GETCONVERSIONMODE
-					,  Int, 0)	  ;lParam  : 0
-}
-IME_SetConvMode(ConvMode,WinTitle="A"){
-	ControlGet,hwnd,HWND,,,%WinTitle%
-	if	(WinActive(WinTitle))	{
-		ptrSize := !A_PtrSize ? 4 : A_PtrSize
-		VarSetCapacity(stGTI, cbSize:=4+4+(PtrSize*6)+16, 0)
-		NumPut(cbSize, stGTI,  0, "UInt")   ;	DWORD   cbSize;
-		hwnd := DllCall("GetGUIThreadInfo", Uint,0, Uint,&stGTI)
-				 ? NumGet(stGTI,8+PtrSize,"UInt") : hwnd
-	}
-	return DllCall("SendMessage"
-		  , UInt, DllCall("imm32\ImmGetDefaultIMEWnd", Uint,hwnd)
-		  , UInt, 0x0283	  ;Message : WM_IME_CONTROL
-		  ,  Int, 0x002	   ;wParam  : IMC_SETCONVERSIONMODE
-		  ,  Int, ConvMode)   ;lParam  : CONVERSIONMODE
-}
 proofreadingratwikireg(Text,Rule){
 	StringGetPos,BR,Text,\begin{flaxconstant}
 	StringGetPos,ER,Text,\end{flaxconstant}
@@ -215,7 +185,7 @@ screenshot_full(dest_path){
 screenshot(dest_path, sx, sy, ex, ey){
     w := ex - sx
     h := ey - sy
-    CmdRun("nircmd.exe savescreenshot """ . dest_path . """ " . sx . " " . sy . " " . w . " " . h, 0)
+    CmdRun("tools\nircmd.exe savescreenshot """ . dest_path . """ " . sx . " " . sy . " " . w . " " . h, 0)
     return
 }
 NumToAlp(Num){
@@ -665,7 +635,7 @@ EvalConfig(cFD){
 	return
 }
 GetMP3TagsFunc(FilePath){
-	command := """""" . A_ScriptDir . "\go_id3.exe"" get """ . FilePath . """"""
+	command := """""" . A_ScriptDir . "\tools\go_id3.exe"" get """ . FilePath . """"""
 	Tags := CmdRun(command)
     StringReplace, Tags, Tags, `r, , A
 	Tags := StrSplit(Tags, "`n")
@@ -673,7 +643,7 @@ GetMP3TagsFunc(FilePath){
 }
 EditMP3TagsFunc(FilePath, data_dict, new_name){
 	SplitPath, FilePath, FileName, FileDir
-	command := """""" . A_ScriptDir . "\go_id3.exe"" set """ . FilePath . """ "
+	command := """""" . A_ScriptDir . "\tools\go_id3.exe"" set """ . FilePath . """ "
     ntags := GetMP3TagsFunc(FilePath)
     tags := Object()
     tags["title"] := ntags[1]
@@ -742,7 +712,7 @@ testmsg(strs*){
 	Msgbox,% Msg
 }
 nircmd_mute(process_name, mode){
-    CmdRun("nircmd.exe muteappvolume """ . process_name . """ " . mode, 0)
+    CmdRun("tools\nircmd.exe muteappvolume """ . process_name . """ " . mode, 0)
     return
 }
 reg_test(){
