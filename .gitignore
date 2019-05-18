@@ -6,6 +6,7 @@
 /config/config.fd
 /config/timer.fd
 /config/treemenu.fd
+/config/remotedesktop.fd
 /CreateNew/*
 /screenshot/*
 IDM.ini
