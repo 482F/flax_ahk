@@ -2663,6 +2663,26 @@ vk1D & PrintScreen::
         send, 0
         return
     XButton2::j
+    ^+!c::
+        msgjoin("set mouse to craft target.")
+        tpos := retmousepos()
+        msgjoin("set mouse to crafted cell.")
+        cpos := retmousepos()
+        return
+    ^+c::
+        mc_craft_flag := true
+        send, {Shift down}
+        while (mc_craft_flag){
+            MouseClick, L, % tpos.x, % tpos.y, 1, 0, , 
+            sleep, 10
+            MouseClick, L, % cpos.x, % cpos.y, 1, 0, , 
+            sleep, 10
+        }
+        send, {Shift up}
+        return
+    ~*Esc::
+        mc_craft_flag := false
+        return
 #IfWinActive,ahk_exe explorer.exe
 	~^Tab::
 		send, ^]
