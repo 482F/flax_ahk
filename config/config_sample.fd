@@ -1,4 +1,7 @@
 KeyGestureDelay=60
+rapid=[
+    delay=20
+]
 ChangeHotKey=[
 	^+!c=[
 		Key=Off
