@@ -2671,14 +2671,14 @@ vk1D & PrintScreen::
         return
     ^+c::
         mc_craft_flag := true
-        send, {Shift down}
-        while (mc_craft_flag){
+        while (retkeystate("c")){
+            tooltip, %mc_craft_flag%
             MouseClick, L, % tpos.x, % tpos.y, 1, 0, , 
             sleep, 10
             MouseClick, L, % cpos.x, % cpos.y, 1, 0, , 
             sleep, 10
         }
-        send, {Shift up}
+        tooltip,
         return
     ~*Esc::
         mc_craft_flag := false
