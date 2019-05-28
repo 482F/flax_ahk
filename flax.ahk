@@ -76,6 +76,7 @@ DefVars:
     rapid_mode_tt := new ATooltip(, , , 500)
     eov_obj := Object()
     rapid_delay := configFD.dict["rapid", "delay"]
+    gesture_tt := new ATooltip()
     if (rapid_delay == ""){
         rapid_delay := 10
     }
@@ -2378,7 +2379,6 @@ MouseGestureExecute:
 	KeyGestureBool := True
 	LPT := 0
 	KR := new KeyRoute("LB")
-    gesture_tt := new ATooltip()
 	gesture_tt.str := GestureCandidate(KR, gestureFD)
     gesture_tt.display()
 	return
