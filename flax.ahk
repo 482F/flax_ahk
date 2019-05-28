@@ -75,6 +75,10 @@ DefVars:
     nonogram_sign_key_dict["key", "Up"] := "y"
     rapid_mode_tt := new ATooltip(, , , 500)
     eov_obj := Object()
+    rapid_delay := configFD.dict["rapid", "delay"]
+    if (rapid_delay == ""){
+        rapid_delay := 10
+    }
 	msgbox,ready
 	return
 }
@@ -2259,6 +2263,7 @@ vk1D & r::
 #If
 rapid_mouse(button, mode){
     global rapid_flag
+    global rapid_delay
     rapid_flag := True
     if (mode == "press"){
         rapid_mouse_press_tt := new ATooltip("start")
@@ -2274,6 +2279,7 @@ rapid_mouse(button, mode){
     }else{
         while (rapid_flag){
             click, %button%, , , , ,
+            sleep, %rapid_delay%
         }
     }
     return
