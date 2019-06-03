@@ -2669,15 +2669,15 @@ vk1D & PrintScreen::
         send, 0
         return
     XButton2::j
-    ^+!c::
+    ^+!z::
         msgjoin("set mouse to craft target.")
         tpos := retmousepos()
         msgjoin("set mouse to crafted cell.")
         cpos := retmousepos()
         return
-    ^+c::
+    ^+z::
         mc_craft_flag := true
-        while (retkeystate("c")){
+        while (retkeystate("z")){
             tooltip, %mc_craft_flag%
             MouseClick, L, % tpos.x, % tpos.y, 1, 0, , 
             sleep, 10
@@ -2686,8 +2686,24 @@ vk1D & PrintScreen::
         }
         tooltip,
         return
+    ^+j::
+        mc_potato_flag := true
+        while (mc_potato_flag){
+            MouseClick, R, , , 1, 1, ,
+            sleep, 20
+            MouseClick, R, , , 1, 1, ,
+            sleep, 20
+            MouseClick, R, , , 1, 1, ,
+            sleep, 20
+            MouseClick, R, , , 1, 1, ,
+            sleep, 20
+            MouseClick, L, , , 1, 1, ,
+            sleep, 20
+        }
+        return
     ~*Esc::
         mc_craft_flag := false
+        mc_potato_flag := false
         return
 #IfWinActive,ahk_exe explorer.exe
 	~^Tab::
