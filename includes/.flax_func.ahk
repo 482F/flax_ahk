@@ -356,7 +356,7 @@ Dec2Hex(Value, NoD=0){
     if (Value == "")
         return
 	else if (Value != 0)
-		return FillStr(Dec2Hex(Value // 16, NoC) . K[mod(Value, 16)], NoD, 0)
+		return FillStr(Dec2Hex(Value // 16, 0) . K[mod(Value, 16)], NoD, 0)
 	return
 }
 MsgVars(VarList){
