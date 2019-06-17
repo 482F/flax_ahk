@@ -69,6 +69,7 @@ DefVars:
     if (rapid_delay == ""){
         rapid_delay := 10
     }
+    number_of_cmd := 0
 	msgbox,ready
 	return
 }
@@ -83,6 +84,7 @@ return
 ;hotstring
 ;ホットストリング
 ::flaxtest::
+    msgjoin(cmdrun("dir"))
 	return
 flaxguitestmethod:
 	msgjoin("A")
