@@ -369,20 +369,22 @@ MsgVars(VarList){
 	return
 }
 CmdRun(Command,msg=1, auth="normal"){
-	K := ClipboardAll
-	Clipboard := ""
+    global number_of_cmd
+    number_of_cmd += 1
+    filepath := "cmdtemp\" . A_NowUTC . A_MSec . number_of_cmd
 	if (auth = "normal")
 		auth := ""
 	else if (auth = "admin")
 		auth := "*RunAs "
-	runwait,% auth . comspec . " /c " . Command . " 2>&1 | clip & exit",,Hide
-	Clipwait,5
+	runwait,% auth . comspec . " /c " . Command . "> " . filepath . " 2>&1",,Hide
+    result_file := new AFile(filepath, "CP932")
+    result_file.read()
+    result := result_file.text
+    result_file.delete()
 	if (ErrorLevel and msg)
 		msgbox,Error
 	else if (not(ErrorLevel)){
-		L := Clipboard
-		Clipboard := K
-		return L
+		return result
 	}
 	return
 }
