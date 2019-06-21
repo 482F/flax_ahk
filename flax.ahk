@@ -1472,6 +1472,7 @@ MouseGetPos,X,Y
     EditTimeTable.esel.method := "ett_edit_edited"
     EditTimeTable.ethl.method := "ett_edit_edited"
     EditTimeTable.efol.method := "ett_edit_edited"
+    EditTimeTable.eurl.method := "ett_edit_edited"
 
     EditTimeTable.current_cell := Object()
     EditTimeTable.current_cell.r := 0
@@ -1495,7 +1496,7 @@ MouseGetPos,X,Y
         timetableFD.dict[term, r, c, 1] := sel
         timetableFD.dict[term, r, c, 2] := thl
         timetableFD.dict[term, r, c, 3] := fol
-        timetableFD.dict[term, r, c, URL] := url
+        timetableFD.dict[term, r, c, "URL"] := url
 
         text := "`n" . fil . "`n" . sel . "`n" . thl . "`n" . fol
 
@@ -1521,7 +1522,7 @@ MouseGetPos,X,Y
         EditTimeTable.esel.value := values[1]
         EditTimeTable.ethl.value := values[2]
         EditTimeTable.efol.value := values[3]
-        EditTimeTable.eurl.value := values[4]
+        EditTimeTable.eurl.value := values["URL"]
 
         ett_move_groupbox(EditTimeTable.current_cell)
         return
