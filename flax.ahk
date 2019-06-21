@@ -1058,7 +1058,8 @@ MouseGetPos,X,Y
         }
     }
 ::flaxconnectratwifi::
-	msgjoin(CmdRun("netsh wlan connect name=RAT-WIRELESS-A", 0))
+    cmdrun("netsh wlan show profiles name=RAT-WIRELESS-A", 0)
+	msgjoin(cmdrun("netsh wlan connect name=RAT-WIRELESS-A", 0))
 	return
 ::flaxtimetable::
 	timetableFD.read()
