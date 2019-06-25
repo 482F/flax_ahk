@@ -376,7 +376,7 @@ CmdRun(Command,msg=1, auth="normal"){
 		auth := ""
 	else if (auth = "admin")
 		auth := "*RunAs "
-	runwait,% auth . comspec . " /c " . Command . "> " . filepath . " 2>&1",,Hide
+	runwait,% auth . comspec . " /c " . Command . " > " . filepath . " 2>&1",,Hide
     result_file := new AFile(filepath, "CP932")
     result_file.read()
     result := result_file.text
