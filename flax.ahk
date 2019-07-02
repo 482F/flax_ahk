@@ -3704,6 +3704,16 @@ vk1D & PrintScreen::
             eov_sendkey("conv")
         }
         return
+#IfWinActive ahk_exe Terraria.exe
+    Tab::
+        send, {8 down}
+        sleep, 10
+        send, {8 up}
+        sleep, 10
+        click, L, , , , , D
+        sleep, 10
+        click, L, , , , , U
+        return
 #IfWinActive
 
 #If (copymode = "FIFO")
