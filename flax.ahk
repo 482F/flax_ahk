@@ -2660,7 +2660,7 @@ vk1D & PrintScreen::
 	F5::
 		send,!r
 		send,s
-		send,{Enter}
+		send,2
 		return
 #IfWinActive, Minecraft ahk_exe javaw.exe
     +1::
@@ -3205,7 +3205,7 @@ vk1D & PrintScreen::
         }
         return
     }
-#IfWinActive ahk_exe Nonogram - The Greatest Painter.exe ahk_exe Upleftout.exe
+#IfWinActive ahk_exe Nonogram - The Greatest Painter.exe ahk_exe Upleftout.exe ahk_exe Sudoku Universe.exe
     ^e::
         msgjoin("Move start pos")
         MouseGetPos, x_start, y_start
