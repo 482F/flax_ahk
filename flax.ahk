@@ -1563,6 +1563,7 @@ MouseGetPos,X,Y
                 new_name := "template"
             }else{
                 InputBox, new_name, , 新規プロファイル名を入力
+                timetableFD.dict[new_name] := deepcopy(timetableFD.dict["template"])
             }
             EditTimeTable.ETimeTableDDLV.value := new_name . "||"
             DDLV_value := "template"
