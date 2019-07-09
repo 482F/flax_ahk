@@ -3715,6 +3715,21 @@ vk1D & PrintScreen::
         sleep, 10
         click, L, , , , , U
         return
+    +^v::
+        terraria_pos_dict := retmousepos()
+        return
+    ^v::
+        pos := retmousepos()
+        MouseClick, L, % terraria_pos_dict.x, % terraria_pos_dict.y, 1, 1, , 
+        sleep, 100
+        send, ^z
+        sleep, 100
+        send, ^v
+        sleep, 100
+        send, {Enter}
+        sleep, 100
+        mousemove, % pos.x, % pos.y
+        return
 #IfWinActive
 
 #If (copymode = "FIFO")
