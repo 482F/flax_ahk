@@ -3547,44 +3547,6 @@ vk1D & PrintScreen::
 #IfWinActive ahk_exe discord.exe
     Enter::send, +{Enter}
     ^Enter::send, {Enter}
-; #IfWinActive ahk_exe anki.exe
-;     F9::
-;         while (True){
-;             Loop, 13
-;             {
-;                 send, {Tab}
-;             }
-;             Loop, 2
-;             {
-;                 clipboard := ""
-;                 while (clipboard == ""){
-;                     send, ^a
-;                     sleep, 100
-;                     send, ^c
-;                     sleep, 100
-;                 }
-;                 str := strsplit(clipboard, "`n")
-;                 clipboard := regexreplace(str[1], "\n|\r", "")
-;                 sleep, 100
-;                 send, ^v
-;                 sleep, 100
-;                 clipboard := str[3]
-;                 sleep, 100
-;                 send, {Tab}
-;                 sleep, 100
-;                 send, ^v
-;                 sleep, 100
-;                 send, {Tab}
-;                 sleep, 100
-;             }
-;             Loop, 5
-;             {
-;                 send, {Tab}
-;             }
-;             send, {Down}
-;             sleep, 100
-;         }
-;         return
 #IfWinActive ahk_exe DllHost.exe
     Up::return
     Down::return
