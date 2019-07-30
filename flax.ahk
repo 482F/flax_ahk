@@ -3430,17 +3430,8 @@ vk1D & PrintScreen::
         kujibiki_cycle_flag := False
         return
 #IfWinActive ahk_exe DeSmuME_0.9.11_x64.exe
-    Left::
-        MouseClick, L, 472, 316, 1, 0, D, 
-        KeyWait, Left, 
-        if (RetKeyState("Right")){
-            MouseMove, 717, 316, 1, 
-            MouseClick, L, , , , , U,
-        }else{
-            MouseMove, 472, 316, 1, 
-            MouseClick, L, , , , , U,
-        }
-        return
+    ^Left::a
+    ^Right::s
 #IfWinActive ahk_exe Bayonetta.exe
     vk1D & c::
         while (RetKeyState("c")){
@@ -3692,6 +3683,9 @@ vk1D & PrintScreen::
         send, {Enter}
         sleep, 100
         mousemove, % pos.x, % pos.y
+        return
+#IfWinActive ahk_exe EDF5.exe
+    ^Enter::
         return
 #IfWinActive
 
