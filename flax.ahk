@@ -84,9 +84,6 @@ return
 ;hotstring
 ;ホットストリング
 ::flaxtest::
-    Clipboard :=
-    Clipwait
-    msgjoin("A")
 	return
 flaxguitestmethod:
 	msgjoin("A")
@@ -2119,8 +2116,7 @@ RegisterInput:
 ^#v::
     reg_value := input_reg_name()
 	ClipboardAlt := ClipboardAll
-    cmdrun("echo " . reg_value . " | clip")
-    clipboard := clipboard
+    clipboard := reg_value
     send, ^v
     clipboard := clipboardalt
     return
