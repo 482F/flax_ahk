@@ -3683,6 +3683,10 @@ vk1D & PrintScreen::
 #IfWinActive ahk_exe EDF5.exe
     ^Enter::
         return
+#IfWinActive ahk_exe LITBUS_WIN32.exe
+    XButton1::Left
+    XButton2::Right
+    MButton::l
 #IfWinActive
 
 #If (copymode = "FIFO")
