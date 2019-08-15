@@ -645,20 +645,33 @@ GetMP3TagsFunc(FilePath){
 }
 EditMP3TagsFunc(FilePath, data_dict, new_name){
 	SplitPath, FilePath, FileName, FileDir
-	command := """""" . A_ScriptDir . "\tools\go_id3.exe"" set """ . FilePath . """ "
-    ntags := GetMP3TagsFunc(FilePath)
-    tags := Object()
-    tags["title"] := ntags[1]
-    tags["artist"] := ntags[2]
-    tags["album"] := ntags[3]
+    is_same := 0
+    NoK := 0
     for key, value in data_dict{
-        if ((key != "title" and key != "album" and key != "artist") or tags[key] == value){
-            continue
+        if (key == "title" or key == "album" or key == "artist"){
+            NoK += 1
         }
-        command .= key . " """ . value . """ "
     }
-    command .= """"
-	result := CmdRun(command)
+    while (is_same != NoK){
+        is_same := 0
+        command := """""" . A_ScriptDir . "\tools\go_id3.exe"" set """ . FilePath . """ "
+        ntags := GetMP3TagsFunc(FilePath)
+        tags := Object()
+        tags["title"] := ntags[1]
+        tags["artist"] := ntags[2]
+        tags["album"] := ntags[3]
+        for key, value in data_dict{
+            if (key != "title" and key != "album" and key != "artist"){
+                continue
+            }
+            if (tags[key] == value){
+                is_same += 1
+            }
+            command .= key . " """ . value . """ "
+        }
+        command .= """"
+        result := CmdRun(command)
+    }
 	FileMove, %FilePath%, %FileDir%\%new_name%
 	return result
 }
