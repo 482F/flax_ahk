@@ -2676,6 +2676,10 @@ vk1D & PrintScreen::
     +5::
         send, 0
         return
+    XButton1::
+        switch_key("Space")
+        switch_key("RButton")
+        return
     XButton2::j
     ^+!z::
         msgjoin("set mouse to craft target.")
