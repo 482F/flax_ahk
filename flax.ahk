@@ -2216,22 +2216,22 @@ input_reg_name(){
 		MoveFlag := False
 		return
 #If
-vk1D & j::send,{down}
-vk1D & k::send,{up}
-vk1D & h::send,{left}
-vk1D & l::send,{right}
-vk1D & a::send,{left}
-vk1D & s::send,{down}
-vk1D & d::send,{right}
-vk1D & w::send,{up}
-vk1D & Space::send,{Enter}
-vk1D & Tab::send,{Enter}
-vk1D & x::send,{BackSpace}
-vk1D & 1::send,6
-vk1D & 2::send,7
-vk1D & 3::send,8
-vk1D & 4::send,9
-vk1D & 5::send,0
+vk1D & j::down
+vk1D & k::up
+vk1D & h::left
+vk1D & l::right
+vk1D & a::left
+vk1D & s::down
+vk1D & d::right
+vk1D & w::up
+vk1D & Space::Enter
+vk1D & Tab::Enter
+vk1D & x::BackSpace
+vk1D & 1::6
+vk1D & 2::7
+vk1D & 3::8
+vk1D & 4::9
+vk1D & 5::0
 vk1D & r::
     str := "mode: "
     if (rapid_mode == "normal"){
