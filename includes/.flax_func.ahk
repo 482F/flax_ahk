@@ -822,3 +822,10 @@ is_zero(target){
 is_not_minus_one(target){
     return True ? target != -1 : False
 }
+switch_key(key){
+    if retkeystate(key, ""){
+        send, {%key% up}
+    }else{
+        send, {%key% down}
+    }
+}
