@@ -3032,7 +3032,8 @@ vk1D & PrintScreen::
  	^+q::return
 	^+w::return
 #IfWinActive
-#If (copymode = "FIFO"){
+#If (copymode = "FIFO")
+{
 	^c::
 		Clipboard := ""
 		send,^c
