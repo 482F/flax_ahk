@@ -3032,8 +3032,7 @@ vk1D & PrintScreen::
  	^+q::return
 	^+w::return
 #IfWinActive
-#If (copymode = "FIFO")
-{
+#If (copymode = "FIFO"){
 	^c::
 		Clipboard := ""
 		send,^c
@@ -3048,11 +3047,19 @@ vk1D & PrintScreen::
 		ClipWait
 		FIFOClip[IoFWP] := Clipboard
 		IoFWP += 1
+        ATooltip.display(IoFRP . ", " . IoFWP)
 		return
 	^v::
 		Clipboard := FIFOClip[IoFRP]
 		send,^v
-		IoFRP += IoFWP == IoFRP + 1 ? 0 : 1
+        if (IoFRP < IoFWP - 1){
+            IoFRP += 1
+        }else if (IoFRP != 0){
+            FIFOClip[0] := FIFOClip[IoFWP - 1]
+            IoFRP = 0
+            IoFWP = 0
+        }
+        ATooltip.display(IoFRP . ", " . IoFWP . ", " . FIFOClip[0])
 		return
 }
 #If
