@@ -3692,6 +3692,10 @@ vk1D & PrintScreen::
     XButton1::Left
     XButton2::Right
     MButton::l
+#IfWinActive ahk_exe Astro-Win64-Shipping.exe
+    RButton::
+        switch_key("RButton")
+        return
 #IfWinActive ahk_exe pso2.exe
     ^1::Numpad1
     ^2::Numpad2
