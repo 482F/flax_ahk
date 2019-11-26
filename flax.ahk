@@ -3704,7 +3704,8 @@ vk1D & PrintScreen::
     ^5::Numpad5
     ^6::Numpad6
 #IfWinActive
-#If (copymode = "FIFO"){
+#If (copymode = "FIFO")
+{
 	^c::
 		Clipboard := ""
 		send,^c
