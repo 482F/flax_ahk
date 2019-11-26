@@ -371,18 +371,18 @@ MsgVars(VarList){
 CmdRun(Command,msg=1, auth="normal"){
     global number_of_cmd
     number_of_cmd += 1
-    filepath := "cmdtemp\" . A_NowUTC . A_MSec . number_of_cmd
+    filepath := A_ScriptDir . "\cmdtemp\" . A_NowUTC . A_MSec . number_of_cmd
 	if (auth = "normal")
 		auth := ""
 	else if (auth = "admin")
 		auth := "*RunAs "
-	runwait,% auth . comspec . " /c " . Command . " > " . filepath . " 2>&1",,Hide
+	runwait,% auth . comspec . " /c " . Command . " > " . filepath . " 2>&1",, Hide
     result_file := new AFile(filepath, "CP932")
     result_file.read()
     result := result_file.text
     result_file.delete()
 	if (ErrorLevel and msg)
-		msgbox,Error
+		msgjoin("Error", result)
 	else if (not(ErrorLevel)){
 		return result
 	}
