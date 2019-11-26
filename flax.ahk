@@ -77,6 +77,7 @@ DefVars:
     eov_obj := Object()
     rapid_delay := configFD.dict["rapid", "delay"]
     gesture_tt := new ATooltip()
+    pso2_weapon_palette := 1
     if (rapid_delay == ""){
         rapid_delay := 10
     }
@@ -3691,6 +3692,13 @@ vk1D & PrintScreen::
     XButton1::Left
     XButton2::Right
     MButton::l
+#IfWinActive ahk_exe pso2.exe
+    ^1::Numpad1
+    ^2::Numpad2
+    ^3::Numpad3
+    ^4::Numpad4
+    ^5::Numpad5
+    ^6::Numpad6
 #IfWinActive
 
 #If (copymode = "FIFO")
