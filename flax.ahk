@@ -3048,7 +3048,6 @@ vk1D & PrintScreen::
 		ClipWait
 		FIFOClip[IoFWP] := Clipboard
 		IoFWP += 1
-        ATooltip.display(IoFRP . ", " . IoFWP)
 		return
 	^v::
 		Clipboard := FIFOClip[IoFRP]
@@ -3060,7 +3059,6 @@ vk1D & PrintScreen::
             IoFRP = 0
             IoFWP = 0
         }
-        ATooltip.display(IoFRP . ", " . IoFWP . ", " . FIFOClip[0])
 		return
 }
 #If
